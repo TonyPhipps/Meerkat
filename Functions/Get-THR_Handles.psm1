@@ -9,7 +9,7 @@
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER ToolLocation
+    .PARAMETER HandlePath
         The location of Sysinternals Handle.exe/Handle64.exe. This parameter is manadatory
         and is how the function gets the list of handles.
 
@@ -17,17 +17,18 @@
         Provide a path to save failed systems to.
 
     .EXAMPLE 
-        Get-THR_Handles -Toollocation c:\tools\sysinternals
-        Get-THR_Handles SomeHostName.domain.com -Toollocation c:\tools\sysinternals
-        Get-Content C:\hosts.csv | Get-THR_Handles -Toollocation c:\tools\sysinternals
-        Get-THR_Handles $env:computername -Toollocation c:\tools\sysinternals
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Handles -Toollocation c:\tools\sysinternals
+        Get-THR_Handles -HandlePath c:\tools\sysinternals
+        Get-THR_Handles SomeHostName.domain.com -HandlePath c:\tools\sysinternals
+        Get-Content C:\hosts.csv | Get-THR_Handles -HandlePath c:\tools\sysinternals
+        Get-THR_Handles $env:computername -HandlePath c:\tools\sysinternals
+        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Handles -HandlePath c:\tools\sysinternals
 
     .NOTES 
         Updated: 2018-02-07
 
         Contributing Authors:
             Jeremy Arnold
+            Anthony Phipps
             
         LEGAL: Copyright (C) 2018
         This program is free software: you can redistribute it and/or modify
@@ -52,7 +53,7 @@
         $Computer = $env:COMPUTERNAME,
 
         [Parameter(mandatory=$true)]
-        [string]$ToolLocation,
+        [string]$HandlePath,
         
         [Parameter()]
         $Fails
@@ -86,30 +87,21 @@
     process{
 
         $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
-        $remoteOS64 = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-
-            $remoteOS64 = [environment]::Is64BitOperatingSystem;
-        
-            return $remoteOS64;
-        };
-      
-        if ($remoteOS64){$tool = 'handle64.exe'} else {$tool = 'handle.exe'};
-        
-        Write-Verbose ("{0}: Copying {1} to {0}." -f $Computer, $tool);
-        
-        try
-        {
-            Copy-Item -Path $($ToolLocation+'\'+$tool) -Destination $('\\'+$Computer+'\c$\temp\'+$tool); 
-        }
-        catch
-        {
-            $Error.exception;
-        }
 
         $handles = $null;
-        $handles = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $handles = Invoke-Command  -ArgumentList $HandlePath -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $handles = Invoke-Expression "C:\temp\$tool -a -nobanner -accepteula";
+            $HandlePath = $args[0];
+
+            $Is64BitOperatingSystem = [environment]::Is64BitOperatingSystem;
+            if ($Is64BitOperatingSystem){
+                $tool = 'handle64.exe'
+            } 
+            else {
+                $tool = 'handle.exe'
+            };
+
+            $handles = Invoke-Expression "$HandlePath\$tool -a -nobanner -accepteula";
 
             return $handles;
         
@@ -119,15 +111,22 @@
             [regex]$regexProcess = '(?<process>\S+)\spid:\s(?<pid>\d+)\s(?<string>.*)'
             [regex]$regexHandle = '(?<location>[A-F0-9]+):\s(?<type>\w+)\s{2}(?<attributes>\(.*\))?\s+(?<string>.*)'
             [regex]$nullHandle = '([A-F0-9]+):\s(\w+)\s+$'
+
             $outputArray = @();
+            
             $handles = $handles | Where-Object {($_.length -gt 0) -and ($_ -notmatch $nullHandle)}
+            
             Foreach ($handle in $handles) {
+            
                 if ($handle -match $regexProcess){
+            
                     $process = $Matches.process;
                     $processPID = $Matches.pid;
                     $owner = $Matches.string;
                 }
+            
                 if ($handle -match $regexHandle){
+            
                     $output = $null;
                     $output = [Handle]::new();
     
@@ -146,9 +145,9 @@
                 }
 
             };
-            Remove-Item -Path $('\\'+$Computer+'\c$\temp\'+$tool);
+            
+            $total++;
             return $outputArray;
-
         }
         else {
             
