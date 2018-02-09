@@ -34,7 +34,7 @@ Function Test-SharePermissions {
 	 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     .LINK
-       https://github.com/TonyPhipps/THRUST
+       https://github.com/TonyPhipps/Threat-Hunting-Recon-Kit
 	#>
 
 	[CmdletBinding()]

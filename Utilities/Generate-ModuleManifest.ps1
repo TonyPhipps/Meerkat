@@ -1,7 +1,7 @@
-$FileList = @('THRUST.psd1', 'THRUST.psm1');
+$FileList = @('THRecon.psd1', 'THRecon.psm1');
 $FunctionsToExport = @();
 
-Get-ChildItem "e:\scripts\THRUST\functions" -Filter *.ps1 | Select-Object -ExpandProperty FullName | ForEach-Object {
+Get-ChildItem "..\functions" -Filter *.ps1 | Select-Object -ExpandProperty FullName | ForEach-Object {
     $File = Split-Path $_ -Leaf
     $Function = $File.Split(".")[0];
     $FileList += "Functions\" + $File;
@@ -11,12 +11,12 @@ Get-ChildItem "e:\scripts\THRUST\functions" -Filter *.ps1 | Select-Object -Expan
 $RunDate = Get-Date -Format 'yyyy-MM-dd';
 
 $manifest = @{
-    RootModule = 'THRUST.psm1'
-    Path = 'E:\scripts\THRUST\THRUST.psd1'
+    RootModule = 'THRecon.psm1'
+    Path = '..\THRecon.psd1'
     ModuleVersion = '1.0'
     CompatiblePSEditions = @('Core')
     Author = 'Various Authors'
-    CompanyName = 'THRUST Contributors'
+    CompanyName = 'THRecon Contributors'
     Copyright = 
         'This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
