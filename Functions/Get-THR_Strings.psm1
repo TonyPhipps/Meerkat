@@ -51,7 +51,7 @@
         $Computer = $env:COMPUTERNAME,
 
         [Parameter(mandatory=$true, HelpMessage="The folder path of Sysinternals Strings.exe/Strings64.exe, not including trailing backslash (\).")]
-        $StringsPath,
+        $StringsPath = "C:\temp",
 
         [Parameter()]
         $Fails
