@@ -8,7 +8,7 @@ Get-ChildItem "..\functions" -Filter *.psm1 | Select-Object -ExpandProperty Full
     $FunctionsToExport += $Function;
 };
 
-Get-ChildItem "." -Filter *.psm1 | Select-Object -ExpandProperty FullName | ForEach-Object {
+Get-ChildItem "..\Utilities" -Filter *.psm1 | Select-Object -ExpandProperty FullName | ForEach-Object {
     $File = Split-Path $_ -Leaf
     $Function = $File.Split(".")[0];
     $FileList += "Utilities\" + $File;
