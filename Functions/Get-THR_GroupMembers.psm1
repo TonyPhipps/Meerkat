@@ -40,7 +40,7 @@ function Get-THR_GroupMembers {
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
         
     .LINK
-       https://github.com/TonyPhipps/Threat-Hunting-Recon-Kit
+       https://github.com/TonyPhipps/THRecon
     #>
 
     param(

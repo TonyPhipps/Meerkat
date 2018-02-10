@@ -45,15 +45,15 @@
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
         
     .LINK
-       https://github.com/TonyPhipps/Threat-Hunting-Recon-Kit
+       https://github.com/TonyPhipps/THRecon
     #>
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
         $Computer = $env:COMPUTERNAME,
 
-        [Parameter(mandatory=$true)]
-        [string]$HandlePath,
+        [Parameter(mandatory=$true, HelpMessage="The folder path of Sysinternals Handle.exe, not including trailing backslash (\).")]
+        [string]$HandlePath = "C:\Temp",
         
         [Parameter()]
         $Fails

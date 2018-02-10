@@ -40,7 +40,7 @@ function Get-THR_TPM {
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     .LINK
-        https://github.com/TonyPhipps/Threat-Hunting-Recon-Kit
+        https://github.com/TonyPhipps/THRecon
         https://trustedcomputinggroup.org/vendor-id-registry/
         https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/ADV170012
     #>

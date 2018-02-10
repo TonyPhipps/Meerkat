@@ -25,7 +25,7 @@ function Get-THR_WinEvents {
 
     .NOTES
         To extract XML data, use another script like Get-WinEventXMLData
-           https://github.com/TonyPhipps/Threat-Hunting-Recon-Kit/blob/master/Add-WinEventXMLData.ps1
+           https://github.com/TonyPhipps/THRecon/blob/master/Add-WinEventXMLData.ps1
      
         Updated: 2018-02-07
 
@@ -47,7 +47,7 @@ function Get-THR_WinEvents {
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     .LINK
-       https://github.com/TonyPhipps/Threat-Hunting-Recon-Kit
+       https://github.com/TonyPhipps/THRecon
     #>
 
     [CmdletBinding()]
