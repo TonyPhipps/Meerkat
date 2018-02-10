@@ -50,7 +50,7 @@
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
         $Computer = $env:COMPUTERNAME,
 
-        [Parameter(mandatory=$true, HelpMessage="The folder path of Sysinternals Strings.exe/Strings64.exe, not including trailing backslash (\).")]
+        [Parameter(HelpMessage="The folder path of Sysinternals Strings.exe/Strings64.exe, not including trailing backslash (\).")]
         $StringsPath = "C:\temp",
 
         [Parameter()]

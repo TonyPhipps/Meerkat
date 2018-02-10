@@ -52,7 +52,7 @@
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
         $Computer = $env:COMPUTERNAME,
 
-        [Parameter(mandatory=$true, HelpMessage="The folder path of Sysinternals Handle.exe, not including trailing backslash (\).")]
+        [Parameter(HelpMessage="The folder path of Sysinternals Handle.exe, not including trailing backslash (\).")]
         [string]$HandlePath = "C:\Temp",
         
         [Parameter()]
