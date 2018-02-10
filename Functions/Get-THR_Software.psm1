@@ -79,21 +79,15 @@
     process{
             
         $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
-       
-        $Software = $null;
         
-        foreach ($key in $UninstallKey){
-
-            $Software += Invoke-Command -Computer $Computer -ScriptBlock {
-                $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*";
-                $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*";
-                   
-                Get-ItemProperty -Path $pathAllUser, $pathAllUser32 |
-                  Where-Object DisplayName -ne $null;
-            };
+        $Software += Invoke-Command -Computer $Computer -ScriptBlock {
+            $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*";
+            $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*";
+                
+            Get-ItemProperty -Path $pathAllUser, $pathAllUser32 |
+                Where-Object DisplayName -ne $null;
+        };
        
-        }
-
         if ($Software) { 
             $OutputArray = @();
 
