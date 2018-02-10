@@ -45,7 +45,10 @@ function Invoke-THR {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        $OutputPath = "C:\Temp"
+        $OutputPath = "C:\Temp",
+
+        [Parameter()]
+        [switch]$Bulk
     );
 
     begin{
