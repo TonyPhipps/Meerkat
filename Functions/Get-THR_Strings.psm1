@@ -9,23 +9,27 @@
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER StringsPath
-        The folder path of Sysinternals Strings.exe/Strings64.exe, not including trailing backslash (\).
+    .PARAMETER PathContains
+        If specified, limits the strings collection via -like.
+        Example: 
+
+    .PARAMETER MinimumLength
+        7 by default. Specifies the minimum string length to return.
 
     .PARAMETER Fails  
         Provide a path to save failed systems to.
 
     .EXAMPLE 
-        Get-Content C:\hosts.csv | Get-THR_Strings -StringsPath c:\tools\sysinternals
-        Get-THR_Strings $env:computername -StringsPath c:\tools\sysinternals
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Strings -StringsPath c:\tools\sysinternals
+        Get-THR_Strings $env:computername
+        Get-Content C:\hosts.csv | Get-THR_Strings -PathContains "*calc*"
+        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Strings -MinimumLength
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-02-14
 
         Contributing Authors:
+            Anthony Phipps    
             Jeremy Arnold
-            Anthony Phipps
             
         LEGAL: Copyright (C) 2018
         This program is free software: you can redistribute it and/or modify
@@ -50,8 +54,11 @@
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
         $Computer = $env:COMPUTERNAME,
 
-        [Parameter(HelpMessage="The folder path of Sysinternals Strings.exe/Strings64.exe, not including trailing backslash (\).")]
-        $StringsPath = "C:\temp",
+        [Parameter()]
+        $PathContains,
+
+        [Parameter()]
+        $MinimumLength = 7,
 
         [Parameter()]
         $Fails
@@ -82,34 +89,43 @@
         $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
 
         $processStrings = $null;
-        $processStrings = Invoke-Command -ArgumentList $StringsPath -ComputerName $Computer -ScriptBlock {
-            
-            $StringsPath = $args[0];
-            $Is64BitOperatingSystem = [environment]::Is64BitOperatingSystem;
-            if ($Is64BitOperatingSystem){
-                $tool = 'strings64.exe'
-            } 
-            else {
-                $tool = 'strings.exe'
+        $processStrings = Invoke-Command -ArgumentList $MinimumLength, $PathContains -ComputerName $Computer -ScriptBlock {
+
+            $MinimumLength = $args[0];
+            $PathContains = $args[1];
+
+            $Processes = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path;
+
+            if ($PathContains){
+                $Processes = $Processes | Where-Object {$_.Path -like $PathContains} | Select-Object -Unique path;    
             };
-            
-            $processes = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path;
-            
+
             $processStrings = @();
             
-            foreach ($process in $processes){
+            foreach ($File in $Processes) {
                 
-                $path = $process.Path;
+                $path = $File.Path;
 
+                $UnicodeFileContents = Get-Content -Encoding "Unicode" -Path $path;
+                $UnicodeRegex = [Regex] "[\u0020-\u007E]{$MinimumLength,}";
+                $Results += $UnicodeRegex.Matches($UnicodeFileContents).Value;
                 $processStrings += [pscustomobject] @{
-                    Process = $process.path; 
-                    Stringsfound = Invoke-Expression "$StringsPath\$tool -n 7 -nobanner -accepteula '$path'"
+                    Process = $path; 
+                    Stringsfound = $Results;
+                };
+                    
+                $AsciiFileContents = Get-Content -Encoding "UTF7" -Path $path;
+                $AsciiRegex = [Regex] "[\x20-\x7E]{$MinimumLength,}";
+                $Results = $AsciiRegex.Matches($AsciiFileContents).Value;
+                $processStrings += [pscustomobject] @{
+                    Process = $path; 
+                    Stringsfound = $Results;
                 };
             };
 
             return $processStrings;
         };
-            
+                    
         if ($processStrings) {
 
             [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$';
@@ -144,6 +160,7 @@
         else {
             
             Write-Verbose ("{0}: System failed." -f $Computer);
+            
             if ($Fails) {
                 
                 $total++;
