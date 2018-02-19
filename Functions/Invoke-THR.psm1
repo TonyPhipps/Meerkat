@@ -173,6 +173,7 @@ function Invoke-THR {
             Get-THR_TPM -Computer $Computer | Export-Csv $FullOutputPath\TPM.csv -NoTypeInformation -Append
         }
         
+        $total++
     }
 
     end{
