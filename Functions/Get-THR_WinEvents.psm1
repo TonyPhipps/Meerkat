@@ -57,7 +57,10 @@ function Get-THR_WinEvents {
 
             [Parameter()]
             [array]
-            $FilterHashTable = @{LogName="Windows PowerShell" StartTime=(Get-Date).AddDays(-8)},
+            $FilterHashTable = @{
+                LogName="Windows PowerShell" 
+                StartTime=(Get-Date).AddDays(-8)
+            },
             
             [Parameter()]
             $Fails
