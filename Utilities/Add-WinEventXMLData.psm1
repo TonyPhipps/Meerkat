@@ -122,7 +122,7 @@ Function Add-WinEventXMLData {
             Write-Verbose "Event Type: Generic"
             $EventXMLFields = $EventXML.Event.EventData.Data
 
-            For ( $i = 0 $i -lt $EventXMLFields.count $i++ ) {
+            For ( $i = 0; $i -lt $EventXMLFields.count; $i++ ) {
                 $output | Add-Member -MemberType NoteProperty -Name $EventXMLFields[$i].Name -Value $EventXMLFields[$i].'#text' -Force
             }
         }
