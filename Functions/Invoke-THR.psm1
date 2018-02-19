@@ -125,7 +125,7 @@ function Invoke-THR {
             Get-THR_Hotfixes -Computer $Computer | Export-Csv $FullOutputPath\Hotfixes.csv -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*nta*"){
+        if (($Options -like "all") -or ($Options -like "*nta*")){
             Get-THR_NetAdapters -Computer $Computer | Export-Csv $FullOutputPath\NetAdapters.csv -NoTypeInformation -Append
         }
         
