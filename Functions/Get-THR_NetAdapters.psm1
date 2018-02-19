@@ -97,7 +97,7 @@ function Get-THR_NetAdapters {
                 
                 if ($Adapter.MediaConnectionState -eq "Connected") {
 
-                    $AdapterConfig = $AdapterConfigs | Where {$_.InterfaceIndex -eq $Adapter.InterfaceIndex}
+                    $AdapterConfig = $AdapterConfigs | Where-Object {$_.InterfaceIndex -eq $Adapter.InterfaceIndex}
                     $output = $null
 			        $output = [NetAdapter]::new()
    
