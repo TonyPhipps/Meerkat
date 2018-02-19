@@ -78,12 +78,12 @@
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         $OutputArray = @()
-        $drivers = $null
+        $devices = $null
         Write-Verbose "Getting a list of installed devices..."
         $devices = Invoke-Command -Computer $Computer -ScriptBlock {Get-CimInstance Win32_PnPEntity -ErrorAction SilentlyContinue}
        
         if ($devices) { 
-            $deviceClassArray = $devices | Group-Object pnpclass | Select-Object Name, Count | Sort-Object name
+            $OutputArray = $devices | Group-Object pnpclass | Select-Object Name, Count | Sort-Object name
             foreach ($device in $devices) {
              
                 $output = $null
