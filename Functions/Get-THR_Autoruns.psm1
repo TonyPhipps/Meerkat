@@ -50,16 +50,16 @@
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class Autorun
         {
@@ -70,70 +70,70 @@
             [string] $Caption
             [string] $Command
             [String] $Location
-        };
-    };
+        }
+    }
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer); 
-        $autoruns = $null;
+        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
+        $autoruns = $null
         $autoruns = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-            Get-CimInstance Win32_StartupCommand -ErrorAction SilentlyContinue;
-        };
+            Get-CimInstance Win32_StartupCommand -ErrorAction SilentlyContinue
+        }
        
         if ($autoruns) { 
             
-            $outputArray = @();
+            $outputArray = @()
 
             foreach ($autorun in $autoruns) {
              
-                $output = $null;
-                $output = [Autorun]::new();
+                $output = $null
+                $output = [Autorun]::new()
                 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $output.User = $autorun.User;
-                $output.Caption = $autorun.Caption;
-                $output.Command = $autorun.Command;
-                $output.Location = $autorun.Location;
+                $output.User = $autorun.User
+                $output.Caption = $autorun.Caption
+                $output.Command = $autorun.Command
+                $output.Location = $autorun.Location
 
-                $outputArray += $output;
+                $outputArray += $output
             
-            };
+            }
 
-            $total++;
-            return $OutputArray;
+            $total++
+            return $OutputArray
         
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Autorun]::new();
+                $output = $null
+                $output = [Autorun]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

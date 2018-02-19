@@ -49,16 +49,16 @@
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class Device
         {
@@ -70,66 +70,66 @@
             [string] $Description
             [String] $DeviceID
 
-        };
+        }
 
-    };
+    }
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
-        $OutputArray = @();
-        $drivers = $null;
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        $OutputArray = @()
+        $drivers = $null
         Write-Verbose "Getting a list of installed devices..."
-        $devices = Invoke-Command -Computer $Computer -ScriptBlock {Get-CimInstance Win32_PnPEntity -ErrorAction SilentlyContinue};
+        $devices = Invoke-Command -Computer $Computer -ScriptBlock {Get-CimInstance Win32_PnPEntity -ErrorAction SilentlyContinue}
        
         if ($devices) { 
-            $deviceClassArray = $devices | Group-Object pnpclass | Select-Object Name, Count | Sort-Object name;
+            $deviceClassArray = $devices | Group-Object pnpclass | Select-Object Name, Count | Sort-Object name
             foreach ($device in $devices) {
              
-                $output = $null;
-                $output = [Device]::new();
+                $output = $null
+                $output = [Device]::new()
                 
-                $output.DateScanned = Get-Date -Format u;
-                $output.Computer = $Computer;
-                $output.Class = $device.pnpclass;
-                $output.caption = $device.caption;
-                $output.description = $device.description;
-                $output.deviceID = $device.deviceID;
+                $output.DateScanned = Get-Date -Format u
+                $output.Computer = $Computer
+                $output.Class = $device.pnpclass
+                $output.caption = $device.caption
+                $output.description = $device.description
+                $output.deviceID = $device.deviceID
 
-                $OutputArray += $output;
+                $OutputArray += $output
             
-            };
+            }
 
-            $total++;
-            Return $OutputArray;
+            $total++
+            Return $OutputArray
         
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Device]::new();
+                $output = $null
+                $output = [Device]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

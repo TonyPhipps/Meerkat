@@ -49,16 +49,16 @@ function Get-THR_Sessions {
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Verbose ("Started at {0}" -f $datetime);
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Verbose ("Started at {0}" -f $datetime)
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class LoginSession {
             [string] $Computer
@@ -70,82 +70,82 @@ function Get-THR_Sessions {
             [String] $State
             [String] $Type
             [String] $Device
-        };
-    };
+        }
+    }
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer); 
-        $sessions = $null;
-        $sessions = (qwinsta /server:$Computer 2> $null | Foreach-Object { (($_.trim() -replace "\s+",","))} | ConvertFrom-Csv);
+        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
+        $sessions = $null
+        $sessions = (qwinsta /server:$Computer 2> $null | Foreach-Object { (($_.trim() -replace "\s+",","))} | ConvertFrom-Csv)
        
         if ($sessions) { 
             
-            $OutputArray = @();
+            $OutputArray = @()
 
-            Write-Verbose ("{0}: Looping through retrived results" -f $Computer);
+            Write-Verbose ("{0}: Looping through retrived results" -f $Computer)
             foreach ($session in $sessions) {
              
-                $output = $null;
-                $output = [LoginSession]::new();
+                $output = $null
+                $output = [LoginSession]::new()
                 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
 
-                $output.SessionName = $session.SESSIONNAME;
+                $output.SessionName = $session.SESSIONNAME
                 
                 if ($session.STATE -eq $null) {
-                    $output.Id = $session.USERNAME;
-                    $output.State = $session.ID;
-                    $output.Type = $session.STATE;
+                    $output.Id = $session.USERNAME
+                    $output.State = $session.ID
+                    $output.Type = $session.STATE
                 }
                 else {
-                    $output.UserName = $session.USERNAME;
-                    $output.Id = $session.ID;
-                    $output.State = $session.STATE;
-                    $output.Type = $session.TYPE;
-                    $output.Device = $session.DEVICE;
+                    $output.UserName = $session.USERNAME
+                    $output.Id = $session.ID
+                    $output.State = $session.STATE
+                    $output.Type = $session.TYPE
+                    $output.Device = $session.DEVICE
                 }
 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
 
-            $elapsed = $stopwatch.Elapsed;
-            $total = $total + 1;
+            $elapsed = $stopwatch.Elapsed
+            $total = $total + 1
             
-            Write-Verbose ("System {0} complete: `t {1} `t Total Time Elapsed: {2}" -f $total, $Computer, $elapsed);
+            Write-Verbose ("System {0} complete: `t {1} `t Total Time Elapsed: {2}" -f $total, $Computer, $elapsed)
 
-            $total = $total+1;
-            Return $OutputArray;
+            $total = $total+1
+            Return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [LoginSession]::new();
+                $output = $null
+                $output = [LoginSession]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

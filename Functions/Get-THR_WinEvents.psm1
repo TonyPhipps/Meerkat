@@ -13,15 +13,15 @@ function Get-THR_WinEvents {
         Provide a path to save failed systems to.
 
     .EXAMPLE 
-        Get-THR_WinEvents -FilterHashTable @{LogName="Microsoft-Windows-AppLocker/EXE and DLL"; ID="8002","8003","8004"}
-        Get-THR_WinEvents -FilterHashTable @{LogName="Windows PowerShell"; StartTime=(Get-Date).AddDays(-8); EndTime=(Get-Date)} 
+        Get-THR_WinEvents -FilterHashTable @{LogName="Microsoft-Windows-AppLocker/EXE and DLL" ID="8002","8003","8004"}
+        Get-THR_WinEvents -FilterHashTable @{LogName="Windows PowerShell" StartTime=(Get-Date).AddDays(-8) EndTime=(Get-Date)} 
         Get-THR_WinEvents SomeHostName.domain.com
         Get-Content C:\hosts.txt | Get-THR_WinEvents
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_WinEvents
 
     .EXAMPLE
         Pull AppLocker Events from a Windows Event Collector:
-        Get-THR_WinEvents -FilterHashTable @{LogName="ForwardedEvents"; ID="8002","8003","8004"}
+        Get-THR_WinEvents -FilterHashTable @{LogName="ForwardedEvents" ID="8002","8003","8004"}
 
     .NOTES
         To extract XML data, use another script like Get-WinEventXMLData
@@ -57,67 +57,67 @@ function Get-THR_WinEvents {
 
             [Parameter()]
             [array]
-            $FilterHashTable = @{LogName="Windows PowerShell"; StartTime=(Get-Date).AddDays(-8);},
+            $FilterHashTable = @{LogName="Windows PowerShell" StartTime=(Get-Date).AddDays(-8)},
             
             [Parameter()]
             $Fails
-        );
+        )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
-    };
+        $total = 0
+    }
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Events = Get-WinEvent -ComputerName $Computer -FilterHashTable $FilterHashTable;
+        $Events = Get-WinEvent -ComputerName $Computer -FilterHashTable $FilterHashTable
 
         if ($Events) {
 
             $Events |
                 Foreach-Object {
 
-                    $output = $_;
-                    $output | Add-Member -MemberType NoteProperty -Name Computer -Value $Computer;
-                    $output | Add-Member -MemberType NoteProperty -Name DateScanned -Value (Get-Date -Format u);
+                    $output = $_
+                    $output | Add-Member -MemberType NoteProperty -Name Computer -Value $Computer
+                    $output | Add-Member -MemberType NoteProperty -Name DateScanned -Value (Get-Date -Format u)
 
-                    Return $output;
-                };
+                    Return $output
+                }
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
+                $output = $null
                 $output = [PSCustomObject]@{
                     Computer = $Computer
                     DateScanned = Get-Date -Format u
-                };
+                }
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

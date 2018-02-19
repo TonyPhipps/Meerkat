@@ -19,32 +19,32 @@ Function Add-WinEventXMLData {
     
     .EXAMPLE
         Get Windows Applocker events and XML fields.
-        Get-WinEvent -FilterhashTable @{ LogName="Microsoft-Windows-AppLocker/EXE and DLL"; ID="8002","8003","8004" } -MaxEvents 10 | 
+        Get-WinEvent -FilterhashTable @{ LogName="Microsoft-Windows-AppLocker/EXE and DLL" ID="8002","8003","8004" } -MaxEvents 10 | 
             Add-WinEventXMLData | 
-            Select-Object *;
+            Select-Object *
 
     .EXAMPLE
         Get Windows Sysmon events and XML fields.
         Get-WinEvent -filterhashtable @{ LogName="Microsoft-Windows-Sysmon/Operational" } | 
             Add-WinEventXMLData | 
-            Select-Object *;
+            Select-Object *
         
         Or from a WEF/WEC:
-        Get-WinEvent -ComputerName WEFSERVER -FilterHashtable @{ LogName="ForwardedEvents"; Id=1; StartTime=(Get-Date).AddDays(-2) } -MaxEvents 10 | 
+        Get-WinEvent -ComputerName WEFSERVER -FilterHashtable @{ LogName="ForwardedEvents" Id=1 StartTime=(Get-Date).AddDays(-2) } -MaxEvents 10 | 
             Where-Object {  $_.LogName -eq "Microsoft-Windows-Sysmon/Operational" } | 
             Add-WinEventXMLData | 
-            Select-Object *;
+            Select-Object *
 
     .EXAMPLE
         Get Windows System logs and XML fields.
         Get-WinEvent -FilterHashtable @{ LogName="System" } -MaxEvents 10 | 
             Add-WinEventXMLData | 
-            Select-Object *;
+            Select-Object *
 
     .EXAMPLE    
         Get-WinEvent -FilterHashtable @{ LogName="ForwardedEvents" } -MaxEvents 10 | 
             Add-WinEventXMLData | 
-            Select-Object *;
+            Select-Object *
 
     .NOTES
         Updated: 2018-02-07
@@ -82,51 +82,51 @@ Function Add-WinEventXMLData {
             Position = 0 )]
         [System.Diagnostics.Eventing.Reader.EventLogRecord[]]
         $Event
-    );
+    )
 
     Process {
 
-        $output = $_;
+        $output = $_
                     
-        $EventXML = [xml]$_.ToXml();
+        $EventXML = [xml]$_.ToXml()
            
         if ($EventXML.Event.UserData.RuleAndFileData) {
 
-            Write-Verbose "Event Type: AppLocker";
-            $EventXMLFields = $EventXML.Event.UserData.RuleAndFileData | Get-Member | Where-Object {$_.Membertype -eq "Property"} |  Select-Object Name;
+            Write-Verbose "Event Type: AppLocker"
+            $EventXMLFields = $EventXML.Event.UserData.RuleAndFileData | Get-Member | Where-Object {$_.Membertype -eq "Property"} |  Select-Object Name
 
             $EventXMLFields | ForEach-Object {
-                $output | Add-Member -MemberType NoteProperty -Name $_.Name -Value $EventXML.Event.UserData.RuleAndFileData.($_.Name);
-            };
+                $output | Add-Member -MemberType NoteProperty -Name $_.Name -Value $EventXML.Event.UserData.RuleAndFileData.($_.Name)
+            }
         }
         elseif ($EventXML.Event.UserData.CbsPackageInitiateChanges) {
                 
-            Write-Verbose "Event Type: Setup";
-            $EventXMLFields = $EventXML.Event.UserData.CbsPackageInitiateChanges | Get-Member | Where-Object {$_.Membertype -eq "Property"} |  Select-Object Name; ;
+            Write-Verbose "Event Type: Setup"
+            $EventXMLFields = $EventXML.Event.UserData.CbsPackageInitiateChanges | Get-Member | Where-Object {$_.Membertype -eq "Property"} |  Select-Object Name 
 
             $EventXMLFields | ForEach-Object {
-                $output | Add-Member -MemberType NoteProperty -Name $_.Name -Value $EventXML.Event.UserData.CbsPackageInitiateChanges.($_.Name);
-            };
+                $output | Add-Member -MemberType NoteProperty -Name $_.Name -Value $EventXML.Event.UserData.CbsPackageInitiateChanges.($_.Name)
+            }
         }
         elseif ($EventXML.Event.UserData.CbsPackageChangeState) {
                 
-            Write-Verbose "Event Type: Setup";
-            $EventXMLFields = $EventXML.Event.UserData.CbsPackageChangeState | Get-Member | Where-Object {$_.Membertype -eq "Property"} |  Select-Object Name;
+            Write-Verbose "Event Type: Setup"
+            $EventXMLFields = $EventXML.Event.UserData.CbsPackageChangeState | Get-Member | Where-Object {$_.Membertype -eq "Property"} |  Select-Object Name
 
             $EventXMLFields | ForEach-Object {
-                $output | Add-Member -MemberType NoteProperty -Name $_.Name -Value $EventXML.Event.UserData.CbsPackageChangeState.($_.Name);
-            };
+                $output | Add-Member -MemberType NoteProperty -Name $_.Name -Value $EventXML.Event.UserData.CbsPackageChangeState.($_.Name)
+            }
         }
         elseif ($EventXML.Event.EventData.Data[0].Name) {
                 
-            Write-Verbose "Event Type: Generic";
-            $EventXMLFields = $EventXML.Event.EventData.Data;
+            Write-Verbose "Event Type: Generic"
+            $EventXMLFields = $EventXML.Event.EventData.Data
 
-            For ( $i = 0; $i -lt $EventXMLFields.count; $i++ ) {
-                $output | Add-Member -MemberType NoteProperty -Name $EventXMLFields[$i].Name -Value $EventXMLFields[$i].'#text' -Force;
-            };
-        };
+            For ( $i = 0 $i -lt $EventXMLFields.count $i++ ) {
+                $output | Add-Member -MemberType NoteProperty -Name $EventXMLFields[$i].Name -Value $EventXMLFields[$i].'#text' -Force
+            }
+        }
 
-        Return $output;
-    };
-};
+        Return $output
+    }
+}

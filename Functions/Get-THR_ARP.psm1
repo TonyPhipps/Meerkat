@@ -50,16 +50,16 @@
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class ArpCache
         {
@@ -72,12 +72,12 @@
             [String] $LinkLayerAddress
             [String] $State
             [String] $PolicyStore
-        };
-	};
+        }
+	}
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
         
         $arpCache = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
@@ -86,63 +86,63 @@
                 ($_.LINKLayerAddress -ne "FF-FF-FF-FF-FF-FF") -and # Broadcast. Filtered by LinkLayerAddress rather than "$_.State -ne "permanent" to maintain manual entries
                 ($_.LINKLayerAddress -notlike "01-00-5E-*") -and   # IPv4 multicast
                 ($_.LINKLayerAddress -notlike "33-33-*")           # IPv6 multicast
-            };
-        };
+            }
+        }
         
         
         if ($arpCache) {
 
-            Write-Verbose ("{0}: Parsing results." -f $Computer);
-            $OutputArray = @();
+            Write-Verbose ("{0}: Parsing results." -f $Computer)
+            $OutputArray = @()
             
             foreach ($record in $arpCache) {
              
-                $output = $null;
-                $output = [ArpCache]::new();
+                $output = $null
+                $output = [ArpCache]::new()
         
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $output.IfIndex = $record.ifIndex;
-                $output.InterfaceAlias = $record.InterfaceAlias;
-                $output.IPAdress = $record.IPAddress;
-                $output.LINKLayerAddress = $record.LINKLayerAddress;
-                $output.State = $record.State;
-                $output.PolicyStore = $record.Store;                 
+                $output.IfIndex = $record.ifIndex
+                $output.InterfaceAlias = $record.InterfaceAlias
+                $output.IPAdress = $record.IPAddress
+                $output.LINKLayerAddress = $record.LINKLayerAddress
+                $output.State = $record.State
+                $output.PolicyStore = $record.Store                 
 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
 
-            $total = $total+1;
-            return $OutputArray;
+            $total = $total+1
+            return $OutputArray
 
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [ArpCache]::new();
+                $output = $null
+                $output = [ArpCache]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

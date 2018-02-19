@@ -49,16 +49,16 @@ function Get-THR_NetAdapters {
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format u;
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format u
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class NetAdapter
         {
@@ -78,80 +78,80 @@ function Get-THR_NetAdapters {
             [String] $DNS
             [String] $MTU
             [bool] $PromiscuousMode
-        };
+        }
         
-	};
+	}
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present get-netadapter
-        $Adapters = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-NetAdapter -ErrorAction SilentlyContinue}; #get a list of network adapters
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present get-netadapter
+        $Adapters = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-NetAdapter -ErrorAction SilentlyContinue} #get a list of network adapters
         
         if ($Adapters) {
 
-            $AdapterConfigs = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-CimInstance Win32_NetworkAdapterConfiguration | Select-Object * -ErrorAction SilentlyContinue};  #get the configuration for the current adapter
-            $OutputArray = $null;
-            $OutputArray = @();
+            $AdapterConfigs = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-CimInstance Win32_NetworkAdapterConfiguration | Select-Object * -ErrorAction SilentlyContinue}  #get the configuration for the current adapter
+            $OutputArray = $null
+            $OutputArray = @()
 
             foreach ($Adapter in $Adapters) {#loop through the Interfaces and build the outputArray
                 
                 if ($Adapter.MediaConnectionState -eq "Connected") {
 
-                    $AdapterConfig = $AdapterConfigs | Where {$_.InterfaceIndex -eq $Adapter.InterfaceIndex};
-                    $output = $null;
-			        $output = [NetAdapter]::new();
+                    $AdapterConfig = $AdapterConfigs | Where {$_.InterfaceIndex -eq $Adapter.InterfaceIndex}
+                    $output = $null
+			        $output = [NetAdapter]::new()
    
-                    $output.Computer = $Computer;
-                    $output.DateScanned = Get-Date -Format u;
-                    $output.FQDN = $Adapter.SystemName;
-                    $output.DESCRIPTION = $Adapter.InterfaceDescription;
-                    $output.NetConnectionID = $Adapter.Name;
-                    $output.NetConnected= $Adapter.MediaConnectionState;
-                    $output.InterfaceIndex = $Adapter.ifIndex;
-                    $output.Speed = $Adapter.Speed;
-                    $output.MACAddress = $Adapter.MACAddress;
-                    $output.IPAddress = $AdapterConfig.ipaddress[0];
-                    $output.Subnet = $AdapterConfig.IPsubnet[0];
-                    $output.Gateway = $AdapterConfig.DefaultIPGateway;
-                    $output.DNS = $AdapterConfig.DNSServerSearchOrder;
-                    $output.MTU = $Adapter.MtuSize;
-                    $output.PromiscuousMode = $Adapter.PromiscuousMode;
+                    $output.Computer = $Computer
+                    $output.DateScanned = Get-Date -Format u
+                    $output.FQDN = $Adapter.SystemName
+                    $output.DESCRIPTION = $Adapter.InterfaceDescription
+                    $output.NetConnectionID = $Adapter.Name
+                    $output.NetConnected= $Adapter.MediaConnectionState
+                    $output.InterfaceIndex = $Adapter.ifIndex
+                    $output.Speed = $Adapter.Speed
+                    $output.MACAddress = $Adapter.MACAddress
+                    $output.IPAddress = $AdapterConfig.ipaddress[0]
+                    $output.Subnet = $AdapterConfig.IPsubnet[0]
+                    $output.Gateway = $AdapterConfig.DefaultIPGateway
+                    $output.DNS = $AdapterConfig.DNSServerSearchOrder
+                    $output.MTU = $Adapter.MtuSize
+                    $output.PromiscuousMode = $Adapter.PromiscuousMode
 
-                    $OutputArray += $output;
+                    $OutputArray += $output
 
-                };
+                }
 
-            };
+            }
 
-        Return $OutputArray;
+        Return $OutputArray
             
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [NetAdapter]::new();
+                $output = $null
+                $output = [NetAdapter]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

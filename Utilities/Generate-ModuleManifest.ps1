@@ -1,21 +1,21 @@
-$FileList = @('THRecon.psd1', 'THRecon.psm1');
-$FunctionsToExport = @();
+$FileList = @('THRecon.psd1', 'THRecon.psm1')
+$FunctionsToExport = @()
 
 Get-ChildItem "..\functions" -Filter *.psm1 | Select-Object -ExpandProperty FullName | ForEach-Object {
     $File = Split-Path $_ -Leaf
-    $Function = $File.Split(".")[0];
-    $FileList += "Functions\" + $File;
-    $FunctionsToExport += $Function;
-};
+    $Function = $File.Split(".")[0]
+    $FileList += "Functions\" + $File
+    $FunctionsToExport += $Function
+}
 
 Get-ChildItem "..\Utilities" -Filter *.psm1 | Select-Object -ExpandProperty FullName | ForEach-Object {
     $File = Split-Path $_ -Leaf
-    $Function = $File.Split(".")[0];
-    $FileList += "Utilities\" + $File;
-    $FunctionsToExport += $Function;
-};
+    $Function = $File.Split(".")[0]
+    $FileList += "Utilities\" + $File
+    $FunctionsToExport += $Function
+}
 
-$RunDate = Get-Date -Format 'yyyy-MM-dd';
+$RunDate = Get-Date -Format 'yyyy-MM-dd'
 
 $manifest = @{
     RootModule = 'THRecon.psm1'

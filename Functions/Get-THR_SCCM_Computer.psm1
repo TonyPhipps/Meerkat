@@ -60,18 +60,18 @@ function Get-THR_SCCM_Computer {
 
         [Parameter()]
         [switch]$CIM
-    );
+    )
 
 	begin{
-        $SCCMNameSpace="root\sms\site_$SiteName";
+        $SCCMNameSpace="root\sms\site_$SiteName"
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
         Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         
         class SCCMComputer {
@@ -110,8 +110,8 @@ function Get-THR_SCCM_Computer {
             [String] $LastBootUpTime
             [String] $Caption
             [String] $CSDVersion
-        };
-	};
+        }
+	}
 
     process{        
                 
@@ -122,7 +122,7 @@ function Get-THR_SCCM_Computer {
         
         else{ # Convert any FQDN into just hostname
             $ThisComputer = $Computer.Split(".")[0].Replace('"', '')
-        };
+        }
 
         if ($CIM){
             
@@ -134,7 +134,7 @@ function Get-THR_SCCM_Computer {
                 $SMS_G_System_SYSTEM_ENCLOSURE = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceID, SerialNumber, ChassisTypes from SMS_G_System_SYSTEM_ENCLOSURE where ResourceID='$ResourceID'"
                 $SMS_G_System_PC_BIOS = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceID, Manufacturer, Name, SMBIOSBIOSVersion, ReleaseDate from SMS_G_System_PC_BIOS where ResourceID='$ResourceID'"
                 $SMS_G_System_OPERATING_SYSTEM = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select InstallDate, LastBootUpTime, Caption, CSDVersion from SMS_G_System_OPERATING_SYSTEM where ResourceID='$ResourceID'"
-            };
+            }
         }
             
         else{
@@ -147,15 +147,15 @@ function Get-THR_SCCM_Computer {
                 $SMS_G_System_SYSTEM_ENCLOSURE = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceID, SerialNumber, ChassisTypes from SMS_G_System_SYSTEM_ENCLOSURE where ResourceID='$ResourceID'"
                 $SMS_G_System_PC_BIOS = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceID, Manufacturer, Name, SMBIOSBIOSVersion, ReleaseDate from SMS_G_System_PC_BIOS where ResourceID='$ResourceID'"
                 $SMS_G_System_OPERATING_SYSTEM = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select InstallDate, LastBootUpTime, Caption, CSDVersion from SMS_G_System_OPERATING_SYSTEM where ResourceID='$ResourceID'"
-            };
-        };
+            }
+        }
             
         
-        $output = $null;
-		$output = [SCCMComputer]::new();
+        $output = $null
+		$output = [SCCMComputer]::new()
    
-        $output.Computer = $Computer;
-        $output.DateScanned = Get-Date -Format u;
+        $output.Computer = $Computer
+        $output.DateScanned = Get-Date -Format u
             
         if ($SMS_R_System){
             
@@ -173,7 +173,7 @@ function Get-THR_SCCM_Computer {
             $output.CPUType = $SMS_R_System.CPUType
             if ($SMS_R_System.AgentTime[3]) { # Sometimes fails
                 $output.LastSCCMHeartBeat = $SMS_R_System.AgentTime[3]
-            };
+            }
             $output.OperatingSystemNameandVersion = $SMS_R_System.OperatingSystemNameandVersion
 
             if ($SMS_G_System_Computer_System){
@@ -186,13 +186,13 @@ function Get-THR_SCCM_Computer {
                 $output.DomainRole = $SMS_G_System_Computer_System.DomainRole
                 $output.NumberOfProcessors = $SMS_G_System_Computer_System.NumberOfProcessors
                 $output.TimeStamp = $SMS_G_System_Computer_System.TimeStamp
-            }; 
+            } 
 
             if ($SMS_G_System_SYSTEM_ENCLOSURE){
             
                 $output.SerialNumber = $SMS_G_System_SYSTEM_ENCLOSURE.SerialNumber
                 $output.ChassisTypes = $SMS_G_System_SYSTEM_ENCLOSURE.ChassisTypes
-            };
+            }
 
             if ($SMS_G_System_PC_BIOS){
             
@@ -200,7 +200,7 @@ function Get-THR_SCCM_Computer {
                 $output.BIOSName = $SMS_G_System_PC_BIOS.Name
                 $output.BIOSVersion = $SMS_G_System_PC_BIOS.SMBIOSBIOSVersion
                 $output.BIOSReleaseDate = $SMS_G_System_PC_BIOS.ReleaseDate
-            };
+            }
 
             if ($SMS_G_System_OPERATING_SYSTEM){
             
@@ -208,43 +208,43 @@ function Get-THR_SCCM_Computer {
                 $output.LastBootUpTime = $SMS_G_System_OPERATING_SYSTEM.LastBootUpTime
                 $output.Caption = $SMS_G_System_OPERATING_SYSTEM.Caption
                 $output.CSDVersion = $SMS_G_System_OPERATING_SYSTEM.CSDVersion
-            };
+            }
             
 
-            $elapsed = $stopwatch.Elapsed;
-            $total = $total+1;
+            $elapsed = $stopwatch.Elapsed
+            $total = $total+1
             
 
-            Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed";
+            Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed"
 
-            return $output;
+            return $output
         
         }
 
         else { # System was not reachable
 
             if ($Fails) { # -Fails switch was used
-                Add-Content -Path $Fails -Value ("$Computer");
+                Add-Content -Path $Fails -Value ("$Computer")
             }
 
             else{ # -Fails switch not used
                             
-                $output = $null;
-                $output = [SCCMComputer]::new();
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output = $null
+                $output = [SCCMComputer]::new()
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
 
-                $total = $total+1;
-                return $output;
-            };
-        };
+                $total = $total+1
+                return $output
+            }
+        }
 
-    };
+    }
 
     end{
-        $elapsed = $stopwatch.Elapsed;
-        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed";
-	};
-};
+        $elapsed = $stopwatch.Elapsed
+        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed"
+	}
+}
 
 

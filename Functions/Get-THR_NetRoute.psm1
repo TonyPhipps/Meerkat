@@ -49,17 +49,17 @@
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         Enum RouteType
         {
@@ -82,84 +82,84 @@
             [String] $Store
             [String] $PublishedRoute
             [RouteType] $TypeOfRoute
-        };
-	};
+        }
+	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $routes = $null;
+        $routes = $null
         $routes = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $interfaces = $null;
-            $interfaces = Get-NetAdapter | Where-Object {$_.MediaConnectionState -eq "Connected"};
-            $routeTable = $null;
+            $interfaces = $null
+            $interfaces = Get-NetAdapter | Where-Object {$_.MediaConnectionState -eq "Connected"}
+            $routeTable = $null
 
             Foreach ($interface in $interfaces) { # loop through each interface
                                 
-                $routeTable += Get-NetRoute -AddressFamily IPv4 -InterfaceIndex $interface.ifIndex -IncludeAllCompartments;
+                $routeTable += Get-NetRoute -AddressFamily IPv4 -InterfaceIndex $interface.ifIndex -IncludeAllCompartments
                 
-            };
+            }
 
-            return $routeTable;
+            return $routeTable
         
-        };
+        }
             
         if ($routes) {
             
-            $outputArray = @();
+            $outputArray = @()
 
             Foreach ($route in $routes) {
                 
-                $output = $null;
-                $output = [Route]::new();
+                $output = $null
+                $output = [Route]::new()
     
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
     
-                $output.InterfaceIndex = $route.ifIndex;
-                $output.InterfaceName= $route.interfaceAlias;
-                $output.DestinationPrefix = $route.DestinationPrefix;
-                $output.NextHop = $route.NextHop;
-                $output.Metric = $route.RouteMetric;
-                $output.Protocol = $route.Protocol;
+                $output.InterfaceIndex = $route.ifIndex
+                $output.InterfaceName= $route.interfaceAlias
+                $output.DestinationPrefix = $route.DestinationPrefix
+                $output.NextHop = $route.NextHop
+                $output.Metric = $route.RouteMetric
+                $output.Protocol = $route.Protocol
                 $output.Store = $route.Store
-                $output.PublishedRoute = $route.Publish;
-                $output.TypeOfRoute = $route.TypeOfRoute;
+                $output.PublishedRoute = $route.Publish
+                $output.TypeOfRoute = $route.TypeOfRoute
 
-                $outputArray += $output;
-            };
+                $outputArray += $output
+            }
 
-            return $outputArray;
+            return $outputArray
 
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Route]::new();
+                $output = $null
+                $output = [Route]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

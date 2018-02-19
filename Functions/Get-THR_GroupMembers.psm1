@@ -49,17 +49,17 @@ function Get-THR_GroupMembers {
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Member
         {
@@ -75,96 +75,96 @@ function Get-THR_GroupMembers {
             [String] $GroupSID
             [String] $GroupPrincipalSource
             [String] $GroupObjectClass
-        };
-	};
+        }
+	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer); 
+        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
         
-        $groupMembers = $null;
+        $groupMembers = $null
         $groupMembers = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $groups = $null;
-            $groups = Get-LocalGroup;
+            $groups = $null
+            $groups = Get-LocalGroup
             
-            $groupMembers = @();
+            $groupMembers = @()
             
             Foreach ($group in $groups) { # get members of each group
                 
-                $members = $null;
-                $members = Get-LocalGroupMember -Group $group.Name;
+                $members = $null
+                $members = Get-LocalGroupMember -Group $group.Name
                 
                 Foreach ($member in $members) { # add group properties to each member
             
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupDescription" -Value $group.DESCRIPTION;
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupName" -Value $group.Name;
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupSID" -Value $group.SID;
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupPrincipalSource" -Value $group.PrincipalSource;
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupObjectClass" -Value $group.ObjectClass;
-                    $groupMembers += $member;
-                };
-            };
+                    $member | Add-Member -MemberType NoteProperty -Name "GroupDescription" -Value $group.DESCRIPTION
+                    $member | Add-Member -MemberType NoteProperty -Name "GroupName" -Value $group.Name
+                    $member | Add-Member -MemberType NoteProperty -Name "GroupSID" -Value $group.SID
+                    $member | Add-Member -MemberType NoteProperty -Name "GroupPrincipalSource" -Value $group.PrincipalSource
+                    $member | Add-Member -MemberType NoteProperty -Name "GroupObjectClass" -Value $group.ObjectClass
+                    $groupMembers += $member
+                }
+            }
             
-            return $groupMembers;
-        };
+            return $groupMembers
+        }
 
         if ($groupMembers) {
             
-            $outputArray = @();
+            $outputArray = @()
 
             Foreach ($groupMember in $groupMembers) {
                 
-                $output = $null;
-                $output = [Member]::new();
+                $output = $null
+                $output = [Member]::new()
     
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
     
-                $output.Name = $groupMember.Name;
-                $output.SID = $groupMember.SID;
-                $output.PrincipalSource = $groupMember.PrincipalSource;
-                $output.ObjectClass = $groupMember.ObjectClass;
-                $output.GroupName = $groupMember.GroupName;
-                $output.GroupDescription = $groupMember.GroupDescription;
-                $output.GroupSID = $groupMember.GroupSID;
-                $output.GroupPrincipalSource = $groupMember.GroupPrincipalSource;
-                $output.GroupObjectClass = $groupMember.GroupObjectClass;
+                $output.Name = $groupMember.Name
+                $output.SID = $groupMember.SID
+                $output.PrincipalSource = $groupMember.PrincipalSource
+                $output.ObjectClass = $groupMember.ObjectClass
+                $output.GroupName = $groupMember.GroupName
+                $output.GroupDescription = $groupMember.GroupDescription
+                $output.GroupSID = $groupMember.GroupSID
+                $output.GroupPrincipalSource = $groupMember.GroupPrincipalSource
+                $output.GroupObjectClass = $groupMember.GroupObjectClass
 
-                $outputArray += $output;
-            };
+                $outputArray += $output
+            }
 
-            $total++;
-            return $outputArray;
+            $total++
+            return $outputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Member]::new();
+                $output = $null
+                $output = [Member]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

@@ -62,17 +62,17 @@
 
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Verbose "Started at $datetime";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class StringMatch
         {
@@ -81,58 +81,58 @@
             
             [string] $ProcessLocation
             [string] $String
-        };
-	};
+        }
+	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $processStrings = $null;
+        $processStrings = $null
         $processStrings = Invoke-Command -ArgumentList $MinimumLength, $PathContains -ComputerName $Computer -ScriptBlock {
 
-            $MinimumLength = $args[0];
-            $PathContains = $args[1];
+            $MinimumLength = $args[0]
+            $PathContains = $args[1]
 
-            $Processes = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path;
+            $Processes = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path
 
             if ($PathContains){
-                $Processes = $Processes | Where-Object {$_.Path -like $PathContains} | Select-Object -Unique path;    
-            };
+                $Processes = $Processes | Where-Object {$_.Path -like $PathContains} | Select-Object -Unique path    
+            }
 
-            $processStrings = @();
+            $processStrings = @()
             
             foreach ($File in $Processes) {
                 
-                $path = $File.Path;
+                $path = $File.Path
 
-                $UnicodeFileContents = Get-Content -Encoding "Unicode" -Path $path;
-                $UnicodeRegex = [Regex] "[\u0020-\u007E]{$MinimumLength,}";
-                $Results += $UnicodeRegex.Matches($UnicodeFileContents).Value;
+                $UnicodeFileContents = Get-Content -Encoding "Unicode" -Path $path
+                $UnicodeRegex = [Regex] "[\u0020-\u007E]{$MinimumLength,}"
+                $Results += $UnicodeRegex.Matches($UnicodeFileContents).Value
                 $processStrings += [pscustomobject] @{
-                    Process = $path; 
-                    Stringsfound = $Results;
-                };
+                    Process = $path 
+                    Stringsfound = $Results
+                }
                     
-                $AsciiFileContents = Get-Content -Encoding "UTF7" -Path $path;
-                $AsciiRegex = [Regex] "[\x20-\x7E]{$MinimumLength,}";
-                $Results = $AsciiRegex.Matches($AsciiFileContents).Value;
+                $AsciiFileContents = Get-Content -Encoding "UTF7" -Path $path
+                $AsciiRegex = [Regex] "[\x20-\x7E]{$MinimumLength,}"
+                $Results = $AsciiRegex.Matches($AsciiFileContents).Value
                 $processStrings += [pscustomobject] @{
-                    Process = $path; 
-                    Stringsfound = $Results;
-                };
-            };
+                    Process = $path 
+                    Stringsfound = $Results
+                }
+            }
 
-            return $processStrings;
-        };
+            return $processStrings
+        }
                     
         if ($processStrings) {
 
-            [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$';
-            [regex]$regexIP = '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$';
-            [regex]$regexURL = '^https?:\/\/';
+            [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$'
+            [regex]$regexIP = '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$'
+            [regex]$regexURL = '^https?:\/\/'
             
-            $outputArray = @();
+            $outputArray = @()
 
             foreach ($process in $processStrings) {
                 
@@ -140,50 +140,50 @@
 
                     if (($string -match $regexEmail) -or ($string -match $regexIP) -or ($string -match $regexURL)){
                                         
-                        $output = $null;
-                        $output = [StringMatch]::new();
+                        $output = $null
+                        $output = [StringMatch]::new()
     
-                        $output.Computer = $Computer;
-                        $output.DateScanned = Get-Date -Format u;
+                        $output.Computer = $Computer
+                        $output.DateScanned = Get-Date -Format u
     
-                        $output.ProcessLocation = $process.process;
-                        $output.String = $string;
+                        $output.ProcessLocation = $process.process
+                        $output.String = $string
                                         
-                        $outputArray += $output;
-                    };
-                };
-            };
+                        $outputArray += $output
+                    }
+                }
+            }
             
-            $total++;
-            return $outputArray;
+            $total++
+            return $outputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [StringMatch]::new();
+                $output = $null
+                $output = [StringMatch]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

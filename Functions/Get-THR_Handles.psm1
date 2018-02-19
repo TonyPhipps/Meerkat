@@ -57,17 +57,17 @@
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Handle
         {
@@ -81,38 +81,38 @@
             [string] $HandleType
             [string] $Attributes
             [string] $String
-        };
-	};
+        }
+	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $handles = $null;
+        $handles = $null
         $handles = Invoke-Command  -ArgumentList $HandlePath -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $HandlePath = $args[0];
+            $HandlePath = $args[0]
 
-            $Is64BitOperatingSystem = [environment]::Is64BitOperatingSystem;
+            $Is64BitOperatingSystem = [environment]::Is64BitOperatingSystem
             if ($Is64BitOperatingSystem){
                 $tool = 'handle64.exe'
             } 
             else {
                 $tool = 'handle.exe'
-            };
+            }
 
-            $handles = Invoke-Expression "$HandlePath\$tool -a -nobanner -accepteula";
+            $handles = Invoke-Expression "$HandlePath\$tool -a -nobanner -accepteula"
 
-            return $handles;
+            return $handles
         
-        };
+        }
             
         if ($handles) {
             [regex]$regexProcess = '(?<process>\S+)\spid:\s(?<pid>\d+)\s(?<string>.*)'
             [regex]$regexHandle = '(?<location>[A-F0-9]+):\s(?<type>\w+)\s{2}(?<attributes>\(.*\))?\s+(?<string>.*)'
             [regex]$nullHandle = '([A-F0-9]+):\s(\w+)\s+$'
 
-            $outputArray = @();
+            $outputArray = @()
             
             $handles = $handles | Where-Object {($_.length -gt 0) -and ($_ -notmatch $nullHandle)}
             
@@ -120,61 +120,61 @@
             
                 if ($handle -match $regexProcess){
             
-                    $process = $Matches.process;
-                    $processPID = $Matches.pid;
-                    $owner = $Matches.string;
+                    $process = $Matches.process
+                    $processPID = $Matches.pid
+                    $owner = $Matches.string
                 }
             
                 if ($handle -match $regexHandle){
             
-                    $output = $null;
-                    $output = [Handle]::new();
+                    $output = $null
+                    $output = [Handle]::new()
     
-                    $output.Computer = $Computer;
-                    $output.DateScanned = Get-Date -Format u;
+                    $output.Computer = $Computer
+                    $output.DateScanned = Get-Date -Format u
     
-                    $output.ProcessID = $processPID;
-                    $output.Process = $process;
-                    $output.Owner =$owner;
-                    $output.Location = $Matches.location;
-                    $output.HandleType = $Matches.type;
-                    $output.Attributes = $Matches.attributes;
-                    $output.String = $Matches.string;
+                    $output.ProcessID = $processPID
+                    $output.Process = $process
+                    $output.Owner =$owner
+                    $output.Location = $Matches.location
+                    $output.HandleType = $Matches.type
+                    $output.Attributes = $Matches.attributes
+                    $output.String = $Matches.string
                                         
-                    $outputArray += $output;
+                    $outputArray += $output
                 }
 
-            };
+            }
             
-            $total++;
-            return $outputArray;
+            $total++
+            return $outputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Handle]::new();
+                $output = $null
+                $output = [Handle]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

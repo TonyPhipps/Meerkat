@@ -62,17 +62,17 @@ Function Get-THR_Processes {
         
         [Parameter()]
         $Fails
-    );
+    )
 
     begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Verbose "Started at $datetime";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Process {
             [String] $Computer
@@ -110,153 +110,153 @@ Function Get-THR_Processes {
             [String] $UserName
             [String] $Services
             [String] $DLLs
-        };
-    };
+        }
+    }
 
     process{
 
-        $Computer = $Computer.Replace('"', '');
+        $Computer = $Computer.Replace('"', '')
 
-        $Processes = $null;
-        $Mode = $null;
+        $Processes = $null
+        $Mode = $null
         
-        Write-Verbose "Attempting Get-Process -IncludeUserName";
-        $Processes = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-Process -IncludeUserName} -ErrorAction SilentlyContinue;
-        $Mode = "1";
+        Write-Verbose "Attempting Get-Process -IncludeUserName"
+        $Processes = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-Process -IncludeUserName} -ErrorAction SilentlyContinue
+        $Mode = "1"
 
         If ($Processes -eq $null) {
             
-            Write-Verbose "FAILED: Get-Process -IncludeUserName";
-            Write-Verbose "Attempting Get-Process";
-            $Processes = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-Process} -ErrorAction SilentlyContinue;
-            $Mode = "2";
+            Write-Verbose "FAILED: Get-Process -IncludeUserName"
+            Write-Verbose "Attempting Get-Process"
+            $Processes = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-Process} -ErrorAction SilentlyContinue
+            $Mode = "2"
 
             If ($Processes -eq $null) {
 
-                Write-Verbose "FAILED: Get-Process";
-                Write-Verbose "Attempting Get-Process without -Invoke-Command";
-                $Processes = Get-Process -ComputerName $Computer -ErrorAction SilentlyContinue;
-                $Mode = "3";
-            };
-        };
+                Write-Verbose "FAILED: Get-Process"
+                Write-Verbose "Attempting Get-Process without -Invoke-Command"
+                $Processes = Get-Process -ComputerName $Computer -ErrorAction SilentlyContinue
+                $Mode = "3"
+            }
+        }
     
         if ($Processes) {
 
-            Write-Verbose "Processes collected.";
+            Write-Verbose "Processes collected."
             
             if ($Services) {
                 
-                Write-Verbose "-Services switch was activated, pulling full service info.";
-                $CIM_Services = $null;
-                $CIM_Services = Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'" -ComputerName $Computer -ErrorAction SilentlyContinue;
+                Write-Verbose "-Services switch was activated, pulling full service info."
+                $CIM_Services = $null
+                $CIM_Services = Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'" -ComputerName $Computer -ErrorAction SilentlyContinue
                 # Odd filter explanation: http://itknowledgeexchange.techtarget.com/powershell/cim-session-oddity/
-            };
+            }
         
-            $CIM_Processes = $null;
-            $CIM_Processes = Get-CIMinstance -class Win32_Process -Filter "Caption LIKE '%'" -ComputerName $Computer -ErrorAction SilentlyContinue;
+            $CIM_Processes = $null
+            $CIM_Processes = Get-CIMinstance -class Win32_Process -Filter "Caption LIKE '%'" -ComputerName $Computer -ErrorAction SilentlyContinue
 
             Write-Verbose "Cycling through each process."
             $Processes | ForEach-Object {
 
-                $ProcessID = $null;
-                $ProcessID = $_.Id;
+                $ProcessID = $null
+                $ProcessID = $_.Id
 
                 if ($Services -AND $CIM_Services) {
                     
-                    Write-Verbose "Pulling service info on this process.";
-                    $ThisServices = $null;
-                    $ThisServices = $CIM_Services | Where-Object ProcessID -eq $ProcessID;
-                };
+                    Write-Verbose "Pulling service info on this process."
+                    $ThisServices = $null
+                    $ThisServices = $CIM_Services | Where-Object ProcessID -eq $ProcessID
+                }
             
                 if ($CIM_Processes) {
 
-                    Write-Verbose "Pulling commandline and owner information.";
-                    $CommandLine = $null;
-                    $CommandLine = $CIM_Processes | Where-Object ProcessID -eq $ProcessID | Select-Object -ExpandProperty CommandLine;
+                    Write-Verbose "Pulling commandline and owner information."
+                    $CommandLine = $null
+                    $CommandLine = $CIM_Processes | Where-Object ProcessID -eq $ProcessID | Select-Object -ExpandProperty CommandLine
 
                     if ($_.UserName -eq $null) {
                         
-                        $ProcessInfo = $null;
-                        $ProcessInfo = $CIM_Processes | Where-Object ProcessID -eq $ProcessID | Invoke-CimMethod -MethodName GetOwner -ErrorAction SilentlyContinue | Select-Object Domain, User;
+                        $ProcessInfo = $null
+                        $ProcessInfo = $CIM_Processes | Where-Object ProcessID -eq $ProcessID | Invoke-CimMethod -MethodName GetOwner -ErrorAction SilentlyContinue | Select-Object Domain, User
                         
                         if ($ProcessInfo) {
-                            $ProcessOwner = $null;
-                            $ProcessOwner = $ProcessInfo.Domain + "\" + $ProcessInfo.User;
-                            if ($ProcessOwner -eq "\") {$ProcessOwner = $null};
-                        };
-                    };
-                };
+                            $ProcessOwner = $null
+                            $ProcessOwner = $ProcessInfo.Domain + "\" + $ProcessInfo.User
+                            if ($ProcessOwner -eq "\") {$ProcessOwner = $null}
+                        }
+                    }
+                }
 
-                $output = $null;
-                $output = [Process]::new();
+                $output = $null
+                $output = [Process]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
 
-                $output.Mode = $Mode;
-                $output.BasePriority = $_.BasePriority;
-                $output.CPU = $_.CPU;
-                $output.CommandLine = $CommandLine;
-                $output.Company = $_.Company;
-                $output.DESCRIPTION = $_.DESCRIPTION;
-                $output.EnableRaisingEvents = $_.EnableRaisingEvents;
-                $output.FileVersion = $_.FileVersion;
-                $output.Handle = $_.Handle;
-                $output.HandleCount = $_.HandleCount;
-                $output.Id = $_.Id;
-                $output.MainModule = $_.MainModule;
-                $output.MainModule = $output.MainModule.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '');
-                $output.MainWindowHandle = $_.MainWindowHandle;
-                $output.MainWindowTitle = $_.MainWindowTitle;
-                $output.ModuleCount = @($_.Modules).Count;
-                $output.DisplayName = $_.Name;
-                $output.Path = $_.Path;
-                $output.PriorityBoostEnabled = $_.PriorityBoostEnabled;
-                $output.PriorityClass = $_.PriorityClass;
-                $output.PrivilegedProcessorTime = $_.PrivilegedProcessorTime;
-                $output.ProcessName = $_.ProcessName;
-                $output.ProcessorAffinity = $_.ProcessorAffinity;
-                $output.Product = $_.Product;
-                $output.ProductVersion = $_.ProductVersion;
-                $output.Responding = $_.Responding;
-                $output.SessionId = $_.SessionId;
-                $output.StartTime = $_.StartTime;
-                $output.Threads = @($_.Threads).Count;
-                $output.TotalProcessorTime = $_.TotalProcessorTime;
-                $output.UserName = if ($_.UserName) {$_.UserName} elseif ($ProcessOwner) {$ProcessOwner};
-                $output.Services = if ($ThisServices) {$ThisServices.PathName -Join "; "; };
-                $output.DLLs = if ($DLLs -AND $_.Modules) {$_.Modules -join "; "; };
-                $output.DLLs = $output.DLLs.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '');
+                $output.Mode = $Mode
+                $output.BasePriority = $_.BasePriority
+                $output.CPU = $_.CPU
+                $output.CommandLine = $CommandLine
+                $output.Company = $_.Company
+                $output.DESCRIPTION = $_.DESCRIPTION
+                $output.EnableRaisingEvents = $_.EnableRaisingEvents
+                $output.FileVersion = $_.FileVersion
+                $output.Handle = $_.Handle
+                $output.HandleCount = $_.HandleCount
+                $output.Id = $_.Id
+                $output.MainModule = $_.MainModule
+                $output.MainModule = $output.MainModule.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
+                $output.MainWindowHandle = $_.MainWindowHandle
+                $output.MainWindowTitle = $_.MainWindowTitle
+                $output.ModuleCount = @($_.Modules).Count
+                $output.DisplayName = $_.Name
+                $output.Path = $_.Path
+                $output.PriorityBoostEnabled = $_.PriorityBoostEnabled
+                $output.PriorityClass = $_.PriorityClass
+                $output.PrivilegedProcessorTime = $_.PrivilegedProcessorTime
+                $output.ProcessName = $_.ProcessName
+                $output.ProcessorAffinity = $_.ProcessorAffinity
+                $output.Product = $_.Product
+                $output.ProductVersion = $_.ProductVersion
+                $output.Responding = $_.Responding
+                $output.SessionId = $_.SessionId
+                $output.StartTime = $_.StartTime
+                $output.Threads = @($_.Threads).Count
+                $output.TotalProcessorTime = $_.TotalProcessorTime
+                $output.UserName = if ($_.UserName) {$_.UserName} elseif ($ProcessOwner) {$ProcessOwner}
+                $output.Services = if ($ThisServices) {$ThisServices.PathName -Join " " }
+                $output.DLLs = if ($DLLs -AND $_.Modules) {$_.Modules -join " " }
+                $output.DLLs = $output.DLLs.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
                               
-                return $output; 
-            };
+                return $output 
+            }
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Process]::new();
+                $output = $null
+                $output = [Process]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

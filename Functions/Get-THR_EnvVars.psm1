@@ -46,17 +46,17 @@ Function Get-THR_EnvVars {
         
         [Parameter()]
         $Fails
-    );
+    )
 
     begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class EnvVariable {
             [String] $Computer
@@ -65,74 +65,74 @@ Function Get-THR_EnvVars {
             [String] $Name         
             [String] $UserName
             [String] $VariableValue
-        };
-    };
+        }
+    }
 
 
     process{
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        $AllVariables = $null;
-        $AllVariables = Get-CimInstance -Class Win32_Environment -ComputerName $Computer -ErrorAction SilentlyContinue;
+        $AllVariables = $null
+        $AllVariables = Get-CimInstance -Class Win32_Environment -ComputerName $Computer -ErrorAction SilentlyContinue
         
         if ($AllVariables) {
 
-            $OutputArray = $null;
-            $OutputArray = @();
+            $OutputArray = $null
+            $OutputArray = @()
 
             ForEach ($Variable in $AllVariables) {
-                $VariableValues = $Variable.VariableValue.Split(";") | Where-Object {$_ -ne ""}
+                $VariableValues = $Variable.VariableValue.Split("") | Where-Object {$_ -ne ""}
             
                 Foreach ($VariableValue in $VariableValues) {
-                    $VariableValueSplit = $Variable;
-                    $VariableValueSplit.VariableValue = $VariableValue;
+                    $VariableValueSplit = $Variable
+                    $VariableValueSplit.VariableValue = $VariableValue
                 
-                    $output = $null;
-                    $output = [EnvVariable]::new();
+                    $output = $null
+                    $output = [EnvVariable]::new()
    
-                    $output.Computer = $Computer;
-                    $output.DateScanned = Get-Date -Format u;
+                    $output.Computer = $Computer
+                    $output.DateScanned = Get-Date -Format u
 
-                    $output.Name = $VariableValueSplit.Name;
-                    $output.UserName = $VariableValueSplit.UserName;
-                    $output.VariableValue = $VariableValueSplit.VariableValue;         
+                    $output.Name = $VariableValueSplit.Name
+                    $output.UserName = $VariableValueSplit.UserName
+                    $output.VariableValue = $VariableValueSplit.VariableValue         
 
-                    $OutputArray += $output;
+                    $OutputArray += $output
 
-                };
-            };
+                }
+            }
 
-            $elapsed = $stopwatch.Elapsed;
-            $total = $total+1;
+            $elapsed = $stopwatch.Elapsed
+            $total = $total+1
 
-            return $OutputArray;
+            return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [EnvVariable]::new();
+                $output = $null
+                $output = [EnvVariable]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

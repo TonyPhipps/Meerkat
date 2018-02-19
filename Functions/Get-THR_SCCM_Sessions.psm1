@@ -60,18 +60,18 @@ function Get-THR_SCCM_Sessions {
         
         [Parameter()]
         [switch]$CIM
-    );
+    )
 
 	begin{
-        $SCCMNameSpace="root\sms\site_$SiteName";
+        $SCCMNameSpace="root\sms\site_$SiteName"
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
         Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 		
 		class User {
             [String] $Computer
@@ -84,88 +84,88 @@ function Get-THR_SCCM_Sessions {
 			[String] $SystemConsoleUser
 			[String] $TotalUserConsoleMinutes
 			[String] $TimeStamp
-        };
-	};
+        }
+	}
 
     process{        
                 
         if ($Computer -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"){ # is this an IP address?
             
-            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname;
-            $ThisComputer = $fqdn.Split(".")[0];
+            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname
+            $ThisComputer = $fqdn.Split(".")[0]
         }
         
         else{ # Convert any FQDN into just hostname
             
-            $ThisComputer = $Computer.Split(".")[0].Replace('"', '');
-        };
+            $ThisComputer = $Computer.Split(".")[0].Replace('"', '')
+        }
             
         if ($CIM){
 			
-			$SMS_R_System = $Null;
-            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
+			$SMS_R_System = $Null
+            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
             
 			if ($SMS_R_System) {
 				
-				$ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-				$SMS_G_System_SYSTEM_CONSOLE_USER = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select GroupID, LastConsoleUse, NumberOfConsoleLogons, SystemConsoleUser, TimeStamp, TotalUserConsoleMinutes from SMS_G_System_SYSTEM_CONSOLE_USER where ResourceID='$ResourceID'";
-			};
+				$ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+				$SMS_G_System_SYSTEM_CONSOLE_USER = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select GroupID, LastConsoleUse, NumberOfConsoleLogons, SystemConsoleUser, TimeStamp, TotalUserConsoleMinutes from SMS_G_System_SYSTEM_CONSOLE_USER where ResourceID='$ResourceID'"
+			}
 		}
         else{
 			
-            $SMS_R_System = $Null;
-            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
+            $SMS_R_System = $Null
+            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
             
 			if ($SMS_R_System) {
-				$ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-				$SMS_G_System_SYSTEM_CONSOLE_USER = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select GroupID, LastConsoleUse, NumberOfConsoleLogons, SystemConsoleUser, TimeStamp, TotalUserConsoleMinutes from SMS_G_System_SYSTEM_CONSOLE_USER where ResourceID='$ResourceID'";
-			};
-		};
+				$ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+				$SMS_G_System_SYSTEM_CONSOLE_USER = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select GroupID, LastConsoleUse, NumberOfConsoleLogons, SystemConsoleUser, TimeStamp, TotalUserConsoleMinutes from SMS_G_System_SYSTEM_CONSOLE_USER where ResourceID='$ResourceID'"
+			}
+		}
 
         if ($SMS_G_System_SYSTEM_CONSOLE_USER){
                 
             $SMS_G_System_SYSTEM_CONSOLE_USER | ForEach-Object {
               
-                $output = $null;
-				$output = [User]::new();
+                $output = $null
+				$output = [User]::new()
 				
-				$output.Computer = $ThisComputer;
-				$output.DateScanned = Get-Date -Format u;
+				$output.Computer = $ThisComputer
+				$output.DateScanned = Get-Date -Format u
 
-                $output.ResourceNames = $SMS_R_System.ResourceNames[0];
+                $output.ResourceNames = $SMS_R_System.ResourceNames[0]
 
-                $output.LastConsoleUse = $_.LastConsoleUse;
-                $output.NumberOfConsoleLogons = $_.NumberOfConsoleLogons;
-                $output.SystemConsoleUser = $_.SystemConsoleUser;
-                $output.GroupID = $_.GroupID; # does not appear to map to the GroupID in SMS_G_System_LocalGroupMembers
-                $output.TotalUserConsoleMinutes = $_.TotalUserConsoleMinutes;
-                $output.Timestamp = $_.Timestamp;
+                $output.LastConsoleUse = $_.LastConsoleUse
+                $output.NumberOfConsoleLogons = $_.NumberOfConsoleLogons
+                $output.SystemConsoleUser = $_.SystemConsoleUser
+                $output.GroupID = $_.GroupID # does not appear to map to the GroupID in SMS_G_System_LocalGroupMembers
+                $output.TotalUserConsoleMinutes = $_.TotalUserConsoleMinutes
+                $output.Timestamp = $_.Timestamp
 
-                return $output;
-            };
+                return $output
+            }
         }
         else {
 		
-			$output = $null;
-			$output = [User]::new();
+			$output = $null
+			$output = [User]::new()
 
-			$output.Computer = $Computer;
-			$output.DateScanned = Get-Date -Format u;
+			$output.Computer = $Computer
+			$output.DateScanned = Get-Date -Format u
 			
-            return $output;
-        };
+            return $output
+        }
 
-        $elapsed = $stopwatch.Elapsed;
-        $total = $total+1;
+        $elapsed = $stopwatch.Elapsed
+        $total = $total+1
             
-        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed";
+        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed"
 
-    };
+    }
 
     end{
-        $elapsed = $stopwatch.Elapsed;
-        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed";
-	};
-};
+        $elapsed = $stopwatch.Elapsed
+        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed"
+	}
+}
 
 

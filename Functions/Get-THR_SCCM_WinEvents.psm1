@@ -60,18 +60,18 @@ function Get-THR_SCCM_WinEvents {
         
         [Parameter()]
         [switch]$CIM
-    );
+    )
 
 	begin{
-        $SCCMNameSpace="root\sms\site_$SiteName";
+        $SCCMNameSpace="root\sms\site_$SiteName"
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
         Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Autostart {
             [String] $Computer
@@ -90,94 +90,94 @@ function Get-THR_SCCM_WinEvents {
             [String] $StartupType
             [String] $StartupValue
             [String] $Timestamp
-        };
-	};
+        }
+	}
 
     process{        
                 
         if ($Computer -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"){ # is this an IP address?
             
-            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname;
-            $ThisComputer = $fqdn.Split(".")[0];
+            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname
+            $ThisComputer = $fqdn.Split(".")[0]
         }
         
         else{ # Convert any FQDN into just hostname
             
-            $ThisComputer = $Computer.Split(".")[0].Replace('"', '');
-        };
+            $ThisComputer = $Computer.Split(".")[0].Replace('"', '')
+        }
 
 
         if ($CIM){
             
-            $SMS_R_System = $Null;
-            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
+            $SMS_R_System = $Null
+            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
             
             if ($SMS_R_System) {
-                $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-                $SMS_G_System_AUTOSTART_SOFTWARE = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Location, Product, ProductVersion, Publisher, RevisionID, StartupType, StartupValue, TimeStamp from SMS_G_System_AUTOSTART_SOFTWARE where ResourceID='$ResourceID'";
-            };
+                $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+                $SMS_G_System_AUTOSTART_SOFTWARE = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Location, Product, ProductVersion, Publisher, RevisionID, StartupType, StartupValue, TimeStamp from SMS_G_System_AUTOSTART_SOFTWARE where ResourceID='$ResourceID'"
+            }
         }
         else{
             
-            $SMS_R_System = $Null;
-            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
+            $SMS_R_System = $Null
+            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
             
             if ($SMS_R_System) {
-                $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-                $SMS_G_System_AUTOSTART_SOFTWARE = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Location, Product, ProductVersion, Publisher, RevisionID, StartupType, StartupValue, TimeStamp from SMS_G_System_AUTOSTART_SOFTWARE where ResourceID='$ResourceID'";
-            };
-        };
+                $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+                $SMS_G_System_AUTOSTART_SOFTWARE = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Location, Product, ProductVersion, Publisher, RevisionID, StartupType, StartupValue, TimeStamp from SMS_G_System_AUTOSTART_SOFTWARE where ResourceID='$ResourceID'"
+            }
+        }
 
         if ($SMS_G_System_AUTOSTART_SOFTWARE){
                 
             $SMS_G_System_AUTOSTART_SOFTWARE | ForEach-Object {
                 
-                $output = $null;
-				$output = [Autostart]::new();
+                $output = $null
+				$output = [Autostart]::new()
    
-                $output.Computer = $ThisComputer;
-				$output.DateScanned = Get-Date -Format u;
+                $output.Computer = $ThisComputer
+				$output.DateScanned = Get-Date -Format u
                 
-                $output.ResourceNames = $SMS_R_System.ResourceNames[0];
-                $output.DESCRIPTION = $_.DESCRIPTION;
-                $output.FileName = $_.FileName;
-                $output.FilePropertiesHash = $_.FilePropertiesHash;
-                $output.FilePropertiesHashEx = $_.FilePropertiesHashEx;
-                $output.FileVersion = $_.FileVersion;
-                $output.Location = $_.Location;
-                $output.Product = $_.Product;
-                $output.ProductVersion = $_.ProductVersion;
-                $output.Publisher = $_.Publisher;
-                $output.RevisionID = $_.RevisionID;
-                $output.StartupType = $_.StartupType;
-                $output.StartupValue = $_.StartupValue;
-                $output.Timestamp = $_.Timestamp;
+                $output.ResourceNames = $SMS_R_System.ResourceNames[0]
+                $output.DESCRIPTION = $_.DESCRIPTION
+                $output.FileName = $_.FileName
+                $output.FilePropertiesHash = $_.FilePropertiesHash
+                $output.FilePropertiesHashEx = $_.FilePropertiesHashEx
+                $output.FileVersion = $_.FileVersion
+                $output.Location = $_.Location
+                $output.Product = $_.Product
+                $output.ProductVersion = $_.ProductVersion
+                $output.Publisher = $_.Publisher
+                $output.RevisionID = $_.RevisionID
+                $output.StartupType = $_.StartupType
+                $output.StartupValue = $_.StartupValue
+                $output.Timestamp = $_.Timestamp
 
-                return $output;
-            };
+                return $output
+            }
         }
         else {
 
-            $output = $null;
-			$output = [Autostart]::new();
+            $output = $null
+			$output = [Autostart]::new()
 
-			$output.Computer = $Computer;
-			$output.DateScanned = Get-Date -Format u;
+			$output.Computer = $Computer
+			$output.DateScanned = Get-Date -Format u
 			
-            return $output;
-        };
+            return $output
+        }
 
-        $elapsed = $stopwatch.Elapsed;
-        $total = $total+1;
+        $elapsed = $stopwatch.Elapsed
+        $total = $total+1
             
-        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed";
+        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed"
 
-    };
+    }
 
     end{
-        $elapsed = $stopwatch.Elapsed;
-        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed";
-	};
-};
+        $elapsed = $stopwatch.Elapsed
+        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed"
+	}
+}
 
 

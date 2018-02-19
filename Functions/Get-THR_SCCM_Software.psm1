@@ -60,32 +60,32 @@ function Get-THR_SCCM_Software {
         
         [Parameter()]
         [switch]$CIM
-    );
+    )
 
 	begin{
-        $SCCMNameSpace="root\sms\site_$SiteName";
+        $SCCMNameSpace="root\sms\site_$SiteName"
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
         Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 	}
 
     process{        
                 
         if ($Computer -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"){ # is this an IP address?
             
-            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname;
-            $ThisComputer = $fqdn.Split(".")[0];
+            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname
+            $ThisComputer = $fqdn.Split(".")[0]
         }
         
         else{ # Convert any FQDN into just hostname
             
-            $ThisComputer = $Computer.Split(".")[0].Replace('"', '');
-        };
+            $ThisComputer = $Computer.Split(".")[0].Replace('"', '')
+        }
 
         $output = [PSCustomObject]@{
             Name = $ThisComputer
@@ -108,20 +108,20 @@ function Get-THR_SCCM_Software {
             VersionMajor = ""
             VersionMinor = ""
             Timestamp = ""
-        };
+        }
 
         if ($CIM){
             
-            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
-            $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-            $SMS_G_System_INSTALLED_SOFTWARE = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ARPDisplayName, InstallDate, InstallDirectoryValidation, InstalledLocation, InstallSource, InstallType, Language, LocalPackage, OSComponent, ProductName, ProductVersion, Publisher, RegisteredUser, ServicePack, TimeStamp, UninstallString, VersionMajor, VersionMinor from SMS_G_System_INSTALLED_SOFTWARE where ResourceID='$ResourceID'";
+            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
+            $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+            $SMS_G_System_INSTALLED_SOFTWARE = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ARPDisplayName, InstallDate, InstallDirectoryValidation, InstalledLocation, InstallSource, InstallType, Language, LocalPackage, OSComponent, ProductName, ProductVersion, Publisher, RegisteredUser, ServicePack, TimeStamp, UninstallString, VersionMajor, VersionMinor from SMS_G_System_INSTALLED_SOFTWARE where ResourceID='$ResourceID'"
         }
         else{
             
-            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
-            $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-            $SMS_G_System_INSTALLED_SOFTWARE = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ARPDisplayName, InstallDate, InstallDirectoryValidation, InstalledLocation, InstallSource, InstallType, Language, LocalPackage, OSComponent, ProductName, ProductVersion, Publisher, RegisteredUser, ServicePack, TimeStamp, UninstallString, VersionMajor, VersionMinor from SMS_G_System_INSTALLED_SOFTWARE where ResourceID='$ResourceID'";
-        };
+            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
+            $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+            $SMS_G_System_INSTALLED_SOFTWARE = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ARPDisplayName, InstallDate, InstallDirectoryValidation, InstalledLocation, InstallSource, InstallType, Language, LocalPackage, OSComponent, ProductName, ProductVersion, Publisher, RegisteredUser, ServicePack, TimeStamp, UninstallString, VersionMajor, VersionMinor from SMS_G_System_INSTALLED_SOFTWARE where ResourceID='$ResourceID'"
+        }
             
         if ($SMS_G_System_INSTALLED_SOFTWARE){
                 
@@ -129,46 +129,46 @@ function Get-THR_SCCM_Software {
                 
                 $output.ResourceNames = $SMS_R_System.ResourceNames[0]
 
-                $output.ARPDisplayName = $_.ARPDisplayName;
-                $output.InstallDate = $_.InstallDate;
-                $output.InstallDirectoryValidation = $_.InstallDirectoryValidation;
-                $output.InstalledLocation = $_.InstalledLocation;
-                $output.InstallSource = $_.InstallSource;
-                $output.InstallType = $_.InstallType;
-                $output.Language = $_.Language;
-                $output.LocalPackage = $_.LocalPackage;
-                $output.OSComponent = $_.OSComponent;
-                $output.ProductName = $_.ProductName;
-                $output.Publisher = $_.Publisher;
-                $output.RegisteredUser = $_.RegisteredUser;
-                $output.ServicePack = $_.ServicePack;
-                $output.UninstallString = $_.UninstallString;
-                $output.VersionMajor = $_.VersionMajor;
-                $output.VersionMinor = $_.VersionMinor;
+                $output.ARPDisplayName = $_.ARPDisplayName
+                $output.InstallDate = $_.InstallDate
+                $output.InstallDirectoryValidation = $_.InstallDirectoryValidation
+                $output.InstalledLocation = $_.InstalledLocation
+                $output.InstallSource = $_.InstallSource
+                $output.InstallType = $_.InstallType
+                $output.Language = $_.Language
+                $output.LocalPackage = $_.LocalPackage
+                $output.OSComponent = $_.OSComponent
+                $output.ProductName = $_.ProductName
+                $output.Publisher = $_.Publisher
+                $output.RegisteredUser = $_.RegisteredUser
+                $output.ServicePack = $_.ServicePack
+                $output.UninstallString = $_.UninstallString
+                $output.VersionMajor = $_.VersionMajor
+                $output.VersionMinor = $_.VersionMinor
 
-                $output.Timestamp = $_.Timestamp;
+                $output.Timestamp = $_.Timestamp
                     
-                return $output;
-                $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)}; 
-            };
+                return $output
+                $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)} 
+            }
         }
         else {
 
-            return $output;
-            $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)}; 
-        };
+            return $output
+            $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)} 
+        }
 
-        $elapsed = $stopwatch.Elapsed;
-        $total = $total+1;
+        $elapsed = $stopwatch.Elapsed
+        $total = $total+1
             
-        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed";
+        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed"
 
-    };
+    }
 
     end{
-        $elapsed = $stopwatch.Elapsed;
-        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed";
-	};
-};
+        $elapsed = $stopwatch.Elapsed
+        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed"
+	}
+}
 
 

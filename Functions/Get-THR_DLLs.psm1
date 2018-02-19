@@ -49,17 +49,17 @@
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class DLL
         {
@@ -72,75 +72,75 @@
             [String] $DLLCompany
             [String] $DLLProduct
 
-        };
-	};
+        }
+	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $processes = $null;
+        $processes = $null
         $processes = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $processes = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules ;
+            $processes = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules 
 
-            return $processes;
+            return $processes
         
-        };
+        }
             
         if ($processes) {
             
-            $outputArray = @();
+            $outputArray = @()
 
             Foreach ($process in $processes) {
                 
                 Foreach ($module in $process.modules){
                     
-                    $output = $null;
-                    $output = [DLL]::new();
+                    $output = $null
+                    $output = [DLL]::new()
     
-                    $output.Computer = $Computer;
-                    $output.DateScanned = Get-Date -Format u;
+                    $output.Computer = $Computer
+                    $output.DateScanned = Get-Date -Format u
     
-                    $output.ProcessID = $process.id;
-                    $output.Process = $process.processname;
-                    $output.DLLCompany = $module.company;
-                    $output.DLLProduct = $module.Product;
-                    $output.DLLName = $module.modulename;
+                    $output.ProcessID = $process.id
+                    $output.Process = $process.processname
+                    $output.DLLCompany = $module.company
+                    $output.DLLProduct = $module.Product
+                    $output.DLLName = $module.modulename
                     
-                    $outputArray += $output;
-                };
-            };
+                    $outputArray += $output
+                }
+            }
 
-            return $outputArray;
+            return $outputArray
 
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [DLL]::new();
+                $output = $null
+                $output = [DLL]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

@@ -51,41 +51,41 @@ function Get-THR_TPM {
 
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         $Manufacturers = @{
-            0x414D4400 = "AMD";
-            0x41544D4C = "Atmel";
-            0x4252434D = "Broadcom";
-            0x474F4F47 = "Google";
-            0x48504500 = "HPE";
-            0x49424d00 = "IBM";
-            0x49465800 = "Infineon";
-            0x494E5443 = "Intel";
-            0x4C454E00 = "Lenovo";
-            0x4D534654 = "Microsoft";
-            0x4E534D20 = "National Semiconductor";
-            0x4E544300 = "Nuvoton Technology";
-            0x4E545A00 = "Nationz";
-            0x51434F4D = "Qualcomm";
-            0x524F4343 = "Fuzhou Rockchip";
-            0x534D5343  = "SMSC";
-            0x534D534E = "Samsung";
-            0x534E5300 = "Sinosun";
-            0x53544D20 = "ST Microelectronics";
-            0x54584E00 = "Texas Instruments";
-            0x57454300 = "Winbond";
-        };
+            0x414D4400 = "AMD"
+            0x41544D4C = "Atmel"
+            0x4252434D = "Broadcom"
+            0x474F4F47 = "Google"
+            0x48504500 = "HPE"
+            0x49424d00 = "IBM"
+            0x49465800 = "Infineon"
+            0x494E5443 = "Intel"
+            0x4C454E00 = "Lenovo"
+            0x4D534654 = "Microsoft"
+            0x4E534D20 = "National Semiconductor"
+            0x4E544300 = "Nuvoton Technology"
+            0x4E545A00 = "Nationz"
+            0x51434F4D = "Qualcomm"
+            0x524F4343 = "Fuzhou Rockchip"
+            0x534D5343  = "SMSC"
+            0x534D534E = "Samsung"
+            0x534E5300 = "Sinosun"
+            0x53544D20 = "ST Microelectronics"
+            0x54584E00 = "Texas Instruments"
+            0x57454300 = "Winbond"
+        }
 
         class TPM
         {
@@ -107,83 +107,83 @@ function Get-THR_TPM {
             [String] $LockoutMax
             [String] $SelfTest
             [String] $FirmwareVersionAtLastProvision
-        };
-	};
+        }
+	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $TPMInfo = $null;
+        $TPMInfo = $null
         $TPMInfo = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
-            $TPM = Get-Tpm  -ErrorAction SilentlyContinue;
-            $FirmwareVersionAtLastProvision = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\TPM\WMI" -Name "FirmwareVersionAtLastProvision" -ErrorAction SilentlyContinue).FirmwareVersionAtLastProvision;
+            $TPM = Get-Tpm  -ErrorAction SilentlyContinue
+            $FirmwareVersionAtLastProvision = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\TPM\WMI" -Name "FirmwareVersionAtLastProvision" -ErrorAction SilentlyContinue).FirmwareVersionAtLastProvision
             
-            $TPM | Add-Member -MemberType NoteProperty -Name "FirmwareVersionAtLastProvision" -Value $FirmwareVersionAtLastProvision;
+            $TPM | Add-Member -MemberType NoteProperty -Name "FirmwareVersionAtLastProvision" -Value $FirmwareVersionAtLastProvision
 
-            return $TPM;
-        };
+            return $TPM
+        }
 
         if ($TPMInfo) {
                         
-            $output = $null;
-            $output = [TPM]::new();
+            $output = $null
+            $output = [TPM]::new()
 
-            $output.Computer = $Computer;
-            $output.DateScanned = Get-Date -Format u;
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
 
-            $output.TpmPresent = $TPMInfo.TpmPresent;
-            $output.TpmReady = $TPMInfo.TpmReady;
-            $output.ManufacturerId = $TPMInfo.ManufacturerId;
-            $output.ManufacturerVersion = $TPMInfo.ManufacturerVersion;
-            $output.ManagedAuthLevel = $TPMInfo.ManagedAuthLevel;
-            $output.OwnerAuth = $TPMInfo.OwnerAuth;
-            $output.OwnerClearDisabled = $TPMInfo.OwnerClearDisabled;
-            $output.AutoProvisioning = $TPMInfo.AutoProvisioning;
-            $output.LockedOut = $TPMInfo.LockedOut;
-            $output.LockoutCount = $TPMInfo.LockoutCount;
-            $output.LockoutMax = $TPMInfo.LockoutMax;
-            $output.SelfTest = $TPMInfo.SelfTest;
-            $output.ManufacturerIdHex = "0x{0:x}" -f $TPMInfo.ManufacturerId;
-            $output.FirmwareVersionAtLastProvision = $TPMInfo.FirmwareVersionAtLastProvision;
+            $output.TpmPresent = $TPMInfo.TpmPresent
+            $output.TpmReady = $TPMInfo.TpmReady
+            $output.ManufacturerId = $TPMInfo.ManufacturerId
+            $output.ManufacturerVersion = $TPMInfo.ManufacturerVersion
+            $output.ManagedAuthLevel = $TPMInfo.ManagedAuthLevel
+            $output.OwnerAuth = $TPMInfo.OwnerAuth
+            $output.OwnerClearDisabled = $TPMInfo.OwnerClearDisabled
+            $output.AutoProvisioning = $TPMInfo.AutoProvisioning
+            $output.LockedOut = $TPMInfo.LockedOut
+            $output.LockoutCount = $TPMInfo.LockoutCount
+            $output.LockoutMax = $TPMInfo.LockoutMax
+            $output.SelfTest = $TPMInfo.SelfTest
+            $output.ManufacturerIdHex = "0x{0:x}" -f $TPMInfo.ManufacturerId
+            $output.FirmwareVersionAtLastProvision = $TPMInfo.FirmwareVersionAtLastProvision
 
             # Convert ManufacturerId to ManufacturerName
             foreach ($Key in $Manufacturers.Keys) {
 
                 if ($Key -eq $TPMInfo.ManufacturerId) {
                     
-                    $output.ManufacturerName = $Manufacturers[$Key];
-                };
-            };
+                    $output.ManufacturerName = $Manufacturers[$Key]
+                }
+            }
 
-            return $output;
+            return $output
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [TPM]::new();
+                $output = $null
+                $output = [TPM]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

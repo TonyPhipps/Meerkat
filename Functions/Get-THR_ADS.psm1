@@ -6,9 +6,9 @@ function Get-THR_ADS {
     .DESCRIPTION 
         Performs a search for alternate data streams (ADS) on a system. Default starting directory is c:\temp.
         To test, perform the following steps first:
-        $file = "C:\temp\testfile.txt";
-        Set-Content -Path $file -Value 'Nobody here but us chickens!';
-        Add-Content -Path $file -Value 'Super secret squirrel stuff' -Stream 'secretStream';
+        $file = "C:\temp\testfile.txt"
+        Set-Content -Path $file -Value 'Nobody here but us chickens!'
+        Add-Content -Path $file -Value 'Super secret squirrel stuff' -Stream 'secretStream'
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
@@ -60,17 +60,17 @@ function Get-THR_ADS {
 
         [Parameter()]
         $Fails
-    );
+    )
 
     begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Verbose "Started at $datetime";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class ADS {
             [String] $Computer
@@ -85,93 +85,93 @@ function Get-THR_ADS {
             [DateTime] $LastAccessTimeUtc
             [DateTime] $LastWriteTimeUtc
 
-        };
-    };
+        }
+    }
 
     process{
 
-        $Computer = $Computer.Replace('"', '');
+        $Computer = $Computer.Replace('"', '')
 
-        Write-Verbose "Attemting to run Invoke-Command on remote system.";
+        Write-Verbose "Attemting to run Invoke-Command on remote system."
         
-        $Streams = $null;
+        $Streams = $null
         $Streams = Invoke-Command -ArgumentList $Path -ComputerName $Computer -ScriptBlock {
-            $Path = $args[0];
+            $Path = $args[0]
 
             $Streams = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
             ForEach-Object { Get-Item $_.FullName -Stream * } | # Doesn't work without foreach
-            Where-Object {($_.Stream -notlike "*DATA") -AND ($_.Stream -ne "Zone.Identifier")};
+            Where-Object {($_.Stream -notlike "*DATA") -AND ($_.Stream -ne "Zone.Identifier")}
 
             ForEach ($Stream in $Streams) {
-                $File = Get-Item $Stream.FileName;
-                $StreamContent = Get-Content -Path $Stream.FileName -Stream $Stream.Stream;
-                $Attributes = Get-ItemProperty -Path $Stream.FileName;
+                $File = Get-Item $Stream.FileName
+                $StreamContent = Get-Content -Path $Stream.FileName -Stream $Stream.Stream
+                $Attributes = Get-ItemProperty -Path $Stream.FileName
 
-                $Stream | Add-Member -MemberType NoteProperty -Name CreationTimeUtc -Value $File.CreationTimeUtc;
-                $Stream | Add-Member -MemberType NoteProperty -Name LastAccessTimeUtc -Value $File.LastAccessTimeUtc;
-                $Stream | Add-Member -MemberType NoteProperty -Name LastWriteTimeUtc -Value $File.LastWriteTimeUtc;
-                $Stream | Add-Member -MemberType NoteProperty -Name StreamContent -Value $StreamContent;
-                $Stream | Add-Member -MemberType NoteProperty -Name Attributes -Value $Attributes.Mode;
-            };
+                $Stream | Add-Member -MemberType NoteProperty -Name CreationTimeUtc -Value $File.CreationTimeUtc
+                $Stream | Add-Member -MemberType NoteProperty -Name LastAccessTimeUtc -Value $File.LastAccessTimeUtc
+                $Stream | Add-Member -MemberType NoteProperty -Name LastWriteTimeUtc -Value $File.LastWriteTimeUtc
+                $Stream | Add-Member -MemberType NoteProperty -Name StreamContent -Value $StreamContent
+                $Stream | Add-Member -MemberType NoteProperty -Name Attributes -Value $Attributes.Mode
+            }
 
-            return $Streams;
-        };
+            return $Streams
+        }
         
         if ($Streams) {
-            Write-Verbose "Streams were found.";
+            Write-Verbose "Streams were found."
 
-            $OutputArray = $null;
-            $OutputArray = @();
+            $OutputArray = $null
+            $OutputArray = @()
 
             ForEach ($Stream in $Streams) {
 
-                $output = $null;
-                $output = [ADS]::new();
+                $output = $null
+                $output = [ADS]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
 
-                $output.FileName = $Stream.FileName;
-                $output.StreamName = $Stream.Stream;
-                $output.StreamLength = $Stream.Length;
-                $output.Attributes = $Stream.Attributes;
-                $output.StreamContent = $Stream.StreamContent;
-                $output.CreationTimeUtc = $Stream.CreationTimeUtc;
-                $output.LastAccessTimeUtc = $Stream.LastAccessTimeUtc;
-                $output.LastWriteTimeUtc = $Stream.LastWriteTimeUtc;
+                $output.FileName = $Stream.FileName
+                $output.StreamName = $Stream.Stream
+                $output.StreamLength = $Stream.Length
+                $output.Attributes = $Stream.Attributes
+                $output.StreamContent = $Stream.StreamContent
+                $output.CreationTimeUtc = $Stream.CreationTimeUtc
+                $output.LastAccessTimeUtc = $Stream.LastAccessTimeUtc
+                $output.LastWriteTimeUtc = $Stream.LastWriteTimeUtc
                 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
 
-            $total++;
-            return $OutputArray;
+            $total++
+            return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [ADS]::new();
+                $output = $null
+                $output = [ADS]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

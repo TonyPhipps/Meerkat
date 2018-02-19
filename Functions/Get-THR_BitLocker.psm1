@@ -57,13 +57,13 @@ function Get-THR_BitLocker {
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Verbose "Started at $datetime";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class BitLocker {
             [String] $Computer
@@ -83,81 +83,81 @@ function Get-THR_BitLocker {
             [String] $VolumeType
             [String] $CapacityGB
             [String] $KeyProtector
-        };
-	};
+        }
+	}
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Volumes = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-BitLockerVolume} -ErrorAction SilentlyContinue;
+        $Volumes = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-BitLockerVolume} -ErrorAction SilentlyContinue
         
         if ($Volumes) {
 
-            $OutputArray = $null;
-            $OutputArray = @();
+            $OutputArray = $null
+            $OutputArray = @()
 
             ForEach ($Volume in $Volumes) {
                 
-                $output = $null;
-                $output = [BitLocker]::new();
+                $output = $null
+                $output = [BitLocker]::new()
         
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
                 
-                $output.ComputerName = $Volume.ComputerName;
-                $output.MountPoint = $Volume.MountPoint;
-                $output.EncryptionMethod = $Volume.EncryptionMethod;
-                $output.AutoUnlockEnabled = $Volume.AutoUnlockEnabled;
-                $output.MetadataVersion = $Volume.MetadataVersion;
-                $output.VolumeStatus = $Volume.VolumeStatus;
-                $output.ProtectionStatus = $Volume.ProtectionStatus;
-                $output.LockStatus = $Volume.LockStatus;
-                $output.EncryptionPercentage = $Volume.EncryptionPercentage;
-                $output.WipePercentage = $Volume.WipePercentage;
-                $output.VolumeType = $Volume.VolumeType;
-                $output.CapacityGB = $Volume.CapacityGB;
-                $output.KeyProtector = $Volume.KeyProtector;
+                $output.ComputerName = $Volume.ComputerName
+                $output.MountPoint = $Volume.MountPoint
+                $output.EncryptionMethod = $Volume.EncryptionMethod
+                $output.AutoUnlockEnabled = $Volume.AutoUnlockEnabled
+                $output.MetadataVersion = $Volume.MetadataVersion
+                $output.VolumeStatus = $Volume.VolumeStatus
+                $output.ProtectionStatus = $Volume.ProtectionStatus
+                $output.LockStatus = $Volume.LockStatus
+                $output.EncryptionPercentage = $Volume.EncryptionPercentage
+                $output.WipePercentage = $Volume.WipePercentage
+                $output.VolumeType = $Volume.VolumeType
+                $output.CapacityGB = $Volume.CapacityGB
+                $output.KeyProtector = $Volume.KeyProtector
 
                 if ($Key){
-                    $output.RecoveryPassword = Invoke-Command -ComputerName $Computer -ScriptBlock {(Get-BitLockerVolume).KeyProtector.RecoveryPassword[1]} -ErrorAction SilentlyContinue;
-                };
+                    $output.RecoveryPassword = Invoke-Command -ComputerName $Computer -ScriptBlock {(Get-BitLockerVolume).KeyProtector.RecoveryPassword[1]} -ErrorAction SilentlyContinue
+                }
 
-                $Volume | Add-Member -MemberType NoteProperty -Name RecoveryPassword -Value $Key;
+                $Volume | Add-Member -MemberType NoteProperty -Name RecoveryPassword -Value $Key
 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
         
-            $total = $total+1;
-            return $OutputArray;
+            $total = $total+1
+            return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [BitLocker]::new();
+                $output = $null
+                $output = [BitLocker]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

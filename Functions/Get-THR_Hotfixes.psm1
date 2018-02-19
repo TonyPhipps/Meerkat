@@ -43,16 +43,16 @@ function Get-THR_Hotfixes {
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
         $Computer = $env:COMPUTERNAME
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class Hotfix
         {
@@ -72,77 +72,77 @@ function Get-THR_Hotfixes {
             [String] $ServiceID
             [String] $UninstallationNotes
             [String] $SupportUrl
-        };
+        }
 	}
 
     process{
 
         $Hotfixes = invoke-command -Computer $Computer -scriptblock {
 
-            $Session = New-Object -ComObject "Microsoft.Update.Session";
-            $Searcher = $Session.CreateUpdateSearcher();
-            $historyCount = $Searcher.GetTotalHistoryCount();
-            $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null;
-        };
+            $Session = New-Object -ComObject "Microsoft.Update.Session"
+            $Searcher = $Session.CreateUpdateSearcher()
+            $historyCount = $Searcher.GetTotalHistoryCount()
+            $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null
+        }
 
         if ($Hotfixes){
             
-            $OutputArray = @();
+            $OutputArray = @()
 
             foreach ($item in $Hotfixes) {
 
-                $output = $null;
-                $output = [Hotfix]::new();
+                $output = $null
+                $output = [Hotfix]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
 
-                $output.PSComputerName = $item.PSComputerName;
-                $output.Operation = $item.Operation;
-                $output.ResultCode = $item.ResultCode;
-                $output.HResult = $item.HResult;
-                $output.Date = $item.Date;
-                $output.Title = $item.Title;
-                $output.DESCRIPTION = $item.DESCRIPTION;
-                $output.UnmappedResultCode = $item.UnmappedResultCode;
-                $output.ClientApplicationID = $item.ClientApplicationID;
-                $output.ServerSelection = $item.ServerSelection;
-                $output.ServiceID = $item.ServiceID;
-                $output.UninstallationNotes = $item.UninstallationNotes;
-                $output.SupportUrl = $item.SupportUrl;
+                $output.PSComputerName = $item.PSComputerName
+                $output.Operation = $item.Operation
+                $output.ResultCode = $item.ResultCode
+                $output.HResult = $item.HResult
+                $output.Date = $item.Date
+                $output.Title = $item.Title
+                $output.DESCRIPTION = $item.DESCRIPTION
+                $output.UnmappedResultCode = $item.UnmappedResultCode
+                $output.ClientApplicationID = $item.ClientApplicationID
+                $output.ServerSelection = $item.ServerSelection
+                $output.ServiceID = $item.ServiceID
+                $output.UninstallationNotes = $item.UninstallationNotes
+                $output.SupportUrl = $item.SupportUrl
 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
 
-            $total++;
-            return $OutputArray;
+            $total++
+            return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [ArpCache]::new();
+                $output = $null
+                $output = [ArpCache]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

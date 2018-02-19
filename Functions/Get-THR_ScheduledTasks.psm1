@@ -49,17 +49,17 @@ function Get-THR_ScheduledTasks {
         [Parameter()]
         $Fails
 
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Task {
             [String] $Computer
@@ -89,71 +89,71 @@ function Get-THR_ScheduledTasks {
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Tasks = $null;
+        $Tasks = $null
                         
-		$Tasks = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-ScheduledTask | Select-Object *} -ErrorAction SilentlyContinue;
+		$Tasks = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-ScheduledTask | Select-Object *} -ErrorAction SilentlyContinue
             
         if ($Tasks) {
 
             $Tasks | ForEach-Object {
 
-                $output = $null;
-                $output = [Task]::new();
+                $output = $null
+                $output = [Task]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
 
-                $output.ActionsArguments = ($_.Actions.Arguments -join "; ");
-                $output.ActionsExecute = ($_.Actions.Execute -join "; ");
-                $output.ActionsId = ($_.Actions.Id -join "; ");
-                $output.ActionsWorkingDirectory = ($_.Actions.WorkingDirectory -join "; ");
-                $output.Author = $_.Author;
-                $output.DESCRIPTION = $_.DESCRIPTION;
-                $output.SecurityDescriptor = $_.SecurityDescriptor;
-                $output.Source = $_.Source;
-                $output.State = $_.State;
-                $output.TaskName = $_.TaskName;
-                $output.TaskPath = $_.TaskPath;
-                $output.TriggersDelay = ($_.Triggers.Delay -join "; ");
-                $output.TriggersEnabled = ($_.Triggers.Enabled -join "; ");
-                $output.TriggersEndBoundary = ($_.Triggers.EndBoundary -join "; ");
-                $output.TriggersExecutionTimeLimit = ($_.Triggers.ExecutionTimeLimit -join "; ");
-                $output.TriggersPSComputerName = ($_.Triggers.PSComputerName -join "; ");
-                $output.TriggersRepetition = ($_.Triggers.Repetition -join "; ");
-                $output.TriggersStartBoundary = ($_.Triggers.StartBoundary -join "; ");
-                $output.URI = $_.URI;
+                $output.ActionsArguments = ($_.Actions.Arguments -join " ")
+                $output.ActionsExecute = ($_.Actions.Execute -join " ")
+                $output.ActionsId = ($_.Actions.Id -join " ")
+                $output.ActionsWorkingDirectory = ($_.Actions.WorkingDirectory -join " ")
+                $output.Author = $_.Author
+                $output.DESCRIPTION = $_.DESCRIPTION
+                $output.SecurityDescriptor = $_.SecurityDescriptor
+                $output.Source = $_.Source
+                $output.State = $_.State
+                $output.TaskName = $_.TaskName
+                $output.TaskPath = $_.TaskPath
+                $output.TriggersDelay = ($_.Triggers.Delay -join " ")
+                $output.TriggersEnabled = ($_.Triggers.Enabled -join " ")
+                $output.TriggersEndBoundary = ($_.Triggers.EndBoundary -join " ")
+                $output.TriggersExecutionTimeLimit = ($_.Triggers.ExecutionTimeLimit -join " ")
+                $output.TriggersPSComputerName = ($_.Triggers.PSComputerName -join " ")
+                $output.TriggersRepetition = ($_.Triggers.Repetition -join " ")
+                $output.TriggersStartBoundary = ($_.Triggers.StartBoundary -join " ")
+                $output.URI = $_.URI
 
-                return $output;
-            };
+                return $output
+            }
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Task]::new();
+                $output = $null
+                $output = [Task]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

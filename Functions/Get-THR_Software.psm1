@@ -49,16 +49,16 @@
 
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class Software
         {
@@ -73,74 +73,74 @@
             [string]$InstallLocation
             [string]$PSChildName
             [string]$HelpLink
-        };
-    };
+        }
+    }
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
         $Software += Invoke-Command -Computer $Computer -ScriptBlock {
-            $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*";
-            $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*";
+            $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+            $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
                 
             Get-ItemProperty -Path $pathAllUser, $pathAllUser32 |
-                Where-Object DisplayName -ne $null;
-        };
+                Where-Object DisplayName -ne $null
+        }
        
         if ($Software) { 
-            $OutputArray = @();
+            $OutputArray = @()
 
             foreach ($item in $Software) {
                 
-                $output = $null;
-                $output = [Software]::new();
+                $output = $null
+                $output = [Software]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $output.Publisher = $item.Publisher;
-                $output.DisplayName = $item.DisplayName;
-                $output.DisplayVersion = $item.DisplayVersion;
-                $output.InstallDate = $item.InstallDate;
-                $output.InstallSource = $item.InstallSource;
-                $output.InstallLocation = $item.InstallLocation;
-                $output.InstallLocation = $item.InstallLocation;
-                $output.PSChildName = $item.PSChildName;
-                $output.HelpLink = $item.HelpLink;
+                $output.Publisher = $item.Publisher
+                $output.DisplayName = $item.DisplayName
+                $output.DisplayVersion = $item.DisplayVersion
+                $output.InstallDate = $item.InstallDate
+                $output.InstallSource = $item.InstallSource
+                $output.InstallLocation = $item.InstallLocation
+                $output.InstallLocation = $item.InstallLocation
+                $output.PSChildName = $item.PSChildName
+                $output.HelpLink = $item.HelpLink
 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
         
-        Return $OutputArray;
+        Return $OutputArray
 
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Software]::new();
+                $output = $null
+                $output = [Software]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

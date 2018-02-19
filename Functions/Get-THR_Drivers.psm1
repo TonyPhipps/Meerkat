@@ -50,16 +50,16 @@ function Get-THR_Drivers {
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class Driver
         {
@@ -73,66 +73,66 @@ function Get-THR_Drivers {
             [String] $Class
             [string] $DriverSigned
             [string] $OrginalFileName
-        };
-    };
+        }
+    }
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
-        $OutputArray = @();
-        $drivers = $null;
-        $drivers = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-WindowsDriver -Online -ErrorAction SilentlyContinue}; # get list of drivers
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        $OutputArray = @()
+        $drivers = $null
+        $drivers = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-WindowsDriver -Online -ErrorAction SilentlyContinue} # get list of drivers
        
         if ($drivers) { 
           
             foreach ($driver in $drivers) {
              
-                $output = $null;
-                $output = [Driver]::new();
+                $output = $null
+                $output = [Driver]::new()
                 
-                $output.DateScanned = Get-Date -Format u;
-                $output.Computer = $Computer;
-                $output.Provider = $driver.ProviderName;
-                $output.Driver = $driver.Driver;
-                $output.Version = $driver.Version;
-                $output.date = $driver.Date;
-                $output.Class = $driver.ClassDescription;
-                $output.DriverSigned = $driver.DriverSignature;
-                $output.OrginalFileName = $driver.OriginalFileName;
+                $output.DateScanned = Get-Date -Format u
+                $output.Computer = $Computer
+                $output.Provider = $driver.ProviderName
+                $output.Driver = $driver.Driver
+                $output.Version = $driver.Version
+                $output.date = $driver.Date
+                $output.Class = $driver.ClassDescription
+                $output.DriverSigned = $driver.DriverSignature
+                $output.OrginalFileName = $driver.OriginalFileName
 
-                $OutputArray += $output;
+                $OutputArray += $output
             
-            };
+            }
 
-            Return $OutputArray | Sort-Object -Property date -Descending;
+            Return $OutputArray | Sort-Object -Property date -Descending
         
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Driver]::new();
+                $output = $null
+                $output = [Driver]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

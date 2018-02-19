@@ -52,16 +52,16 @@
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class TCPConnection
         {
@@ -76,80 +76,80 @@
             [String] $AppliedSetting
             [String] $OwningProcessID
             [String] $OwningProcessPath
-        };
-	};
+        }
+	}
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        $TCPConnections = $null;
+        $TCPConnections = $null
         $TCPConnections = Invoke-Command -ComputerName $Computer -ScriptBlock {
-            $TCPConnections = Get-NetTCPConnection -State Listen, Established;
+            $TCPConnections = Get-NetTCPConnection -State Listen, Established
             
             if ($using:Path) {
                 $TCPConnections | ForEach-Object {
-                    $_ | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $_.OwningProcess).Path);
-                };
-            };
+                    $_ | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $_.OwningProcess).Path)
+                }
+            }
 
-            return $TCPConnections;
-        };
+            return $TCPConnections
+        }
         
         if ($TCPConnections) {
 
-            Write-Verbose ("{0}: Parsing results." -f $Computer);
-            $OutputArray = @();
+            Write-Verbose ("{0}: Parsing results." -f $Computer)
+            $OutputArray = @()
           
             foreach ($TCPConnection in $TCPConnections) {
 
-                $output = $null;
-                $output = [TCPConnection]::new();
+                $output = $null
+                $output = [TCPConnection]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $output.LocalAddress = $TCPConnection.LocalAddress;
-                $output.LocalPort = $TCPConnection.LocalPort;
-                $output.RemoteAddress = $TCPConnection.RemoteAddress;
-                $output.RemotePort = $TCPConnection.RemotePort;
-                $output.State = $TCPConnection.State;
-                $output.AppliedSetting = $TCPConnection.AppliedSetting;
-                $output.OwningProcessID = $TCPConnection.OwningProcess;
-                $output.OwningProcessPath = $TCPConnection.Path;
+                $output.LocalAddress = $TCPConnection.LocalAddress
+                $output.LocalPort = $TCPConnection.LocalPort
+                $output.RemoteAddress = $TCPConnection.RemoteAddress
+                $output.RemotePort = $TCPConnection.RemotePort
+                $output.State = $TCPConnection.State
+                $output.AppliedSetting = $TCPConnection.AppliedSetting
+                $output.OwningProcessID = $TCPConnection.OwningProcess
+                $output.OwningProcessPath = $TCPConnection.Path
                 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
         
-            $total++;
-            return $OutputArray;
+            $total++
+            return $OutputArray
         }        
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [TCPConnection]::new();
+                $output = $null
+                $output = [TCPConnection]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

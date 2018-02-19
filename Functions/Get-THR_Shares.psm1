@@ -49,28 +49,28 @@ function Get-THR_Shares {
 
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         $PermissionFlags = @{
-            0x1     =     "Read-List";
-            0x2     =     "Write-Create";
-            0x4     =     "Append-Create Subdirectory";                  	
-            0x20    =     "Execute file-Traverse directory";
+            0x1     =     "Read-List"
+            0x2     =     "Write-Create"
+            0x4     =     "Append-Create Subdirectory"                  	
+            0x20    =     "Execute file-Traverse directory"
             0x40    =     "Delete child"
-            0x10000 =     "Delete";                     
-            0x40000 =     "Write access to DACL";
+            0x10000 =     "Delete"                     
+            0x40000 =     "Write access to DACL"
             0x80000 =     "Write Owner"
-        };
+        }
 
         class SharePermission
         {
@@ -86,100 +86,100 @@ function Get-THR_Shares {
             [String] $AccessType
             [String] $AccessMask
             [String] $Permissions
-        };
-	};
+        }
+	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Shares = $null;
-        $Shares = Get-WmiObject -class Win32_share -Filter "type=0" -ComputerName $Computer -ErrorAction SilentlyContinue;
+        $Shares = $null
+        $Shares = Get-WmiObject -class Win32_share -Filter "type=0" -ComputerName $Computer -ErrorAction SilentlyContinue
 
         if ($Shares) {
-            $OutputArray = $null;
-            $OutputArray = @();
+            $OutputArray = $null
+            $OutputArray = @()
 
             foreach ($Share in $Shares) {
 
-                $ShareName = $Share.Name;
+                $ShareName = $Share.Name
 
-                $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'" -ComputerName $Computer -ErrorAction SilentlyContinue;
+                $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'" -ComputerName $Computer -ErrorAction SilentlyContinue
 
-                $DACLs = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL;
+                $DACLs = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
 
                 foreach ($DACL in $DACLs) {
 
-                    $TrusteeName = $DACL.Trustee.Name;
-                    $TrusteeDomain = $DACL.Trustee.Domain;
-                    $TrusteeSID = $DACL.Trustee.SIDString;
+                    $TrusteeName = $DACL.Trustee.Name
+                    $TrusteeDomain = $DACL.Trustee.Domain
+                    $TrusteeSID = $DACL.Trustee.SIDString
 
-                    # 1 Deny; 0 Allow
+                    # 1 Deny 0 Allow
                     if ($DACL.AceType) 
                         { $Type = "Deny" }
                     else 
-                        { $Type = "Allow" };
+                        { $Type = "Allow" }
         
-                    $SharePermission = $null;
+                    $SharePermission = $null
 
                     # Convert AccessMask to human-readable format
                     foreach ($Key in $PermissionFlags.Keys) {
 
                         if ($Key -band $DACL.AccessMask) {
                                           
-                            $SharePermission += $PermissionFlags[$Key];       
-                            $SharePermission += "; ";
-                        };
-                    };
+                            $SharePermission += $PermissionFlags[$Key]       
+                            $SharePermission += " "
+                        }
+                    }
 
-                    $output = $null;
-                    $output = [SharePermission]::new();
+                    $output = $null
+                    $output = [SharePermission]::new()
 
-                    $output.Computer = $Computer;
-                    $output.DateScanned = Get-Date -Format u;
-                    $output.Computer = $Share.PSComputerName;
-                    $output.Name = $Share.Name;
-                    $output.Path = $Share.Path;
-                    $output.DESCRIPTION = $Share.DESCRIPTION;
-                    $output.TrusteeName = $TrusteeName;
-                    $output.TrusteeDomain = $TrusteeDomain;
-                    $output.TrusteeSID = $TrusteeSID;
-                    $output.AccessType = $Type;
-                    $output.AccessMask = $DACL.AccessMask;
-                    $output.Permissions = $SharePermission;
+                    $output.Computer = $Computer
+                    $output.DateScanned = Get-Date -Format u
+                    $output.Computer = $Share.PSComputerName
+                    $output.Name = $Share.Name
+                    $output.Path = $Share.Path
+                    $output.DESCRIPTION = $Share.DESCRIPTION
+                    $output.TrusteeName = $TrusteeName
+                    $output.TrusteeDomain = $TrusteeDomain
+                    $output.TrusteeSID = $TrusteeSID
+                    $output.AccessType = $Type
+                    $output.AccessMask = $DACL.AccessMask
+                    $output.Permissions = $SharePermission
 
-                    $OutputArray += $output;
-                };
-            };
+                    $OutputArray += $output
+                }
+            }
 
-            return $OutputArray;
+            return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [SharePermission]::new();
+                $output = $null
+                $output = [SharePermission]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

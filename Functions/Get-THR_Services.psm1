@@ -43,17 +43,17 @@ function Get-THR_Services {
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
         $Computer = $env:COMPUTERNAME
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
         Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Service {
 			[String] $Computer
@@ -84,85 +84,85 @@ function Get-THR_Services {
             [uint32] $TagId
             [uint32] $TotalSessions
             [uint32] $WaitHint
-		};
-	};
+		}
+	}
 
     process{        
                 
-        $Computer = $Computer.Replace('"', '');
+        $Computer = $Computer.Replace('"', '')
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer); 
-        $Services = Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'" -ComputerName $Computer -ErrorAction SilentlyContinue;
+        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
+        $Services = Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'" -ComputerName $Computer -ErrorAction SilentlyContinue
         # Odd filter explanation: http://itknowledgeexchange.techtarget.com/powershell/cim-session-oddity/
 
         if ($Services){
                 
             $Services | ForEach-Object {
                 
-				$output = $null;
-				$output = [Service]::new();
+				$output = $null
+				$output = [Service]::new()
 				
-				$output.Computer = $Computer;
-				$output.DateScanned = Get-Date -Format u;
+				$output.Computer = $Computer
+				$output.DateScanned = Get-Date -Format u
                 
-				$output.AcceptPause = $_.AcceptPause;
-                $output.AcceptStop = $_.AcceptStop;
-                $output.Caption = $_.Caption;
-                $output.CheckPoint = $_.CheckPoint;
-                $output.DelayedAutoStart = $_.DelayedAutoStart;
-                $output.DESCRIPTION = $_.DESCRIPTION;
-                $output.DesktopInteract = $_.DesktopInteract;
-                $output.DisconnectedSessions = $_.DisconnectedSessions;
-                $output.DisplayName = $_.DisplayName;
-                $output.ErrorControl = $_.ErrorControl;
-                $output.ExitCode = $_.ExitCode;
+				$output.AcceptPause = $_.AcceptPause
+                $output.AcceptStop = $_.AcceptStop
+                $output.Caption = $_.Caption
+                $output.CheckPoint = $_.CheckPoint
+                $output.DelayedAutoStart = $_.DelayedAutoStart
+                $output.DESCRIPTION = $_.DESCRIPTION
+                $output.DesktopInteract = $_.DesktopInteract
+                $output.DisconnectedSessions = $_.DisconnectedSessions
+                $output.DisplayName = $_.DisplayName
+                $output.ErrorControl = $_.ErrorControl
+                $output.ExitCode = $_.ExitCode
                 if ($_.InstallDate) {
-                    $output.InstallDate = $_.InstallDate;
-                };
-                $output.Name = $_.Name;
-                $output.PathName = $_.PathName;
-                $output.ProcessId = $_.ProcessId;
-                $output.ServiceSpecificExitCode = $_.ServiceSpecificExitCode;
-                $output.ServiceType = $_.ServiceType;
-                $output.Started = $_.Started;
-                $output.StartMode = $_.StartMode;
-                $output.StartName = $_.StartName;
-                $output.State = $_.State;
-                $output.SystemName = $_.SystemName;
-                $output.TagId = $_.TagId;
-                $output.TotalSessions = $_.TotalSessions;
-                $output.WaitHint = $_.WaitHint;
+                    $output.InstallDate = $_.InstallDate
+                }
+                $output.Name = $_.Name
+                $output.PathName = $_.PathName
+                $output.ProcessId = $_.ProcessId
+                $output.ServiceSpecificExitCode = $_.ServiceSpecificExitCode
+                $output.ServiceType = $_.ServiceType
+                $output.Started = $_.Started
+                $output.StartMode = $_.StartMode
+                $output.StartName = $_.StartName
+                $output.State = $_.State
+                $output.SystemName = $_.SystemName
+                $output.TagId = $_.TagId
+                $output.TotalSessions = $_.TotalSessions
+                $output.WaitHint = $_.WaitHint
                     
-                $total++;
-                return $output; 
-            };
+                $total++
+                return $output 
+            }
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Service]::new();
+                $output = $null
+                $output = [Service]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

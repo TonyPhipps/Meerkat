@@ -49,16 +49,16 @@ function Get-THR_RecycleBin {
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Verbose ("Started at {0}" -f $datetime);
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Verbose ("Started at {0}" -f $datetime)
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class DeletedItem {
             [string] $Computer
@@ -76,31 +76,31 @@ function Get-THR_RecycleBin {
             [String] $LastWriteTimeUtc
             [String] $IsContainer
             [String] $Mode
-        };
-    };
+        }
+    }
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer); 
-        $recycleBin = $null;
+        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
+        $recycleBin = $null
         $recycleBin = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-            Get-ChildItem ("{0}\`$Recycle.Bin" -f $env:SystemDrive) -Force -Recurse;
-         };
+            Get-ChildItem ("{0}\`$Recycle.Bin" -f $env:SystemDrive) -Force -Recurse
+         }
        
         if ($recycleBin) { 
             
-            $OutputArray = @();
+            $OutputArray = @()
 
-            Write-Verbose ("{0}: Looping through retrived results" -f $Computer);
+            Write-Verbose ("{0}: Looping through retrived results" -f $Computer)
             foreach ($recycled in $recycleBin) {
              
-                $output = $null;
-                $output = [DeletedItem]::new();
+                $output = $null
+                $output = [DeletedItem]::new()
                 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
 
                 $output.LINKType = $recycled.LINKType
                 $output.Name = $recycled.Name
@@ -115,43 +115,43 @@ function Get-THR_RecycleBin {
                 $output.IsContainer = $recycled.PSIsContainer
                 $output.Mode = $recycled.Mode
 
-                $OutputArray += $output;
-            };
+                $OutputArray += $output
+            }
 
-            $elapsed = $stopwatch.Elapsed;
-            $total = $total + 1;
+            $elapsed = $stopwatch.Elapsed
+            $total = $total + 1
             
-            Write-Verbose ("System {0} complete: `t {1} `t Total Time Elapsed: {2}" -f $total, $Computer, $elapsed);
+            Write-Verbose ("System {0} complete: `t {1} `t Total Time Elapsed: {2}" -f $total, $Computer, $elapsed)
 
-            $total = $total+1;
-            return $OutputArray;
+            $total = $total+1
+            return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [DeletedItem]::new();
+                $output = $null
+                $output = [DeletedItem]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

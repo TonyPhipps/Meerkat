@@ -61,18 +61,18 @@ function Get-THR_SCCM_EnvVars {
         
         [Parameter()]
         [switch]$CIM
-    );
+    )
 
     begin{
-        $SCCMNameSpace="root\sms\site_$SiteName";
+        $SCCMNameSpace="root\sms\site_$SiteName"
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
         Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Environment {
             [String] $Computer
@@ -84,89 +84,89 @@ function Get-THR_SCCM_EnvVars {
             [String] $Caption
             [String] $Description
             [String] $Timestamp
-        };
+        }
     }
 
     process{        
                 
         if ($Computer -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"){ # is this an IP address?
             
-            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname;
-            $ThisComputer = $fqdn.Split(".")[0];
+            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname
+            $ThisComputer = $fqdn.Split(".")[0]
         }
         else{ # Convert any FQDN into just hostname
             
-            $ThisComputer = $Computer.Split(".")[0].Replace('"', '');
-        };
+            $ThisComputer = $Computer.Split(".")[0].Replace('"', '')
+        }
 
         if ($CIM){
 
-            $SMS_R_System = $Null;
-            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
+            $SMS_R_System = $Null
+            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
             
             if ($SMS_R_System) {
-                $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-                $SMS_G_System_ENVIRONMENT = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select Name, VariableValue, SystemVariable, Username, Timestamp, Caption, Description from SMS_G_System_ENVIRONMENT where ResourceID='$ResourceID'";
-            };
+                $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+                $SMS_G_System_ENVIRONMENT = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select Name, VariableValue, SystemVariable, Username, Timestamp, Caption, Description from SMS_G_System_ENVIRONMENT where ResourceID='$ResourceID'"
+            }
         }
         else{
 
-            $SMS_R_System = $Null;
-            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
+            $SMS_R_System = $Null
+            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
             
             if ($SMS_R_System) {
                 
-                $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-                $SMS_G_System_ENVIRONMENT = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select Name, VariableValue, SystemVariable, Username, Timestamp, Caption, Description from SMS_G_System_ENVIRONMENT where ResourceID='$ResourceID'";
-            };
-        };
+                $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+                $SMS_G_System_ENVIRONMENT = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select Name, VariableValue, SystemVariable, Username, Timestamp, Caption, Description from SMS_G_System_ENVIRONMENT where ResourceID='$ResourceID'"
+            }
+        }
 
         if ($SMS_G_System_ENVIRONMENT){
                 
             $SMS_G_System_ENVIRONMENT | ForEach-Object {
                 
-                $output = $null;
-                $output = [Environment]::new();
+                $output = $null
+                $output = [Environment]::new()
    
-                $output.Computer = $ThisComputer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $ThisComputer
+                $output.DateScanned = Get-Date -Format u
 
                 $output.ResourceNames = $SMS_R_System.ResourceNames[0]
-                $output.VariableValue = $_.VariableValue; # "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" contains remainder of values above 255 characters!
-                $output.SystemVariable = $_.SystemVariable;
-                $output.Username = $_.Username;
-                $output.Timestamp = $_.Timestamp;
+                $output.VariableValue = $_.VariableValue # "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" contains remainder of values above 255 characters!
+                $output.SystemVariable = $_.SystemVariable
+                $output.Username = $_.Username
+                $output.Timestamp = $_.Timestamp
                     
                 if ($_.Caption.Split("\")[2]){ # These values have variable \'s present until the relevant content.
-                    $output.Caption = $_.Caption.Split("\")[2];
-                    $output.DESCRIPTION = $_.DESCRIPTION.Split("\")[2];
+                    $output.Caption = $_.Caption.Split("\")[2]
+                    $output.DESCRIPTION = $_.DESCRIPTION.Split("\")[2]
                 }
                 else{
-                    $output.Caption = $_.Caption.Split("\")[1];
-                    $output.DESCRIPTION = $_.DESCRIPTION.Split("\")[1];
-                };
+                    $output.Caption = $_.Caption.Split("\")[1]
+                    $output.DESCRIPTION = $_.DESCRIPTION.Split("\")[1]
+                }
 
 
-                return $output;
+                return $output
             
-            };
+            }
         }
         else {
 
-            $output = $null;
-            $output = [Environment]::new();
-            $output.Computer = $Computer;
-            $output.DateScanned = Get-Date -Format u;
+            $output = $null
+            $output = [Environment]::new()
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
             
-            $elapsed = $stopwatch.Elapsed;
-            $total = $total+1;
+            $elapsed = $stopwatch.Elapsed
+            $total = $total+1
            
-            return $output;
-        };
-    };
+            return $output
+        }
+    }
 
     end{
-        $elapsed = $stopwatch.Elapsed;
-        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed";
-    };
-};
+        $elapsed = $stopwatch.Elapsed
+        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed"
+    }
+}

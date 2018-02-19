@@ -60,32 +60,32 @@ function Get-THR_SCCM_BHO {
         
         [Parameter()]
         [switch]$CIM
-    );
+    )
 
 	begin{
-        $SCCMNameSpace="root\sms\site_$SiteName";
+        $SCCMNameSpace="root\sms\site_$SiteName"
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
         Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
-	};
+        $total = 0
+	}
 
     process{        
                 
         if ($Computer -match "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"){ # is this an IP address?
             
-            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname;
-            $ThisComputer = $fqdn.Split(".")[0];
+            $fqdn = [System.Net.Dns]::GetHostByAddress($Computer).Hostname
+            $ThisComputer = $fqdn.Split(".")[0]
         }
         
         else{ # Convert any FQDN into just hostname
             
-            $ThisComputer = $Computer.Split(".")[0].Replace('"', '');
-        };
+            $ThisComputer = $Computer.Split(".")[0].Replace('"', '')
+        }
 
         $output = [PSCustomObject]@{
             Name = $ThisComputer
@@ -100,58 +100,58 @@ function Get-THR_SCCM_BHO {
             Publisher = ""
             RevisionID = ""
             Timestamp = ""
-        };
+        }
 
         if ($CIM){
 
-            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
-            $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-            $SMS_G_System_BROWSER_HELPER_OBJECT = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Product, ProductVersion, Publisher, RevisionID, Timestamp from SMS_G_System_BROWSER_HELPER_OBJECT where ResourceID='$ResourceID'";
+            $SMS_R_System = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
+            $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+            $SMS_G_System_BROWSER_HELPER_OBJECT = Get-CIMInstance -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Product, ProductVersion, Publisher, RevisionID, Timestamp from SMS_G_System_BROWSER_HELPER_OBJECT where ResourceID='$ResourceID'"
         }
         else{
-            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'";
-            $ResourceID = $SMS_R_System.ResourceID; # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
-            $SMS_G_System_BROWSER_HELPER_OBJECT = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Product, ProductVersion, Publisher, RevisionID, Timestamp from SMS_G_System_BROWSER_HELPER_OBJECT where ResourceID='$ResourceID'";
-        };
+            $SMS_R_System = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select ResourceNames, ResourceID from SMS_R_System where name='$ThisComputer'"
+            $ResourceID = $SMS_R_System.ResourceID # Needed since -query seems to lack support for calling $SMS_R_System.ResourceID directly.
+            $SMS_G_System_BROWSER_HELPER_OBJECT = Get-WmiObject -namespace $SCCMNameSpace -computer $SCCMServer -query "select Description, FileName, FilePropertiesHash, FilePropertiesHashEx, FileVersion, Product, ProductVersion, Publisher, RevisionID, Timestamp from SMS_G_System_BROWSER_HELPER_OBJECT where ResourceID='$ResourceID'"
+        }
 
         if ($SMS_G_System_BROWSER_HELPER_OBJECT){
                 
             $SMS_G_System_BROWSER_HELPER_OBJECT | ForEach-Object {
                 
-                $output.ResourceNames = $SMS_R_System.ResourceNames[0];
+                $output.ResourceNames = $SMS_R_System.ResourceNames[0]
 
-                $output.DESCRIPTION = $_.DESCRIPTION;
-                $output.FileName = $_.FileName;
-                $output.FilePropertiesHash = $_.FilePropertiesHash;
-                $output.FilePropertiesHashEx = $_.FilePropertiesHashEx;
-                $output.FileVersion = $_.FileVersion;
-                $output.Product = $_.Product;
-                $output.ProductVersion = $_.ProductVersion;
-                $output.Publisher = $_.Publisher;
-                $output.RevisionID = $_.RevisionID;
-                $output.Timestamp = $_.Timestamp;
+                $output.DESCRIPTION = $_.DESCRIPTION
+                $output.FileName = $_.FileName
+                $output.FilePropertiesHash = $_.FilePropertiesHash
+                $output.FilePropertiesHashEx = $_.FilePropertiesHashEx
+                $output.FileVersion = $_.FileVersion
+                $output.Product = $_.Product
+                $output.ProductVersion = $_.ProductVersion
+                $output.Publisher = $_.Publisher
+                $output.RevisionID = $_.RevisionID
+                $output.Timestamp = $_.Timestamp
 
-                return $output;
-                $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)}; 
-            };
+                return $output
+                $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)} 
+            }
         }
         else {
 
-            return $output;
-            $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)}; 
-        };
+            return $output
+            $output.PsObject.Members | ForEach-Object {$output.PsObject.Members.Remove($_.Name)} 
+        }
 
-        $elapsed = $stopwatch.Elapsed;
-        $total = $total+1;
+        $elapsed = $stopwatch.Elapsed
+        $total = $total+1
             
-        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed";
+        Write-Verbose -Message "System $total `t $ThisComputer `t Time Elapsed: $elapsed"
 
-    };
+    }
 
     end{
-        $elapsed = $stopwatch.Elapsed;
-        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed";
-	};
-};
+        $elapsed = $stopwatch.Elapsed
+        Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed"
+	}
+}
 
 

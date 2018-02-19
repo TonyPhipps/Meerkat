@@ -55,16 +55,16 @@ function Invoke-PortScan {
             
             [Parameter()]
             $Fails
-        );
+        )
 
 	begin{
 
-            $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-            Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+            $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+            Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-            $stopwatch = New-Object System.Diagnostics.Stopwatch;
-            $stopwatch.Start();
-	    };
+            $stopwatch = New-Object System.Diagnostics.Stopwatch
+            $stopwatch.Start()
+	    }
 
     process{
 
@@ -75,29 +75,29 @@ function Invoke-PortScan {
             [String] $RemoteAddress
             [String] $RemotePort
             [String] $TCPTestSucceeded
-        };
+        }
 
-        $OutputArray = $null;
-        $OutputArray = @();
+        $OutputArray = $null
+        $OutputArray = @()
 
         Foreach ($Port in $Ports) {
 
-            $Scan = Test-NetConnection -ComputerName $Computer -Port $Port | Select-Object ComputerName, RemoteAddress, RemotePort, TCPTestSucceeded;
+            $Scan = Test-NetConnection -ComputerName $Computer -Port $Port | Select-Object ComputerName, RemoteAddress, RemotePort, TCPTestSucceeded
 
-            $output = $null;
-            $output = [Port]::new();
+            $output = $null
+            $output = [Port]::new()
 
-            $output.Computer = $Computer;
-            $output.DateScanned = Get-Date -Format u;
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
 
-            $output.ComputerName = $Scan.ComputerName;
-            $output.RemoteAddress = $Scan.RemoteAddress;
-            $output.RemotePort = $Scan.RemotePort;
-            $output.TcpTestSucceeded = $Scan.TcpTestSucceeded;
+            $output.ComputerName = $Scan.ComputerName
+            $output.RemoteAddress = $Scan.RemoteAddress
+            $output.RemotePort = $Scan.RemotePort
+            $output.TcpTestSucceeded = $Scan.TcpTestSucceeded
             
-            $OutputArray += $output;
-        };
+            $OutputArray += $output
+        }
 
-        Return $OutputArray;
-    };
-};
+        Return $OutputArray
+    }
+}

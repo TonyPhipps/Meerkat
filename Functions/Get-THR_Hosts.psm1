@@ -49,16 +49,16 @@ function Get-THR_Hosts {
         
         [Parameter()]
         $Fails
-    );
+    )
 
 	begin{
 
-        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue;
+        $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
-        $total = 0;
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+        $total = 0
 
         class Entry
         {
@@ -68,86 +68,86 @@ function Get-THR_Hosts {
             [String] $HostsIP
             [string] $HostsName
             [String] $HostsComment
-        };
-	};
+        }
+	}
 
     process{
             
-        $Computer = $Computer.Replace('"', '');  # get rid of quotes, if present
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
         $HostsData = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-            $Hosts = Join-Path -Path $($env:windir) -ChildPath "system32\drivers\etc\hosts";
+            $Hosts = Join-Path -Path $($env:windir) -ChildPath "system32\drivers\etc\hosts"
 
-            [regex]$nonwhitespace = "\S";
+            [regex]$nonwhitespace = "\S"
 
             Get-Content $Hosts | Where-Object {
-                (($nonwhitespace.Match($_)).value -ne "#") -and ($_ -notmatch "^\s+$") -and ($_.Length -gt 0); # exlcude full-line comments and blank lines
-            };
-        };
+                (($nonwhitespace.Match($_)).value -ne "#") -and ($_ -notmatch "^\s+$") -and ($_.Length -gt 0) # exlcude full-line comments and blank lines
+            }
+        }
 
         if ($HostsData){
 
-            $OutputArray = @();
+            $OutputArray = @()
 
-            Write-Verbose ("{0}: Parsing results." -f $Computer);
+            Write-Verbose ("{0}: Parsing results." -f $Computer)
             $HostsData | ForEach-Object {
 
-                $ip = $null;
-                $hostname = $null;
-                $comment = $null;
+                $ip = $null
+                $hostname = $null
+                $comment = $null
 
-                $_ -match "(?<IP>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+(?<HOSTNAME>\S+)" | Out-Null;
+                $_ -match "(?<IP>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+(?<HOSTNAME>\S+)" | Out-Null
 
-                $ip = $matches.ip;
-                $hostname = $matches.hostname;
+                $ip = $matches.ip
+                $hostname = $matches.hostname
 
                 if ($_.contains("#")) {
                     
-                    $comment = $_.substring($_.indexof("#")+1);
-                };
+                    $comment = $_.substring($_.indexof("#")+1)
+                }
 
-                $output = $null;
-                $output = [Entry]::new();
+                $output = $null
+                $output = [Entry]::new()
         
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $output.HostsIP = $ip;
-                $output.HostsName = $hostname;
-                $output.HostsComment = $comment;
+                $output.HostsIP = $ip
+                $output.HostsName = $hostname
+                $output.HostsComment = $comment
 
-                $OutputArray += $output;
+                $OutputArray += $output
             }
 
-            $total++;
-            return $OutputArray;
+            $total++
+            return $OutputArray
         }
         else {
             
-            Write-Verbose ("{0}: System failed." -f $Computer);
+            Write-Verbose ("{0}: System failed." -f $Computer)
             if ($Fails) {
                 
-                $total++;
-                Add-Content -Path $Fails -Value ("$Computer");
+                $total++
+                Add-Content -Path $Fails -Value ("$Computer")
             }
             else {
                 
-                $output = $null;
-                $output = [Entry]::new();
+                $output = $null
+                $output = [Entry]::new()
 
-                $output.Computer = $Computer;
-                $output.DateScanned = Get-Date -Format u;
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
                 
-                $total++;
-                return $output;
-            };
-        };
-    };
+                $total++
+                return $output
+            }
+        }
+    }
 
     end{
 
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed);
-    };
-};
+        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+    }
+}

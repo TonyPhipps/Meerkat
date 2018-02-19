@@ -41,16 +41,16 @@ Function Test-SharePermissions {
 	param(
 		[Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
 		$SharePath
-	);
+	)
 
 	begin{
-		$datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff";
-        Write-Verbose "Started at $datetime";
+		$datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Verbose "Started at $datetime"
 
-        $stopwatch = New-Object System.Diagnostics.Stopwatch;
-        $stopwatch.Start();
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
 
-        $total = 0;
+        $total = 0
 
         class Share {
 			[String] $SharePath
@@ -62,65 +62,65 @@ Function Test-SharePermissions {
 			[String] $Write
 			[String] $Delete
 
-		};
+		}
 		
-		$RandomString = -join ((65..90) + (97..122) | Get-Random -Count 10 | Foreach-Object {[char]$_});
-	};
+		$RandomString = -join ((65..90) + (97..122) | Get-Random -Count 10 | Foreach-Object {[char]$_})
+	}
 
 	process{
 
-		$output = $null;
-		$output = [Share]::new();
+		$output = $null
+		$output = [Share]::new()
 
-		$output.SharePath = $SharePath;
-		$output.UserTested = whoami;
-		$output.FileTested = "$RandomString.txt";
-		$output.DateScanned = Get-Date -Format u;
-		$output.Read = $False;
-		$output.Write = $False;
-		$output.Delete = $False;
+		$output.SharePath = $SharePath
+		$output.UserTested = whoami
+		$output.FileTested = "$RandomString.txt"
+		$output.DateScanned = Get-Date -Format u
+		$output.Read = $False
+		$output.Write = $False
+		$output.Delete = $False
 		
-		Write-Verbose "Testing Read Permission";
+		Write-Verbose "Testing Read Permission"
 
 		if (Get-ChildItem $SharePath -Name -ErrorAction SilentlyContinue) {
 
-			$output.Read = $True;
-		};
+			$output.Read = $True
+		}
 		
-		Write-Verbose "Testing Write Permission";
+		Write-Verbose "Testing Write Permission"
 		if (($output.Read) -eq $True) {
 			
-			New-Item -Path $SharePath -Name "$RandomString.txt" -ItemType "file" -Force -ErrorAction SilentlyContinue | Out-Null;
+			New-Item -Path $SharePath -Name "$RandomString.txt" -ItemType "file" -Force -ErrorAction SilentlyContinue | Out-Null
 			
 			if (Test-Path $SharePath\$RandomString.txt -PathType Leaf -ErrorAction SilentlyContinue) {
                 
-                $output.Write = $True;
-			};
-		};
+                $output.Write = $True
+			}
+		}
 
-		Write-Verbose "Testing Delete Permission";
+		Write-Verbose "Testing Delete Permission"
 		if (($output.Write) -eq $True) {
 
-			Remove-Item -path $SharePath\$RandomString.txt -ErrorAction SilentlyContinue | Out-Null;
+			Remove-Item -path $SharePath\$RandomString.txt -ErrorAction SilentlyContinue | Out-Null
 
 			if (-NOT (Test-Path $SharePath\$RandomString.txt -ErrorAction SilentlyContinue)) {
                 
-                $output.Delete = $True;
-			};
-		};
+                $output.Delete = $True
+			}
+		}
 
-		$elapsed = $stopwatch.Elapsed;
-        $total = $total + 1;
+		$elapsed = $stopwatch.Elapsed
+        $total = $total + 1
         
-        Write-Verbose "System $total `t $ThisComputer `t Total Time Elapsed: $elapsed";
+        Write-Verbose "System $total `t $ThisComputer `t Total Time Elapsed: $elapsed"
 
-		return $output;
-	};
+		return $output
+	}
 	
 	end{
         
-        $elapsed = $stopwatch.Elapsed;
+        $elapsed = $stopwatch.Elapsed
 
-		Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed";
-	};
-};
+		Write-Verbose "Total Systems: $total `t Total time elapsed: $elapsed"
+	}
+}
