@@ -23,7 +23,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Ports
 
     .NOTES
-        Updated: 2018-02-07
+        Updated: 2018-02-19
 
         Contributing Authors:
             Jeremy Arnold
