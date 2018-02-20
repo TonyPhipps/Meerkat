@@ -45,7 +45,7 @@ function Invoke-THR {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        $OutputPath = ".\",
+        $OutputPath = $pwd,
 
         [Parameter()]
         $Options = "all"
@@ -60,7 +60,8 @@ function Invoke-THR {
 
         $total = 0
 
-        $FullOutputPath = $OutputPath + $("\{1}" -f $(Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"))
+        $FolderDate = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        $FullOutputPath = "{0}\{1}" -f $OutputPath, $FolderDate
         
         if (!(Test-Path $FullOutputPath -PathType Container)) {
             New-Item -ItemType Directory -Force -Path $FullOutputPath
