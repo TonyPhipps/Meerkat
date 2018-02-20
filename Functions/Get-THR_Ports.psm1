@@ -48,10 +48,7 @@
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-        
-        [Parameter()]
-        $Fails
+        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -86,11 +83,9 @@
         $TCPConnections = $null
         $TCPConnections = Invoke-Command -ComputerName $Computer -ScriptBlock {
             $TCPConnections = Get-NetTCPConnection -State Listen, Established
-            
-            if ($using:Path) {
-                $TCPConnections | ForEach-Object {
-                    $_ | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $_.OwningProcess).Path)
-                }
+        
+            foreach ($TCPConnection in $TCPConnections){
+                $TCPConnection | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $TCPConnection.OwningProcess).Path)
             }
 
             return $TCPConnections
@@ -127,22 +122,15 @@
         else {
             
             Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
-                
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [TCPConnection]::new()
+            
+            $Result = $null
+            $Result = [TCPConnection]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $Result.Computer = $Computer
+            $Result.DateScanned = $DateScanned
+            
+            $total++
+            return $Result
         }
     }
 
@@ -150,6 +138,8 @@
 
         $elapsed = $stopwatch.Elapsed
 
+        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
