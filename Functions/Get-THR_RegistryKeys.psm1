@@ -17,7 +17,7 @@ function Get-THR_RegistryKeys {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_RegistryKeys
 
     .NOTES 
-        Updated: 2018-02-18
+        Updated: 2018-02-20
 
         Contributing Authors:
             Anthony Phipps
@@ -38,6 +38,9 @@ function Get-THR_RegistryKeys {
 
     .LINK
        https://github.com/TonyPhipps/THRecon
+       https://attack.mitre.org/wiki/Technique/T1060
+       https://blog.cylance.com/windows-registry-persistence-part-2-the-run-keys-and-search-order
+       http://resources.infosecinstitute.com/common-malware-persistence-mechanisms/
     #>
 
     [CmdletBinding()]
@@ -75,48 +78,100 @@ function Get-THR_RegistryKeys {
         $ResultsArray = $null
         $ResultsArray = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
             
-            $keys = 
-            #Covered by Get-THR-Autoruns
-            #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
-            #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",
-            #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
-            #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
-            #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run",
-            #"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce",
-            #"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
-            #"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",
-            #"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
-            #"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
-            #"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
-            #"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
+            $MachineKeys = 
+            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute",
+            "HKEY_LOCAL_MACHINE\SYSTEM\System\CurrentControlSet\Services",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServices",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnceEx",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce"
-        
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SharedTaskScheduler",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",            
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects"
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad"
+
+            $UserKeys =
+            # Need a loop to parse HKU to gather below keys for each user on the system
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "HKEY_CURRENT_USER\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServices",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",            
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
+            "HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows\load"
+
+            $MachineValues = 
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\UserInit",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\boot\Shell"
+
             $OutputArray = @()
         
-            foreach ($key in $keys){
+            foreach ($Key in $MachineKeys){
                 
-                $key = "Registry::" + $key
+                $Key = "Registry::" + $Key
 
-                if (Test-Path $key){
+                if (Test-Path $Key){
             
-                    if (Get-ItemProperty -Path $key){
+                    $keyObject = Get-Item $Key
             
-                        $Properties = Get-ItemProperty -Path $key | 
-                            Get-Member -MemberType NoteProperty | 
-                            Where-Object {$_.Name -notmatch "PSParentPath|PSPath|PSChildName|PSProvider"} | 
-                            Select-Object -ExpandProperty Name
+                    $Properties = $keyObject.Property
             
-                        if ($Properties) {
+                    if ($Properties) {
             
-                            foreach ($Property in $Properties){
+                        foreach ($Property in $Properties){
             
-                                $OutputArray += [pscustomobject] @{
-                                    Key = $key.Split(":")[2]
-                                    Value = $Property 
-                                    Data = (Get-ItemProperty -Path $key -Name $Property).$Property
-                                }
+                            $OutputArray += [pscustomobject] @{
+                                Key = $Key.Split(":")[2]
+                                Value = $Property 
+                                Data = $keyObject.GetValue($Property)
                             }
+                        }
+                    }
+                    
+                }
+            }
+
+            foreach ($Key in $MachineValues){
+                
+                $Key = "Registry::" + $Key
+            
+                $Value = Split-Path -Path $Key -Leaf
+                $Key = Split-Path -Path $Key
+            
+                if (Test-Path $Key){
+                        
+                    if (Get-Item $Key){
+                        
+                        $Data = (Get-Item $Key).GetValue($Value)
+                        
+                        if ($Data) {
+            
+                            $OutputArray += [pscustomobject] @{
+                                Key = $Key.Split(":")[2]
+                                Value = $Value 
+                                Data = $Data
+                            }
+                            
                         }
                     }
                 }
