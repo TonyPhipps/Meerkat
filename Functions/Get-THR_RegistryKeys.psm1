@@ -80,7 +80,6 @@ function Get-THR_RegistryKeys {
             
             $MachineKeys = 
             "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute",
-            "HKEY_LOCAL_MACHINE\SYSTEM\System\CurrentControlSet\Services",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices",
