@@ -196,6 +196,7 @@ function Get-THR_RegistryKeys {
                 $OutputArray += $Output
             }
 
+            $OutputArray = $OutputArray[1..($OutputArray.Length-1)] # Handles bug where first entry is blank
             return $OutputArray
         }
         else {
