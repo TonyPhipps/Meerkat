@@ -48,7 +48,110 @@ function Invoke-THR {
         $OutputPath = $pwd,
 
         [Parameter()]
-        $Options = "all"
+        [switch] $All,
+
+        [Parameter()]
+        [switch] $Quick,
+
+        [Parameter()]
+        [switch] $Info,
+
+        [Parameter()]
+        [switch] $ADS,
+
+        [Parameter()]
+        [alias("ARPTable")]
+        [switch] $ARP,
+
+        [Parameter()]
+        [alias("ATR","Autorun")]
+        [switch] $Autoruns,
+
+        [Parameter()]
+        [alias("BTL")]
+        [switch] $BitLocker,
+
+        [Parameter()]
+        [alias("DLL")]
+        [switch] $DLLs,
+
+        [Parameter()]
+        [switch] $DNS,
+
+        [Parameter()]
+        [alias("DRV","Driver")]
+        [switch] $Drivers,
+
+        [Parameter()]
+        [alias("VAR","Vars","EnvVar")]
+        [switch] $EnvVars,
+
+        [Parameter()]
+        [alias("GRP","Groups","Members")]
+        [switch] $GroupMembers,
+
+        [Parameter()]
+        [alias("HND","Handle")]
+        [switch] $Handles,
+
+        [Parameter()]
+        [alias("HDW")]
+        [switch] $Hardware,
+
+        [Parameter()]
+        [alias("HST","Hostfile")]
+        [switch] $Hosts,
+
+        [Parameter()]
+        [alias("FIX","Fixes","Hotfix")]
+        [switch] $Hotfixes,
+
+        [Parameter()]
+        [alias("NET","NetAdapter")]
+        [switch] $NetAdapters,
+
+        [Parameter()]
+        [alias("RTE","Route")]
+        [switch] $NetRoute,
+
+        [Parameter()]
+        [alias("PRT","Port")]
+        [switch] $Ports,
+
+        [Parameter()]
+        [alias("PRC","Process")]
+        [switch] $Processes,
+
+        [Parameter()]
+        [alias("BIN","Recycler")]
+        [switch] $RecycleBin,
+
+        [Parameter()]
+        [alias("TSK","ScheduledTask","Tasks")]
+        [switch] $ScheduledTasks,
+
+        [Parameter()]
+        [alias("SVC","Service")]
+        [switch] $Services,
+
+        [Parameter()]
+        [alias("SSN","Session")]
+        [switch] $Sessions,
+
+        [Parameter()]
+        [alias("SHR""Share")]
+        [switch] $Shares,
+
+        [Parameter()]
+        [alias("SFW")]
+        [switch] $Software,
+
+        [Parameter()]
+        [alias("STR","String")]
+        [switch] $Strings,
+
+        [Parameter()]
+        [switch] $TPM
     )
 
     begin{
@@ -59,119 +162,116 @@ function Invoke-THR {
         $stopwatch.Start()
 
         $total = 0
-
-        $FolderDate = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
-        $FullOutputPath = "{0}\{1}" -f $OutputPath, $FolderDate
-        
-        if (!(Test-Path $FullOutputPath -PathType Container)) {
-            New-Item -ItemType Directory -Force -Path $FullOutputPath
-        }
     }
 
     process{
         
-        if (($Options -like "all") -or ($Options -like "*pc*")){
-            Get-THR_Computer -Computer $Computer | Export-Csv $FullOutputPath\Computer.csv -NoTypeInformation -Append
+        if ($All -or $Computers){
+            Get-THR_Computer -Computer $Computer | Export-Csv "Computer.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*ads*")){
-            Get-THR_ADS -Computer $Computer | Export-Csv $FullOutputPath\ADS.csv -NoTypeInformation -Append
+        if ($All -or $ADS){
+            if (!$Quick) {
+                Get-THR_ADS -Computer $Computer | Export-Csv "ADS.csv" -NoTypeInformation -Append
+            }
         }
         
-        if (($Options -like "all") -or ($Options -like "*arp*")){
-            Get-THR_ARP -Computer $Computer | Export-Csv $FullOutputPath\ARP.csv -NoTypeInformation -Append
+        if ($All -or $ARP){
+            Get-THR_ARP -Computer $Computer | Export-Csv "ARP.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*atr*")){
-        Get-THR_Autoruns -Computer $Computer | Export-Csv $FullOutputPath\Autoruns.csv -NoTypeInformation -Append
+        if ($All -or $Autoruns){
+        Get-THR_Autoruns -Computer $Computer | Export-Csv "Autoruns.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*btl*")){
-        Get-THR_BitLocker -Computer $Computer | Export-Csv $FullOutputPath\BitLocker.csv -NoTypeInformation -Append
+        if ($All -or $BitLocker){
+        Get-THR_BitLocker -Computer $Computer | Export-Csv "BitLocker.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*dll*")){
-            Get-THR_DLLs -Computer $Computer | Export-Csv $FullOutputPath\DLLs.csv -NoTypeInformation -Append
+        if ($All -or $DLLs){
+            Get-THR_DLLs -Computer $Computer | Export-Csv "DLLs.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*dns*")){
-        Get-THR_DNS -Computer $Computer | Export-Csv $FullOutputPath\DNS.csv -NoTypeInformation -Append
+        if ($All -or $DNS){
+        Get-THR_DNS -Computer $Computer | Export-Csv "DNS.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*drv*")){
-            Get-THR_Drivers -Computer $Computer | Export-Csv $FullOutputPath\Drivers.csv -NoTypeInformation -Append
+        if ($All -or $Drivers){
+            Get-THR_Drivers -Computer $Computer | Export-Csv "Drivers.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*var*")){
-            Get-THR_EnvVars -Computer $Computer | Export-Csv $FullOutputPath\EnvVars.csv -NoTypeInformation -Append
+        if ($All -or $EnvVars){
+            Get-THR_EnvVars -Computer $Computer | Export-Csv "EnvVars.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*grp*")){
-            Get-THR_GroupMembers -Computer $Computer | Export-Csv $FullOutputPath\GroupMembers.csv -NoTypeInformation -Append
+        if ($All -or $GroupMembers){
+            Get-THR_GroupMembers -Computer $Computer | Export-Csv "GroupMembers.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*hdl*")){
-            Get-THR_Handles -Computer $Computer | Export-Csv $FullOutputPath\Handles.csv -NoTypeInformation -Append
+        if ($All -or $Handles){
+            Get-THR_Handles -Computer $Computer | Export-Csv "Handles.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*hdw*")){
-            Get-THR_Hardware -Computer $Computer | Export-Csv $FullOutputPath\Hardware.csv -NoTypeInformation -Append
+        if ($All -or $Hardware){
+            Get-THR_Hardware -Computer $Computer | Export-Csv "Hardware.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*hst*")){
-            Get-THR_Hosts -Computer $Computer | Export-Csv $FullOutputPath\Hosts.csv -NoTypeInformation -Append
+        if ($All -or $Hosts){
+            Get-THR_Hosts -Computer $Computer | Export-Csv "Hosts.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*hfx*")){
-            Get-THR_Hotfixes -Computer $Computer | Export-Csv $FullOutputPath\Hotfixes.csv -NoTypeInformation -Append
+        if ($All -or $Hotfixes){
+            Get-THR_Hotfixes -Computer $Computer | Export-Csv "Hotfixes.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*nta*")){
-            Get-THR_NetAdapters -Computer $Computer | Export-Csv $FullOutputPath\NetAdapters.csv -NoTypeInformation -Append
+        if ($All -or $NetAdapters){
+            Get-THR_NetAdapters -Computer $Computer | Export-Csv "NetAdapters.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*ntr*")){
-            Get-THR_NetRoute -Computer $Computer | Export-Csv $FullOutputPath\NetRoute.csv -NoTypeInformation -Append
+        if ($All -or $NetRoute){
+            Get-THR_NetRoute -Computer $Computer | Export-Csv "NetRoute.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*prt*")){
-            Get-THR_Ports -Computer $Computer | Export-Csv $FullOutputPath\Ports.csv -NoTypeInformation -Append
+        if ($All -or $Ports){
+            Get-THR_Ports -Computer $Computer | Export-Csv "Ports.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*prc*")){
-            Get-THR_Processes -Computer $Computer | Export-Csv $FullOutputPath\Processes.csv -NoTypeInformation -Append
+        if ($All -or $Processes){
+            Get-THR_Processes -Computer $Computer | Export-Csv "Processes.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*rcb*")){
-            Get-THR_RecycleBin -Computer $Computer | Export-Csv $FullOutputPath\RecycleBin.csv -NoTypeInformation -Append
+        if ($All -or $RecycleBin){
+            Get-THR_RecycleBin -Computer $Computer | Export-Csv "RecycleBin.csv" -NoTypeInformation -Append
         }
 
-        if (($Options -like "all") -or ($Options -like "*sch*")){
-            Get-THR_ScheduledTasks -Computer $Computer | Export-Csv $FullOutputPath\ScheduledTasks.csv -NoTypeInformation -Append
+        if ($All -or $ScheduledTasks){
+            Get-THR_ScheduledTasks -Computer $Computer | Export-Csv "ScheduledTasks.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*srv*")){
-            Get-THR_Services -Computer $Computer | Export-Csv $FullOutputPath\Services.csv -NoTypeInformation -Append
+        if ($All -or $Services){
+            Get-THR_Services -Computer $Computer | Export-Csv "Services.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*ssn*")){
-            Get-THR_Sessions -Computer $Computer | Export-Csv $FullOutputPath\Sessions.csv -NoTypeInformation -Append
+        if ($All -or $Sessions){
+            Get-THR_Sessions -Computer $Computer | Export-Csv "Sessions.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*shr*")){
-            Get-THR_Shares -Computer $Computer | Export-Csv $FullOutputPath\Shares.csv -NoTypeInformation -Append
+        if ($All -or $Shares){
+            Get-THR_Shares -Computer $Computer | Export-Csv "Shares.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*sfw*")){
-            Get-THR_Software -Computer $Computer | Export-Csv $FullOutputPath\Software.csv -NoTypeInformation -Append
+        if ($All -or $Software){
+            Get-THR_Software -Computer $Computer | Export-Csv "Software.csv" -NoTypeInformation -Append
         }
         
-        if (($Options -like "all") -or ($Options -like "*str*")){
-            Get-THR_Strings -Computer $Computer | Export-Csv $FullOutputPath\Strings.csv -NoTypeInformation -Append
+        if ($All -or $Strings){
+            if (!$Quick) {
+                Get-THR_Strings -Computer $Computer | Export-Csv "Strings.csv" -NoTypeInformation -Append
+            }
         }
         
-        if (($Options -like "all") -or ($Options -like "*tpm*")){
-            Get-THR_TPM -Computer $Computer | Export-Csv $FullOutputPath\TPM.csv -NoTypeInformation -Append
+        if ($All -or $TPM){
+            Get-THR_TPM -Computer $Computer | Export-Csv "TPM.csv" -NoTypeInformation -Append
         }
         
         $total++
