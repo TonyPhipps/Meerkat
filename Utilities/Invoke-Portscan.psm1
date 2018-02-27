@@ -12,9 +12,6 @@ function Invoke-PortScan {
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Invoke-PortScan SomeHostName.domain.com
         Get-Content C:\hosts.txt | Invoke-PortScan
@@ -51,10 +48,7 @@ function Invoke-PortScan {
 
             [Parameter()]
             [array]
-            $Ports = (80, 443, 593, 135, 139, 445, 3389, 5988, 5989),
-            
-            [Parameter()]
-            $Fails
+            $Ports = (80, 443, 593, 135, 139, 445, 3389, 5988, 5989)
         )
 
 	begin{
