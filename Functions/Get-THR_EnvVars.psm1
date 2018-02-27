@@ -42,10 +42,7 @@ Function Get-THR_EnvVars {
 
     param(
         [Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-        
-        [Parameter()]
-        $Fails
+        $Computer = $env:COMPUTERNAME
     )
 
     begin{
@@ -108,24 +105,15 @@ Function Get-THR_EnvVars {
             return $OutputArray
         }
         else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
                 
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [EnvVariable]::new()
+            $output = $null
+            $output = [EnvVariable]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
+            
+            $total++
+            return $output
         }
     }
 

@@ -9,9 +9,6 @@ function Get-THR_Hosts {
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_Hosts 
         Get-THR_Hosts  SomeHostName.domain.com
@@ -45,10 +42,7 @@ function Get-THR_Hosts {
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-        
-        [Parameter()]
-        $Fails
+        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -123,24 +117,15 @@ function Get-THR_Hosts {
             return $OutputArray
         }
         else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
                 
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [Entry]::new()
+            $output = $null
+            $output = [Entry]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
+            
+            $total++
+            return $output
         }
     }
 

@@ -7,10 +7,7 @@ function Get-THR_BitLocker {
         Gets the current BitLocker details to include recovery key of a given system.
 
     .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
-
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
+        Computer can be a single hostname, FQDN, or IP address.  
 
     .EXAMPLE 
         Get-THR_BitLocker
@@ -49,10 +46,7 @@ function Get-THR_BitLocker {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        [switch] $Key,
-
-        [Parameter()]
-        $Fails
+        [switch] $Key
     )
 
 	begin{
@@ -133,24 +127,15 @@ function Get-THR_BitLocker {
             return $OutputArray
         }
         else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
                 
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [BitLocker]::new()
+            $output = $null
+            $output = [BitLocker]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
+            
+            $total++
+            return $output
         }
     }
 

@@ -9,9 +9,6 @@
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_Software 
         Get-THR_Software SomeHost
@@ -45,10 +42,7 @@
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-
-        [Parameter()]
-        $Fails
+        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -118,22 +112,15 @@
         else {
             
             Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
-                
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [Software]::new()
+            
+            $Result = $null
+            $Result = [Software]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $Result.Computer = $Computer
+            $Result.DateScanned = $DateScanned
+            
+            $total++
+            return $Result
         }
     }
 
@@ -141,6 +128,8 @@
 
         $elapsed = $stopwatch.Elapsed
 
+        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

@@ -14,10 +14,7 @@
         Example: 
 
     .PARAMETER MinimumLength
-        7 by default. Specifies the minimum string length to return.
-
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
+        7 by default. Specifies the minimum string length to return. 
 
     .EXAMPLE 
         Get-THR_Strings $env:computername
@@ -58,10 +55,7 @@
         $PathContains,
 
         [Parameter()]
-        $MinimumLength = 7,
-
-        [Parameter()]
-        $Fails
+        $MinimumLength = 7
     )
 
 	begin{
@@ -161,22 +155,14 @@
             
             Write-Verbose ("{0}: System failed." -f $Computer)
             
-            if ($Fails) {
-                
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [StringMatch]::new()
+            $Result = $null
+            $Result = [StringMatch]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $Result.Computer = $Computer
+            $Result.DateScanned = $DateScanned
+            
+            $total++
+            return $Result
         }
     }
 
@@ -184,6 +170,8 @@
 
         $elapsed = $stopwatch.Elapsed
 
+        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

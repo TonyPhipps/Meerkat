@@ -16,9 +16,6 @@ function Get-THR_ADS {
     .PARAMETER Path  
         Specify a path to search for alternate data streams in. Default is c:\temp
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_ADS -Path "C:\"
         Get-THR_ADS SomeHostName.domain.com -Path "C:\"
@@ -27,7 +24,7 @@ function Get-THR_ADS {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ADS -Path "C:\"
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-02-26
 
         Contributing Authors:
             Anthony Phipps
@@ -56,10 +53,7 @@ function Get-THR_ADS {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        $Path = "C:\temp",
-
-        [Parameter()]
-        $Fails
+        $Path = "C:\temp"
     )
 
     begin{
@@ -149,22 +143,15 @@ function Get-THR_ADS {
         else {
             
             Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
-                
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [ADS]::new()
+            
+            $Result = $null
+            $Result = [ADS]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $Result.Computer = $Computer
+            $Result.DateScanned = $DateScanned
+            
+            $total++
+            return $Result
         }
     }
 
@@ -172,6 +159,8 @@ function Get-THR_ADS {
 
         $elapsed = $stopwatch.Elapsed
 
+        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

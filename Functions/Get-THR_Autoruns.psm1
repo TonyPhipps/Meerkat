@@ -9,9 +9,6 @@
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_Autoruns 
         Get-THR_Autoruns SomeHostName.domain.com
@@ -46,10 +43,7 @@
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-        
-        [Parameter()]
-        $Fails
+        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -109,24 +103,15 @@
         
         }
         else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
                 
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [Autorun]::new()
+            $output = $null
+            $output = [Autorun]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
+            
+            $total++
+            return $output
         }
     }
 

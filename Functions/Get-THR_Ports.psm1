@@ -12,9 +12,6 @@
     .PARAMETER Path
         Resolve owning PID to process path. Increases hunt time per system.       
 
-    .PARAMETER Fails
-        Provide a path to save failed systems to.
-
     .EXAMPLE
         Get-THR_Ports 
         Get-THR_Ports SomeHostName.domain.com

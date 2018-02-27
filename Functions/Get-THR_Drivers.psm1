@@ -9,9 +9,6 @@ function Get-THR_Drivers {
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_Drivers 
         Get-THR_Drivers SomeHostName.domain.com
@@ -46,10 +43,7 @@ function Get-THR_Drivers {
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-        
-        [Parameter()]
-        $Fails
+        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -108,24 +102,15 @@ function Get-THR_Drivers {
         
         }
         else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
                 
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [Driver]::new()
+            $output = $null
+            $output = [Driver]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
+            
+            $total++
+            return $output
         }
     }
 

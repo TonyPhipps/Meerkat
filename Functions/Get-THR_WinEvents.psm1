@@ -9,9 +9,6 @@ function Get-THR_WinEvents {
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_WinEvents -FilterHashTable @{LogName="Microsoft-Windows-AppLocker/EXE and DLL" ID="8002","8003","8004"}
         Get-THR_WinEvents -FilterHashTable @{LogName="Windows PowerShell" StartTime=(Get-Date).AddDays(-8) EndTime=(Get-Date)} 
@@ -60,10 +57,7 @@ function Get-THR_WinEvents {
             $FilterHashTable = @{
                 LogName="Windows PowerShell" 
                 StartTime=(Get-Date).AddDays(-8)
-            },
-            
-            [Parameter()]
-            $Fails
+            }
         )
 
 	begin{
@@ -86,34 +80,29 @@ function Get-THR_WinEvents {
         if ($Events) {
 
             $Events |
-                Foreach-Object {
+            Foreach-Object {
 
-                    $output = $_
-                    $output | Add-Member -MemberType NoteProperty -Name Computer -Value $Computer
-                    $output | Add-Member -MemberType NoteProperty -Name DateScanned -Value (Get-Date -Format u)
+                $output = $_
+                $output | Add-Member -MemberType NoteProperty -Name Computer -Value $Computer
+                $output | Add-Member -MemberType NoteProperty -Name DateScanned -Value (Get-Date -Format u)
 
-                    Return $output
-                }
+                Return $output
+            }
+
+            $total++
         }
         else {
             
             Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
-                
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
+            
+            $output = $null
+            $output = [PSCustomObject]@{
+                Computer = $Computer
+                DateScanned = $DateScanned
             }
-            else {
-                
-                $output = $null
-                $output = [PSCustomObject]@{
-                    Computer = $Computer
-                    DateScanned = Get-Date -Format u
-                }
-                
-                $total++
-                return $output
-            }
+            
+            $total++
+            return $Result
         }
     }
 
@@ -121,6 +110,8 @@ function Get-THR_WinEvents {
 
         $elapsed = $stopwatch.Elapsed
 
+        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

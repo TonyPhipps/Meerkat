@@ -7,10 +7,7 @@ function Get-THR_TPM {
         Gets the TPM info on a given system. Converts ManufacturerId if the ID is in the list of built-in names.
 
     .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
-
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
+        Computer can be a single hostname, FQDN, or IP address. 
 
     .EXAMPLE 
         Get-THR_TPM 
@@ -47,10 +44,7 @@ function Get-THR_TPM {
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-
-        [Parameter()]
-        $Fails
+        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -161,22 +155,15 @@ function Get-THR_TPM {
         else {
             
             Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
-                
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [TPM]::new()
+            
+            $Result = $null
+            $Result = [TPM]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $Result.Computer = $Computer
+            $Result.DateScanned = $DateScanned
+            
+            $total++
+            return $Result
         }
     }
 
@@ -184,6 +171,8 @@ function Get-THR_TPM {
 
         $elapsed = $stopwatch.Elapsed
 
+        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

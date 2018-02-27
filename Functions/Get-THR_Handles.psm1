@@ -13,9 +13,6 @@
         The location of Sysinternals Handle.exe/Handle64.exe. This parameter is manadatory
         and is how the function gets the list of handles.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_Handles -HandlePath c:\tools\sysinternals
         Get-THR_Handles SomeHostName.domain.com -HandlePath c:\tools\sysinternals
@@ -53,10 +50,7 @@
         $Computer = $env:COMPUTERNAME,
 
         [Parameter(HelpMessage="The folder path of Sysinternals Handle.exe, not including trailing backslash (\).")]
-        [string]$HandlePath = "C:\Temp",
-        
-        [Parameter()]
-        $Fails
+        [string]$HandlePath = "C:\Temp"
     )
 
 	begin{
@@ -150,24 +144,15 @@
             return $outputArray
         }
         else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
                 
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [Handle]::new()
+            $output = $null
+            $output = [Handle]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
+            
+            $total++
+            return $output
         }
     }
 

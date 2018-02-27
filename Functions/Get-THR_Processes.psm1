@@ -15,9 +15,6 @@ Function Get-THR_Processes {
     .PARAMETER DLLs  
         Includes DLLs associated with each Process ID. Note that DLLs cannot be pulled on remote systems due to lack of support in Get-Process.
 
-    .PARAMETER Fails  
-        Provide a path to save failed systems to.
-
     .EXAMPLE 
         Get-THR_Processes 
         Get-THR_Processes SomeHostName.domain.com
@@ -58,10 +55,7 @@ Function Get-THR_Processes {
         [switch]$Services,
 
         [Parameter()]
-        [switch]$DLLs,
-        
-        [Parameter()]
-        $Fails
+        [switch]$DLLs
     )
 
     begin{
@@ -232,24 +226,15 @@ Function Get-THR_Processes {
             }
         }
         else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            if ($Fails) {
                 
-                $total++
-                Add-Content -Path $Fails -Value ("$Computer")
-            }
-            else {
-                
-                $output = $null
-                $output = [Process]::new()
+            $output = $null
+            $output = [Process]::new()
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
-                
-                $total++
-                return $output
-            }
+            $output.Computer = $Computer
+            $output.DateScanned = Get-Date -Format u
+            
+            $total++
+            return $output
         }
     }
 
