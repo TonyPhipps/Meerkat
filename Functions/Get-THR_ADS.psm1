@@ -59,7 +59,7 @@ function Get-THR_ADS {
     begin{
 
         $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
-        Write-Verbose "Started at $datetime"
+        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $datetime)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()

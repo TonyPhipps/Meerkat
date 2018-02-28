@@ -63,7 +63,7 @@ function Get-THR_WinEvents {
 	begin{
 
         $datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
-        Write-Information -MessageData "Started at $datetime" -InformationAction Continue
+        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $datetime)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
