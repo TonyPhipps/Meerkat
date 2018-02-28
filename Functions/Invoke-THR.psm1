@@ -48,10 +48,18 @@ function Invoke-THR {
         $OutputPath = $pwd,
 
         [Parameter()]
+        $Port,
+
+        [Parameter()]
         [switch] $All,
 
         [Parameter()]
+        [alias("Fast")]
         [switch] $Quick,
+
+        [Parameter()]
+        [alias("Small")]
+        [switch] $Micro,
 
         [Parameter()]
         [switch] $Info,
@@ -115,7 +123,7 @@ function Invoke-THR {
         [switch] $NetRoute,
 
         [Parameter()]
-        [alias("PRT","Port")]
+        [alias("PRT")]
         [switch] $Ports,
 
         [Parameter()]
@@ -155,6 +163,8 @@ function Invoke-THR {
     )
 
     begin{
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
@@ -162,6 +172,29 @@ function Invoke-THR {
         $stopwatch.Start()
 
         $total = 0
+
+        if (!$Port) {
+            $Port = "5985"
+        }
+
+        $Test=$null
+        $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -UseSSL -ErrorAction SilentlyContinue)
+
+        If(!$Test){
+            $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -ErrorAction SilentlyContinue)
+        }
+        else{
+            Write-Information -InformationAction Continue -MessageData ("Successfully reached WinRM on {0} at port {1}" -f $Computer, $Port)
+            $SLL = $True
+        }
+
+        If (!$Test){
+            Write-Information -InformationAction Continue -MessageData ("Could not reach WinRM on {0} at port {1}" -f $Computer, $Port)
+            break
+        }
+        else{
+            Write-Information -InformationAction Continue -MessageData ("Successfully reached WinRM on {0} at port {1}" -f $Computer, $Port)
+        }
     }
 
     process{
@@ -189,7 +222,9 @@ function Invoke-THR {
         }
 
         if ($All -or $DLLs){
-            Get-THR_DLLs -Computer $Computer | Export-Csv "DLLs.csv" -NoTypeInformation -Append
+            if (!$Micro) {
+                Get-THR_DLLs -Computer $Computer | Export-Csv "DLLs.csv" -NoTypeInformation -Append
+            }
         }
         
         if ($All -or $DNS){
