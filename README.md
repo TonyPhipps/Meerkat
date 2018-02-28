@@ -24,3 +24,10 @@ Without git... make the folder, then drop all the contents of this project into 
 ```
 mkdir C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
 ```
+## Quick Test Use
+To run a "quick" scan on your own system...
+```
+mkdir c:\temp\test
+cd c:\temp\test
+Invoke-THR -All -Quick
+```
