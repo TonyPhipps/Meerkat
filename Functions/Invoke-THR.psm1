@@ -133,6 +133,10 @@ function Invoke-THR {
         [Parameter()]
         [alias("BIN","Recycler")]
         [switch] $RecycleBin,
+        
+        [Parameter()]
+        [alias("REG","RegistryKeys")]
+        [switch] $Registry,
 
         [Parameter()]
         [alias("TSK","ScheduledTask","Tasks")]
@@ -277,6 +281,10 @@ function Invoke-THR {
         
         if ($All -or $RecycleBin){
             Get-THR_RecycleBin -Computer $Computer | Export-Csv "RecycleBin.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $Registry){
+            Get-THR_RegistryKeys -Computer $Computer | Export-Csv "RegistryKeys.csv" -NoTypeInformation -Append
         }
 
         if ($All -or $ScheduledTasks){
