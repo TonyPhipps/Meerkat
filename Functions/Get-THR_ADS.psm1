@@ -4,7 +4,7 @@ function Get-THR_ADS {
         Performs a search for alternate data streams (ADS) on a system.
 
     .DESCRIPTION 
-        Performs a search for alternate data streams (ADS) on a system. Default starting directory is c:\temp.
+        Performs a search for alternate data streams (ADS) on a system. Default starting directory is c:\users.
         To test, perform the following steps first:
         $file = "C:\temp\testfile.txt"
         Set-Content -Path $file -Value 'Nobody here but us chickens!'
@@ -14,7 +14,7 @@ function Get-THR_ADS {
         Computer can be a single hostname, FQDN, or IP address.
 
     .PARAMETER Path  
-        Specify a path to search for alternate data streams in. Default is c:\temp
+        Specify a path to search for alternate data streams in. Default is c:\users
 
     .EXAMPLE 
         Get-THR_ADS -Path "C:\"
@@ -53,7 +53,7 @@ function Get-THR_ADS {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        $Path = "C:\temp"
+        $Path = "C:\Users"
     )
 
     begin{
