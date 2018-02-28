@@ -44,8 +44,8 @@ Function Test-SharePermissions {
 	)
 
 	begin{
-		$datetime = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $datetime)
+		$DateScanned = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
