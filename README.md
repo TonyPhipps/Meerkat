@@ -7,7 +7,7 @@ Collect pertitent information for cyber threat hunting on your systems using thi
 | Host Info | Processes* | Services | Autoruns | Drivers |
 | :---: | :---: | :---: | :---: | :---: |
 | ARP | DLLs* | EnvVars | Hosts File | ADS |
-| DNS | Strings* | Group Members | Ports | |
+| DNS | Strings* | Group Members | Ports | Select Registry |
 | Hotfixes | Handles* | Sofware | Hardware | |
 | Net Adapters | Net Routes | Sessions | Shares | | 
 | Scheduled Tasks | TPM | Bitlocker | Recycle Bin | |
