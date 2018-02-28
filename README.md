@@ -4,13 +4,15 @@
 Collect pertitent information for cyber threat hunting on your systems using this toolkit. Alternatively, ingest the output into an analysis tool like ELK or Splunk to quickly pinpoint anomolous systems.
 
 ## Information Collected
-| Host Info | Processes | Services | Autoruns | Strings |
+| Host Info | Processes* | Services | Autoruns | Drivers |
 | :---: | :---: | :---: | :---: | :---: |
-| ARP | DNS | EnvVars | Hosts File | ADS |
-| DLLs | Drivers | Group Members | Handles | |
-| Hardware | Sofware | Hotfixes | Ports | |
+| ARP | DLLs* | EnvVars | Hosts File | ADS |
+| DNS | Strings* | Group Members | Ports | |
+| Hotfixes | Handles* | Sofware | Hardware | |
 | Net Adapters | Net Routes | Sessions | Shares | | 
 | Scheduled Tasks | TPM | Bitlocker | Recycle Bin | |
+
+\* Info pulled from current running processes, or their executables.
   
 ## Quick Install
 Run this command in Powershell with [git](https://gitforwindows.org/) installed, then open a new Powershell session.
