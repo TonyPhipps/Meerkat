@@ -1,13 +1,13 @@
 # THRecon
 -Threat Hunting Reconnaissance Toolkit-
 
-Collect pertitent information for cyber threat hunting on your systems using this toolkit. Alternatively, ingest the output into an analysis tool like ELK or Splunk to quickly pinpoint anomolous systems.
+Collect pertitent information for cyber threat hunting on your systems using this toolkit. Alternatively, ingest the output into an analysis tool like ELK or Splunk to quickly pinpoint anomolous systems. Requires Powershell 5.0 or above on the "scanning" device (requirements vary on target devices per tool).
 
 ## Information Collected
 | Host Info | Processes* | Services | Autoruns | Drivers |
 | :---: | :---: | :---: | :---: | :---: |
 | ARP | DLLs* | EnvVars | Hosts File | ADS |
-| DNS | Strings* | Group Members | Ports | |
+| DNS | Strings* | Group Members | Ports | Select Registry |
 | Hotfixes | Handles* | Sofware | Hardware | |
 | Net Adapters | Net Routes | Sessions | Shares | | 
 | Scheduled Tasks | TPM | Bitlocker | Recycle Bin | |
