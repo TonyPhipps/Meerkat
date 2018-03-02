@@ -59,6 +59,12 @@ function Get-THR_Processes {
             [String] $Computer
             [DateTime] $DateScanned
 
+            [String] $StartTime
+            [Int32] $SessionId
+            [String] $UserName
+            [Int32] $Id
+            [String] $DisplayName
+            [String] $Path
             [String] $BasePriority
             [String] $CPU
             [String] $CommandLine
@@ -66,13 +72,10 @@ function Get-THR_Processes {
             [String] $Description
             [String] $FileVersion
             [Int32] $HandleCount
-            [Int32] $Id
             [String] $MainModule
             [String] $MainWindowHandle
             [String] $MainWindowTitle
             [Int32] $ModuleCount
-            [String] $DisplayName
-            [String] $Path
             [String] $PriorityClass
             [String] $PrivilegedProcessorTime
             [String] $ProcessName
@@ -80,12 +83,9 @@ function Get-THR_Processes {
             [String] $Product
             [String] $ProductVersion
             [String] $Responding
-            [Int32] $SessionId
-            [String] $StartTime
             [Int32] $Threads
             [String] $TotalProcessorTime
-            [String] $UserName
-            [String] $Service
+            [String] $Services
             [String] $DLLs
         }
 	}
@@ -109,7 +109,7 @@ function Get-THR_Processes {
                 $CommandLine = $CIMProcesses | Where-Object ProcessID -eq $Process.ID | Select-Object -ExpandProperty CommandLine
 
                 $Process | Add-Member -MemberType NoteProperty -Name "CommandLine" -Value $CommandLine
-                $Process | Add-Member -MemberType NoteProperty -Name "Service" -Value $Services
+                $Process | Add-Member -MemberType NoteProperty -Name "Services" -Value $Services
                 
             }
 
@@ -155,7 +155,7 @@ function Get-THR_Processes {
                 $output.Threads = @($Process.Threads).Count
                 $output.TotalProcessorTime = $Process.TotalProcessorTime
                 $output.UserName = $Process.UserName
-                $output.Service = $Process.Service
+                $output.Services = $Process.Services
                 $output.DLLs = $Process.Modules -join "; "
                 $output.DLLs = $output.DLLs.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
                 
