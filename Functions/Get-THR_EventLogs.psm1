@@ -85,7 +85,8 @@ function Get-THR_EventLogs {
         $EventLogs = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
             $Yesterday = (Get-Date) - (New-TimeSpan -Day 1)
-            $Logs = Get-WinEvent -ListLog * | Select-Object LogName
+            $Logs = Get-WinEvent -ListLog * | Select-Object LogName | 
+            Where-Object LogName -ne "Microsoft-Windows-PowerShell" # Powershell log has no useful details
 
             $Events = @()
             Foreach ($Log in $Logs){
