@@ -8,7 +8,7 @@ Collect pertitent information for cyber threat hunting on your systems using thi
 | :---: | :---: | :---: | :---: | :---: |
 | ARP | DLLs* | EnvVars | Hosts File | ADS |
 | DNS | Strings* | Group Members | Ports | Select Registry |
-| Hotfixes | Handles* | Sofware | Hardware | |
+| Hotfixes | Handles* | Sofware | Hardware | Event Logs (24h) |
 | Net Adapters | Net Routes | Sessions | Shares | | 
 | Scheduled Tasks | TPM | Bitlocker | Recycle Bin | |
 
