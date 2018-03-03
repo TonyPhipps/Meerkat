@@ -24,7 +24,7 @@ function Get-THR_ADS {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ADS -Path "C:\"
 
     .NOTES 
-        Updated: 2018-02-26
+        Updated: 2018-03-03
 
         Contributing Authors:
             Anthony Phipps
@@ -148,7 +148,7 @@ function Get-THR_ADS {
             $Result = [ADS]::new()
 
             $Result.Computer = $Computer
-            $Result.DateScanned = $DateScanned
+            $Result.DateScanned = Get-Date -Format u
             
             $total++
             return $Result
