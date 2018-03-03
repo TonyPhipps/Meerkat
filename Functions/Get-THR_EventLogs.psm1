@@ -86,7 +86,7 @@ function Get-THR_EventLogs {
             
             $Yesterday = (Get-Date) - (New-TimeSpan -Day 1)
             $Logs = Get-WinEvent -ListLog * | Select-Object LogName | 
-            Where-Object LogName -ne "Microsoft-Windows-PowerShell" # Powershell log has no useful details
+            Where-Object LogName -ne "Microsoft-Windows-PowerShell/Operational" # Powershell operational log has no useful details
 
             $Events = @()
             Foreach ($Log in $Logs){
