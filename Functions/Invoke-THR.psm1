@@ -163,6 +163,10 @@ function Invoke-THR {
         [switch] $Strings,
 
         [Parameter()]
+        [alias("LOG","EventLogs")]
+        [switch] $Logs,
+
+        [Parameter()]
         [switch] $TPM
     )
 
@@ -315,6 +319,12 @@ function Invoke-THR {
         
         if ($All -or $TPM){
             Get-THR_TPM -Computer $Computer | Export-Csv "TPM.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $Logs){
+            if (!$Quick -and !$Micro) {
+                Get-THR_EventLogs -Computer $Computer | Export-Csv "EventLogs.csv" -NoTypeInformation -Append
+            }
         }
         
         $total++
