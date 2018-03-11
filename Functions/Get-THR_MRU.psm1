@@ -92,7 +92,7 @@ function Get-THR_MRU {
             "\Software\Microsoft\Internet Explorer\TypedURLs",
             "\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist",
             "\Software\Microsoft\Search Assistant\ACMru",
-            "\SOFTWARE\Microsoft\Currentversion\Search\RecentApps"
+            "\Software\Microsoft\Currentversion\Search\RecentApps"
 
             $MachineValues = 
             ""
@@ -100,7 +100,7 @@ function Get-THR_MRU {
 
             $OutputArray = @()
         
-            <#foreach ($Key in $MachineKeys){
+            foreach ($Key in $MachineKeys){
                 
                 $Key = "Registry::" + $Key
 
@@ -149,7 +149,7 @@ function Get-THR_MRU {
                         }
                     }
                 }
-            }#>
+            }
 
             # Regex pattern for SIDs
             $PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
