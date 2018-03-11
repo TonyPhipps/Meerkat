@@ -1,23 +1,23 @@
-function Get-THR_RegistryKeys {
+function Get-THR_MRU {
     <#
     .SYNOPSIS 
-        Gets a list of registry keys that aid in threat hunting.
+        Gets a Most Recently Used information from various locations.
 
     .DESCRIPTION 
-        Gets a list of registry keys that aid in threat hunting.
+        Gets a Most Recently Used information from various locations.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
     .EXAMPLE 
-        Get-Get-THR_RegistryKeys
-        Get-Get-THR_RegistryKeys SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_RegistryKeys
-        Get-THR_RegistryKeys $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_RegistryKeys
+        Get-THR_MRU
+        Get-THR_MRU SomeHostName.domain.com
+        Get-Content C:\hosts.csv | Get-THR_MRU
+        Get-THR_MRU $env:computername
+        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-02-20
+        Updated: 2018-03-11
 
         Contributing Authors:
             Anthony Phipps
@@ -38,9 +38,9 @@ function Get-THR_RegistryKeys {
 
     .LINK
        https://github.com/TonyPhipps/THRecon
-       https://attack.mitre.org/wiki/Technique/T1060
-       https://blog.cylance.com/windows-registry-persistence-part-2-the-run-keys-and-search-order
-       http://resources.infosecinstitute.com/common-malware-persistence-mechanisms/
+       https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis/
+        https://gbhackers.com/windows-registry-analysis-tracking-everything-you-do-on-the-system/
+
     #>
 
     [CmdletBinding()]
@@ -59,7 +59,7 @@ function Get-THR_RegistryKeys {
 
         $total = 0
 
-        class RegistryKey
+        class RegistryItem
         {
             [string] $Computer
             [Datetime] $DateScanned = $DateScanned
@@ -79,53 +79,28 @@ function Get-THR_RegistryKeys {
         $ResultsArray = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
             
             $MachineKeys = 
-            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServices",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnceEx",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SharedTaskScheduler",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",            
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects"
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad"
+            ""
 
             $UserKeys =
-            # Need a loop to parse HKU to gather below keys for each user on the system
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce",
-            "HKEY_CURRENT_USER\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServices",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",            
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
-            "HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows\load"
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedMRU",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRULegacy",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\CIDSizeMRU",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU",
+            "\Software\Microsoft\Internet Explorer\TypedURLs",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist",
+            "\Software\Microsoft\Search Assistant\ACMru",
+            "\SOFTWARE\Microsoft\Currentversion\Search\RecentApps"
 
             $MachineValues = 
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\UserInit",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell",
-            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\boot\Shell"
+            ""
+
 
             $OutputArray = @()
         
-            foreach ($Key in $MachineKeys){
+            <#foreach ($Key in $MachineKeys){
                 
                 $Key = "Registry::" + $Key
 
@@ -174,6 +149,62 @@ function Get-THR_RegistryKeys {
                         }
                     }
                 }
+            }#>
+
+            # Regex pattern for SIDs
+            $PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
+            
+            # Get all users' Username, SID, and location of ntuser.dat
+            $UserArray = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' | 
+                Where-Object {$_.PSChildName -match $PatternSID} | 
+                Select-Object  @{name="SID";expression={$_.PSChildName}}, 
+                    @{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}}, 
+                    @{name="Username";expression={$_.ProfileImagePath -replace '^(.*[\\\/])', ''}}
+            
+            $LoadedHives = Get-ChildItem Registry::HKEY_USERS | 
+                Where-Object {$_.PSChildname -match $PatternSID} | 
+                Select-Object @{name="SID";expression={$_.PSChildName}}
+            
+            $UnloadedHives = Compare-Object $UserArray.SID $LoadedHives.SID | 
+                Select-Object @{name="SID";expression={$_.InputObject}}, UserHive, Username
+
+            Foreach ($User in $UserArray) {
+                
+                If ($User.SID -in $UnloadedHives.SID) {
+
+                    reg load HKU\$($User.SID) $($User.UserHive) | Out-Null
+                }
+
+                foreach ($Key in $UserKeys){
+
+                    $Key = "Registry::HKEY_USERS\$($User.SID)" + $Key
+
+                    if (Test-Path $Key){
+
+                        $KeyObject = Get-Item $Key
+                                
+                        $Properties = $KeyObject.Property
+                                
+                        if ($Properties) { 
+                                
+                            foreach ($Property in $Properties){
+                                
+                                $OutputArray += [pscustomobject] @{
+                                    Key = $Key.Split(":")[2]
+                                    Value = $Property 
+                                    Data = $KeyObject.GetValue($Property)
+                                }
+                            }  
+                        }
+                    }
+                }
+                
+                If ($User.SID -in $UnloadedHives.SID) {
+                    ### Garbage collection and closing of ntuser.dat ###
+
+                    [gc]::Collect()
+                    reg unload HKU\$($User.SID) | Out-Null
+                }
             }
             
             return $OutputArray
@@ -184,7 +215,7 @@ function Get-THR_RegistryKeys {
             $OutputArray = @()
             
             foreach ($Result in $ResultsArray){
-                $Output = [RegistryKey]::new()
+                $Output = [RegistryItem]::new()
                 $Output.Computer = $Computer
                 $Output.DateScanned = $DateScanned
 
@@ -203,7 +234,7 @@ function Get-THR_RegistryKeys {
             Write-Verbose ("{0}: System failed." -f $Computer)
             
             $Result = $null
-            $Result = [RegistryKey]::new()
+            $Result = [RegistryItem]::new()
 
             $Result.Computer = $Computer
             $Result.DateScanned = $DateScanned
