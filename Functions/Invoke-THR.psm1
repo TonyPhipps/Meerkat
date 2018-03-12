@@ -139,6 +139,10 @@ function Invoke-THR {
         [switch] $Registry,
 
         [Parameter()]
+        [alias("Recent","RegistryMRU")]
+        [switch] $MRU,
+
+        [Parameter()]
         [alias("TSK","ScheduledTask","Tasks")]
         [switch] $ScheduledTasks,
 
@@ -288,7 +292,11 @@ function Invoke-THR {
         }
 
         if ($All -or $Registry){
-            Get-THR_RegistryKeys -Computer $Computer | Export-Csv "RegistryKeys.csv" -NoTypeInformation -Append
+            Get-THR_Registry -Computer $Computer | Export-Csv "Registry.csv" -NoTypeInformation -Append
+        }
+        
+        if ($All -or $MRU){
+            Get-THR_MRU -Computer $Computer | Export-Csv "MRU.csv" -NoTypeInformation -Append
         }
 
         if ($All -or $ScheduledTasks){
