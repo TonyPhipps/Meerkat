@@ -92,7 +92,28 @@ function Get-THR_MRU {
             "\Software\Microsoft\Internet Explorer\TypedURLs",
             "\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist",
             "\Software\Microsoft\Search Assistant\ACMru",
-            "\Software\Microsoft\Currentversion\Search\RecentApps"
+            "\Software\Microsoft\Currentversion\Search\RecentApps",
+            "\Software\Microsoft\Office\13.0\Access\File MRU",
+            "\Software\Microsoft\Office\14.0\Access\File MRU",
+            "\Software\Microsoft\Office\15.0\Access\File MRU",
+            "\Software\Microsoft\Office\16.0\Access\File MRU",
+            "\Software\Microsoft\Office\13.0\Excel\File MRU",
+            "\Software\Microsoft\Office\14.0\Excel\File MRU",
+            "\Software\Microsoft\Office\15.0\Excel\File MRU",
+            "\Software\Microsoft\Office\16.0\Excel\File MRU",
+            "\Software\Microsoft\Office\13.0\Powerpoint\File MRU",
+            "\Software\Microsoft\Office\14.0\Powerpoint\File MRU",
+            "\Software\Microsoft\Office\15.0\Powerpoint\File MRU"
+            "\Software\Microsoft\Office\16.0\Powerpoint\File MRU"
+            "\Software\Microsoft\Office\13.0\Word\File MRU",
+            "\Software\Microsoft\Office\14.0\Word\File MRU",
+            "\Software\Microsoft\Office\15.0\Word\File MRU",
+            "\Software\Microsoft\Office\16.0\Word\File MRU",
+            "\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\Recent File List",
+            "\Software\Microsoft\Microsoft Management Console\Recent File List",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs"
+            
+            
 
             $MachineValues = 
             ""
