@@ -78,8 +78,7 @@ function Get-THR_MRU {
         $ResultsArray = $null
         $ResultsArray = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
             
-            $MachineKeys = 
-            ""
+            $MachineKeys = ""
 
             $UserKeys =
             "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU",
@@ -113,11 +112,7 @@ function Get-THR_MRU {
             "\Software\Microsoft\Microsoft Management Console\Recent File List",
             "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs"
             
-            
-
-            $MachineValues = 
-            ""
-
+            $MachineValues = ""
 
             $OutputArray = @()
         
@@ -247,7 +242,7 @@ function Get-THR_MRU {
                 $OutputArray += $Output
             }
 
-            $OutputArray = $OutputArray[1..($OutputArray.Length-1)] # Handles bug where first entry is blank
+            $OutputArray = $OutputArray | Where-Object {$_.Data -ne ""}
             return $OutputArray
         }
         else {

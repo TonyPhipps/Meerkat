@@ -253,7 +253,7 @@ function Get-THR_Registry {
                 $OutputArray += $Output
             }
 
-            $OutputArray = $OutputArray[1..($OutputArray.Length-1)] # Handles bug where first entry is blank
+            $OutputArray = $OutputArray | Where-Object {$_.Data -ne ""}
             return $OutputArray
         }
         else {
