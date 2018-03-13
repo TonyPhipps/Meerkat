@@ -38,6 +38,8 @@ function Get-THR_Processes {
         
     .LINK
        https://github.com/TonyPhipps/THRecon
+       https://attack.mitre.org/wiki/Technique/T1034
+       https://attack.mitre.org/wiki/Technique/T1053
     #>
 
     param(
