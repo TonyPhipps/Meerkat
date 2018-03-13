@@ -17,7 +17,7 @@ function Get-THR_TPM {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TPM
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-03-13
 
         Contributing Authors:
             Anthony Phipps
@@ -160,7 +160,7 @@ function Get-THR_TPM {
             $Result = [TPM]::new()
 
             $Result.Computer = $Computer
-            $Result.DateScanned = $DateScanned
+            $Result.DateScanned = Get-Date -Format u
             
             $total++
             return $Result

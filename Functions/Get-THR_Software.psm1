@@ -117,7 +117,7 @@
             $Result = [Software]::new()
 
             $Result.Computer = $Computer
-            $Result.DateScanned = $DateScanned
+            $Result.DateScanned = Get-Date -Format u
             
             $total++
             return $Result
