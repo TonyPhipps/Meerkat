@@ -41,6 +41,7 @@
 
     .LINK
        https://github.com/TonyPhipps/THRecon
+       https://attack.mitre.org/wiki/Technique/T1179
     #>
 
     param(
