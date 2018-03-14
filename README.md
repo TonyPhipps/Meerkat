@@ -33,5 +33,5 @@ Invoke-THR -All -Quick
 ```
 
 ## Troubleshooting
-[Importing a Powershell Module](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx)
+[Installing a Powershell Module](https://msdn.microsoft.com/en-us/library/dd878350(v=vs.85).aspx)
 
