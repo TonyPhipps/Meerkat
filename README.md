@@ -1,7 +1,11 @@
 # THRecon
 -Threat Hunting Reconnaissance Toolkit-
 
-Collect pertitent information for incident response / threat hunting on your systems using this toolkit. Alternatively, ingest the output into an analysis tool like ELK, Graylog, or Splunk to quickly pinpoint anomolous results. Requires Powershell 5.0 or above on the "scanning" device (in most cases, Powershell 3.0 or higher on target systems).
+Collect endpoint information for use in incident response triage / threat hunting / live forensics using this toolkit. When a security alert raises concern over a managed system, this toolkit aims to empower the analyst with as much relevant information as possible to help determine if a compromise occurred.
+
+Alternatively, the output of this tool may be ingested into an analysis tool like ELK, Graylog, or Splunk to quickly pinpoint anomolous results. For example, a single instance of a process path across all your endpoints would be considered suspicious, waranting investigation.
+
+Requires Powershell 5.0 or above on the "scanning" device (in most cases, Powershell 3.0 or higher on target systems).
 
 ## Information Collected
 | Host Info | Processes* | Services | Autoruns | Drivers |
