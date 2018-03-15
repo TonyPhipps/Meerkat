@@ -41,3 +41,8 @@ Invoke-THR -All -Quick
 [Installing a Powershell Module](https://msdn.microsoft.com/en-us/library/dd878350(v=vs.85).aspx)
 
 If your system does not automatically load modules in your user [profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6), you may need to [import the module manually](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx).
+
+```
+cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
+Import-Module THRecon.psm1
+```
