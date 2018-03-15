@@ -40,8 +40,7 @@ Function Get-THR_Computer {
 
     .LINK
        https://github.com/TonyPhipps/THRecon
-       https://attack.mitre.org/wiki/Technique/T1062
-       https://attack.mitre.org/wiki/Technique/T1019
+       https://github.com/TonyPhipps/THRecon/wiki/Computer
        
     #>
 
