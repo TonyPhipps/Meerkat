@@ -26,13 +26,13 @@ git clone https://github.com/TonyPhipps/THRecon C:\Users\$env:UserName\Documents
 ```
 Without git... make the folder, then drop all the contents of this project into it. Then open a new Powershell session.
 ```
-mkdir C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
+mkdir C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
 ```
 ## Quick Test Use
 To run a "quick" scan on your own system, you will need to create a blank folder, then run the cmdlet within that folder, since output defaults to the current working directory.
 
 ```
-mkdir c:\temp
+mkdir c:\temp\
 cd c:\temp\
 Invoke-THR -All -Quick
 ```
@@ -41,3 +41,8 @@ Invoke-THR -All -Quick
 [Installing a Powershell Module](https://msdn.microsoft.com/en-us/library/dd878350(v=vs.85).aspx)
 
 If your system does not automatically load modules in your user [profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6), you may need to [import the module manually](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx).
+
+```
+cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
+Import-Module THRecon.psm1
+```
