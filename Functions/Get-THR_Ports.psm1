@@ -40,8 +40,8 @@
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     .LINK
-       https://github.com/TonyPhipps/THRecon
-       https://attack.mitre.org/wiki/Technique/T1179
+        https://github.com/TonyPhipps/THRecon
+        https://github.com/TonyPhipps/THRecon/wiki/Ports
     #>
 
     param(

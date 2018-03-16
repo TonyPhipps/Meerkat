@@ -38,7 +38,7 @@ function Get-THR_Registry {
 
     .LINK
        https://github.com/TonyPhipps/THRecon
-       https://attack.mitre.org/wiki/Technique/T1060
+       https://github.com/TonyPhipps/THRecon/wiki/Registry
        https://blog.cylance.com/windows-registry-persistence-part-2-the-run-keys-and-search-order
        http://resources.infosecinstitute.com/common-malware-persistence-mechanisms/
        https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis/

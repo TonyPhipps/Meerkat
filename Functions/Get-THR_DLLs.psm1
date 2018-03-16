@@ -38,10 +38,7 @@
         
     .LINK
        https://github.com/TonyPhipps/THRecon
-       https://attack.mitre.org/wiki/Technique/T1177
-       https://attack.mitre.org/wiki/Technique/T1182
-       https://attack.mitre.org/wiki/Technique/T1103
-       https://attack.mitre.org/wiki/Technique/T1038
+       https://github.com/TonyPhipps/THRecon/wiki/DLLs
     #>
 
     param(

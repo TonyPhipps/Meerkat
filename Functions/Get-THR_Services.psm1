@@ -38,9 +38,7 @@ function Get-THR_Services {
 
     .LINK
         https://github.com/TonyPhipps/THRecon
-        https://attack.mitre.org/wiki/Technique/T1031
-        https://attack.mitre.org/wiki/Technique/T1050
-        https://attack.mitre.org/wiki/Technique/T1058
+        https://github.com/TonyPhipps/THRecon/wiki/Services
     #>
 
     param(

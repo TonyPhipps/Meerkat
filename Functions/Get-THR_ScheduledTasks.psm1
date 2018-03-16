@@ -37,7 +37,7 @@ function Get-THR_ScheduledTasks {
 
     .LINK
        https://github.com/TonyPhipps/THRecon
-       https://attack.mitre.org/wiki/Technique/T1053
+       https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks
     #>
 
     param(

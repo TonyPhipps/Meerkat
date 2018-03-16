@@ -37,7 +37,7 @@ function Get-THR_GroupMembers {
         
     .LINK
        https://github.com/TonyPhipps/THRecon
-       https://attack.mitre.org/wiki/Technique/T1078
+       https://github.com/TonyPhipps/THRecon/wiki/GroupMembers
     #>
 
     param(
