@@ -5,7 +5,9 @@ Collect endpoint information for use in incident response triage / threat huntin
 
 Alternatively, the output of this tool may be ingested into an analysis tool like [ELK](https://www.elastic.co/elk-stack), [Graylog](https://www.graylog.org/), or [Splunk](https://www.splunk.com/) for stack-counting and other analysis techniques.
 
-Requires Powershell 5.0 or above on the "scanning" device (in most cases, Powershell 3.0 or higher on target systems).
+Requires Powershell 5.0 or above on the "scanning" device.
+
+Requires Powershell 3.0 or higher on target systems (2.0 may be adequate in some cases).
 
 ## Information Collected
 | [Host Info](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Computer.psm1) | [Processes](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Processes.psm1)* | [Services](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Services.psm1) | [Autoruns](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Autoruns.psm1) | [Drivers](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Drivers.psm1) |
