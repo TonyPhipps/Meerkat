@@ -8,9 +8,9 @@ Alternatively, the output of this tool may be ingested into an analysis tool lik
 Requires Powershell 5.0 or above on the "scanning" device (in most cases, Powershell 3.0 or higher on target systems).
 
 ## Information Collected
-| [Host Info](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Computer.psm1) | Processes* | Services | Autoruns | Drivers |
+| [Host Info](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Computer.psm1) | [Processes](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Processes.psm1)* | [Services](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Services.psm1) | [Autoruns](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Autoruns.psm1) | [Drivers](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Drivers.psm1) |
 | :---: | :---: | :---: | :---: | :---: |
-| ARP | DLLs* | EnvVars | Hosts File | ADS |
+| [ARP](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_ARP.psm1) | DLLs* | EnvVars | Hosts File | ADS |
 | DNS | Strings* | Group Members | Ports | Select Registry |
 | Hotfixes | Handles* | Sofware | Hardware | Event Logs (24h) |
 | Net Adapters | Net Routes | Sessions | Shares | | 
