@@ -8,7 +8,7 @@ Alternatively, the output of this tool may be ingested into an analysis tool lik
 Requires Powershell 5.0 or above on the "scanning" device (in most cases, Powershell 3.0 or higher on target systems).
 
 ## Information Collected
-| [Host Info](https://github.com/TonyPhipps/THRecon/wiki/Computer) | Processes* | Services | Autoruns | Drivers |
+| [Host Info](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Computer.psm1) | Processes* | Services | Autoruns | Drivers |
 | :---: | :---: | :---: | :---: | :---: |
 | ARP | DLLs* | EnvVars | Hosts File | ADS |
 | DNS | Strings* | Group Members | Ports | Select Registry |
