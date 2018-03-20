@@ -134,6 +134,9 @@ Function Get-THR_Computer {
             [String] $SerialNumber
             [uint16] $SystemBiosMajorVersion
             [uint16] $SystemBiosMinorVersion
+
+            # Win32_Processor
+            [String] $VirtualizationFirmwareEnabled
         }
     }
 
@@ -143,15 +146,14 @@ Function Get-THR_Computer {
         
         Write-Verbose ("{0}: Querying remote system" -f $Computer) 
             $Win32_OperatingSystem = Get-CIMinstance -class Win32_OperatingSystem -ComputerName $Computer -ErrorAction SilentlyContinue
-            if (!$Win32_OperatingSystem) { $Win32_OperatingSystem = Get-WmiObject -class Win32_OperatingSystem -ComputerName $Computer -ErrorAction SilentlyContinue }
         
         if ($Win32_OperatingSystem) {
             
             $Win32_ComputerSystem = Get-CimInstance -class Win32_ComputerSystem -ComputerName $Computer -ErrorAction SilentlyContinue
-            if (!$Win32_ComputerSystem) { $Win32_ComputerSystem = Get-WmiObject -class Win32_ComputerSystem -ComputerName $Computer -ErrorAction SilentlyContinue }
-
+            
             $Win32_BIOS = Get-CIMinstance -class Win32_BIOS -ComputerName $Computer -ErrorAction SilentlyContinue
-            if (!$Win32_BIOS) { $Win32_BIOS = Get-WmiObject -class Win32_BIOS -ComputerName $Computer -ErrorAction SilentlyContinue }
+
+            $Win32_Processor = Get-CIMinstance -class Win32_Processor -ComputerName $Computer -ErrorAction SilentlyContinue
 
             $output = $null
             $output = [Computer]::new()
@@ -217,7 +219,7 @@ Function Get-THR_Computer {
             $output.ThermalState = $Win32_ComputerSystem.ThermalState
             $output.UserName = $Win32_ComputerSystem.UserName
 
-            # Add BIOS Version
+            # Win32_BIOS
             $output.BIOSVersion = $Win32_BIOS.BIOSVersion
             if ($Win32_BIOS.InstallDate) { $output.BIOSInstallDate = $Win32_BIOS.InstallDate }
             $output.BIOSManufacturer = $Win32_BIOS.Manufacturer
@@ -230,6 +232,9 @@ Function Get-THR_Computer {
             $output.SerialNumber = $Win32_BIOS.SerialNumber
             $output.SystemBiosMajorVersion = $Win32_BIOS.SystemBiosMajorVersion
             $output.SystemBiosMinorVersion = $Win32_BIOS.SystemBiosMinorVersion
+
+            # Win32_Processor
+            $output.VirtualizationFirmwareEnabled = $Win32_Processor.VirtualizationFirmwareEnabled
 
             $total++
             return $output 
