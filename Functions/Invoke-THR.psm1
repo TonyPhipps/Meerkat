@@ -171,7 +171,11 @@ function Invoke-THR {
         [switch] $Logs,
 
         [Parameter()]
-        [switch] $TPM
+        [switch] $TPM,
+
+        [Parameter()]
+        [alias("CER","Certs")]
+        [switch] $Certificates
     )
 
     begin{
@@ -333,6 +337,10 @@ function Invoke-THR {
             if (!$Quick -and !$Micro) {
                 Get-THR_EventLogs -Computer $Computer | Export-Csv "EventLogs.csv" -NoTypeInformation -Append
             }
+        }
+
+        if ($All -or $Certificates){
+            Get-THR_Certificates -Computer $Computer | Export-Csv "Certificates.csv" -NoTypeInformation -Append            
         }
         
         $total++
