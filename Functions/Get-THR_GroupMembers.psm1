@@ -60,10 +60,11 @@ function Get-THR_GroupMembers {
             [String] $Computer
             [dateTime] $DateScanned
 
-            [String] $Name
-            [String] $SID
-            [String] $PrincipalSource
-            [String] $ObjectClass
+            [String] $UserDomain
+            [String] $UserName
+            [String] $UserSID
+            [String] $UserPrincipalSource
+            [String] $UserObjectClass
             [String] $GroupName
             [String] $GroupDescription
             [String] $GroupSID
@@ -78,38 +79,37 @@ function Get-THR_GroupMembers {
 
         Write-Verbose ("{0}: Querying remote system" -f $Computer) 
         
-        $groupMembers = $null
-        $groupMembers = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $GroupMembers = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $groups = $null
-            $groups = Get-LocalGroup
+            $GroupArray = Get-LocalGroup
             
-            $groupMembers = @()
+            $GroupMembers = @()
             
-            Foreach ($group in $groups) { # get members of each group
+            Foreach ($Group in $GroupArray) { # get members of each group
                 
-                $members = $null
-                $members = Get-LocalGroupMember -Group $group.Name
+                $MemberArray = Get-LocalGroupMember -Group $Group.Name
                 
-                Foreach ($member in $members) { # add group properties to each member
+                Foreach ($Member in $MemberArray) { # add group properties to each member
             
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupDescription" -Value $group.DESCRIPTION
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupName" -Value $group.Name
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupSID" -Value $group.SID
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupPrincipalSource" -Value $group.PrincipalSource
-                    $member | Add-Member -MemberType NoteProperty -Name "GroupObjectClass" -Value $group.ObjectClass
-                    $groupMembers += $member
+                    $Member | Add-Member -MemberType NoteProperty -Name "UserDomain" -Value $Member.Name.Split("\")[0]
+                    $Member | Add-Member -MemberType NoteProperty -Name "UserName" -Value $Member.Name.Split("\")[1]
+                    $Member | Add-Member -MemberType NoteProperty -Name "GroupDescription" -Value $Group.DESCRIPTION
+                    $Member | Add-Member -MemberType NoteProperty -Name "GroupName" -Value $Group.Name
+                    $Member | Add-Member -MemberType NoteProperty -Name "GroupSID" -Value $Group.SID
+                    $Member | Add-Member -MemberType NoteProperty -Name "GroupPrincipalSource" -Value $Group.PrincipalSource
+                    $Member | Add-Member -MemberType NoteProperty -Name "GroupObjectClass" -Value $Group.ObjectClass
+                    $GroupMembers += $Member
                 }
             }
-            
-            return $groupMembers
+
+            return $GroupMembers
         }
 
-        if ($groupMembers) {
+        if ($GroupMembers) {
             
             $outputArray = @()
 
-            Foreach ($groupMember in $groupMembers) {
+            Foreach ($GroupMember in $GroupMembers) {
                 
                 $output = $null
                 $output = [Member]::new()
@@ -117,15 +117,16 @@ function Get-THR_GroupMembers {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
     
-                $output.Name = $groupMember.Name
-                $output.SID = $groupMember.SID
-                $output.PrincipalSource = $groupMember.PrincipalSource
-                $output.ObjectClass = $groupMember.ObjectClass
-                $output.GroupName = $groupMember.GroupName
-                $output.GroupDescription = $groupMember.GroupDescription
-                $output.GroupSID = $groupMember.GroupSID
-                $output.GroupPrincipalSource = $groupMember.GroupPrincipalSource
-                $output.GroupObjectClass = $groupMember.GroupObjectClass
+                $output.UserDomain = $GroupMember.UserDomain
+                $output.UserName = $GroupMember.UserName
+                $output.UserSID = $GroupMember.SID
+                $output.UserPrincipalSource = $GroupMember.PrincipalSource
+                $output.UserObjectClass = $GroupMember.ObjectClass
+                $output.GroupName = $GroupMember.GroupName
+                $output.GroupDescription = $GroupMember.GroupDescription
+                $output.GroupSID = $GroupMember.GroupSID
+                $output.GroupPrincipalSource = $GroupMember.GroupPrincipalSource
+                $output.GroupObjectClass = $GroupMember.GroupObjectClass
 
                 $outputArray += $output
             }
