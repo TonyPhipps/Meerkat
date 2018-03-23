@@ -9,16 +9,19 @@ Requires Powershell 5.0 or above on the "scanning" device.
 
 Requires Powershell 3.0 or higher on target systems (2.0 may be adequate in some cases).
 
-## Information Collected
-| [Host Info](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Computer.psm1) | [Processes](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Processes.psm1)* | [Services](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Services.psm1) | [Autoruns](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Autoruns.psm1) | [Drivers](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_Drivers.psm1) |
-| :---: | :---: | :---: | :---: | :---: |
-| [ARP](https://github.com/TonyPhipps/THRecon/blob/master/Functions/Get-THR_ARP.psm1) | DLLs* | EnvVars | Hosts File | ADS |
-| DNS | Strings* | Group Members | Ports | Select Registry |
-| Hotfixes | Handles* | Sofware | Hardware | Event Logs (24h) |
-| Net Adapters | Net Routes | Sessions | Shares | | 
-| Scheduled Tasks | TPM | Bitlocker | Recycle Bin | |
+## Information Collected 
 
-\* Info pulled from current running processes, or their executables.
+_Linked to Hunt Use Cases_
+
+| [Host Info](https://github.com/TonyPhipps/THRecon/wiki/Computer) | [Processes](https://github.com/TonyPhipps/THRecon/wiki/Processes)* | [Services](https://github.com/TonyPhipps/THRecon/wiki/Services) | [Autoruns](https://github.com/TonyPhipps/THRecon/wiki/Autoruns) | [Drivers](https://github.com/TonyPhipps/THRecon/wiki/Drivers) |
+| :---: | :---: | :---: | :---: | :---: |
+| ARP | [DLLs](https://github.com/TonyPhipps/THRecon/wiki/DLLs)* | EnvVars | Hosts File | ADS |
+| [DNS](https://github.com/TonyPhipps/THRecon/wiki/DNS) | Strings* | [Users & Groups](https://github.com/TonyPhipps/THRecon/wiki/GroupMembers) | [Ports](https://github.com/TonyPhipps/THRecon/wiki/Ports) | [Select Registry](https://github.com/TonyPhipps/THRecon/wiki/Registry) |
+| Hotfixes | Handles* | Sofware | Hardware | [Event Logs (24h)](https://github.com/TonyPhipps/THRecon/wiki/EventLogs) |
+| Net Adapters | Net Routes | Sessions | Shares | [Certificates](https://github.com/TonyPhipps/THRecon/wiki/Certificates) | 
+| [Scheduled Tasks](https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks) | TPM | Bitlocker | Recycle Bin | |
+
+\* Info pulled from current running processes, or their executables on disk.
   
 ## Quick Install
 Run this command in Powershell with [git](https://gitforwindows.org/) installed, then open a new Powershell session.
