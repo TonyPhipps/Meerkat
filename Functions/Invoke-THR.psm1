@@ -48,7 +48,7 @@ function Invoke-THR {
         $OutputPath = $pwd,
 
         [Parameter()]
-        $Port,
+        $Port = "5985",
 
         [Parameter()]
         [switch] $All,
@@ -189,20 +189,8 @@ function Invoke-THR {
 
         $total = 0
 
-        if (!$Port) {
-            $Port = "5985"
-        }
-
         $Test=$null
-        $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -UseSSL -ErrorAction SilentlyContinue)
-
-        If(!$Test){
-            $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -ErrorAction SilentlyContinue)
-        }
-        else{
-            Write-Information -InformationAction Continue -MessageData ("Successfully reached WinRM on {0} at port {1}" -f $Computer, $Port)
-            $Port = "5986"
-        }
+        $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -ErrorAction SilentlyContinue)
 
         If (!$Test){
             Write-Information -InformationAction Continue -MessageData ("Could not reach WinRM on {0} at port {1}" -f $Computer, $Port)
