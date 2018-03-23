@@ -212,15 +212,15 @@ function Invoke-THR {
         }
 
         if ($All -or $Autoruns){
-        Get-THR_Autoruns -Computer $Computer | Export-Csv "Autoruns.csv" -NoTypeInformation -Append
+            Get-THR_Autoruns -Computer $Computer | Export-Csv "Autoruns.csv" -NoTypeInformation -Append
         }
 
         if ($All -or $BitLocker){
-        Get-THR_BitLocker -Computer $Computer | Export-Csv "BitLocker.csv" -NoTypeInformation -Append
+            Get-THR_BitLocker -Computer $Computer | Export-Csv "BitLocker.csv" -NoTypeInformation -Append
         }
         
         if ($All -or $DNS){
-        Get-THR_DNS -Computer $Computer | Export-Csv "DNS.csv" -NoTypeInformation -Append
+            Get-THR_DNS -Computer $Computer | Export-Csv "DNS.csv" -NoTypeInformation -Append
         }
 
         if ($All -or $GroupMembers){
