@@ -9,7 +9,15 @@ Requires Powershell 5.0 or above on the "scanning" device.
 
 Requires Powershell 3.0 or higher on target systems (2.0 may be adequate in some cases).
 
-[Information Collected](#information-collected)
+______________________________________________________
+
+  * [Information Collected](#information-collected)
+  * [Quick Install](#quick-install)
+  * [Quick Test Use](#quick-test-use)
+  * [Troubleshooting](#troubleshooting)
+  * [Screenshots](#screenshots)
+  
+______________________________________________________
 
 ## Information Collected 
 
