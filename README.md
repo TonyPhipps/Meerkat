@@ -9,6 +9,16 @@ Requires Powershell 5.0 or above on the "scanning" device.
 
 Requires Powershell 3.0 or higher on target systems (2.0 may be adequate in some cases).
 
+______________________________________________________
+
+  * [Information Collected](#information-collected)
+  * [Quick Install](#quick-install)
+  * [Quick Test Use](#quick-test-use)
+  * [Troubleshooting](#troubleshooting)
+  * [Screenshots](#screenshots)
+  
+______________________________________________________
+
 ## Information Collected 
 
 _Linked to Hunt Use Cases_
@@ -51,3 +61,13 @@ If your system does not automatically load modules in your user [profile](https:
 cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
 Import-Module THRecon.psm1
 ```
+
+### Screenshots
+
+Output of Command "Invoke-THR -all"
+
+![Output of Command "invoke-thr -all -verbose"](https://i.imgur.com/zcmra0v.png)
+
+Output Files
+
+![Output Files](https://i.imgur.com/D3kpjun.png)
