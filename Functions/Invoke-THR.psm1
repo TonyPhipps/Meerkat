@@ -218,12 +218,6 @@ function Invoke-THR {
         if ($All -or $Computers){
             Get-THR_Computer -Computer $Computer | Export-Csv "Computer.csv" -NoTypeInformation -Append
         }
-
-        if ($All -or $ADS){
-            if (!$Quick) {
-                Get-THR_ADS -Computer $Computer | Export-Csv "ADS.csv" -NoTypeInformation -Append
-            }
-        }
         
         if ($All -or $ARP){
             Get-THR_ARP -Computer $Computer | Export-Csv "ARP.csv" -NoTypeInformation -Append
@@ -236,23 +230,9 @@ function Invoke-THR {
         if ($All -or $BitLocker){
         Get-THR_BitLocker -Computer $Computer | Export-Csv "BitLocker.csv" -NoTypeInformation -Append
         }
-
-        if ($All -or $DLLs){
-            if (!$Micro) {
-                Get-THR_DLLs -Computer $Computer | Export-Csv "DLLs.csv" -NoTypeInformation -Append
-            }
-        }
         
         if ($All -or $DNS){
         Get-THR_DNS -Computer $Computer | Export-Csv "DNS.csv" -NoTypeInformation -Append
-        }
-
-        if ($All -or $Drivers){
-            Get-THR_Drivers -Computer $Computer | Export-Csv "Drivers.csv" -NoTypeInformation -Append
-        }
-
-        if ($All -or $EnvVars){
-            Get-THR_EnvVars -Computer $Computer | Export-Csv "EnvVars.csv" -NoTypeInformation -Append
         }
 
         if ($All -or $GroupMembers){
@@ -261,18 +241,6 @@ function Invoke-THR {
 
         if ($All -or $Handles){
             Get-THR_Handles -Computer $Computer | Export-Csv "Handles.csv" -NoTypeInformation -Append
-        }
-
-        if ($All -or $Hardware){
-            Get-THR_Hardware -Computer $Computer | Export-Csv "Hardware.csv" -NoTypeInformation -Append
-        }
-
-        if ($All -or $Hosts){
-            Get-THR_Hosts -Computer $Computer | Export-Csv "Hosts.csv" -NoTypeInformation -Append
-        }
-        
-        if ($All -or $Hotfixes){
-            Get-THR_Hotfixes -Computer $Computer | Export-Csv "Hotfixes.csv" -NoTypeInformation -Append
         }
 
         if ($All -or $NetAdapters){
@@ -298,10 +266,6 @@ function Invoke-THR {
         if ($All -or $Registry){
             Get-THR_Registry -Computer $Computer | Export-Csv "Registry.csv" -NoTypeInformation -Append
         }
-        
-        if ($All -or $MRU){
-            Get-THR_MRU -Computer $Computer | Export-Csv "MRU.csv" -NoTypeInformation -Append
-        }
 
         if ($All -or $ScheduledTasks){
             Get-THR_ScheduledTasks -Computer $Computer | Export-Csv "ScheduledTasks.csv" -NoTypeInformation -Append
@@ -319,28 +283,64 @@ function Invoke-THR {
             Get-THR_Shares -Computer $Computer | Export-Csv "Shares.csv" -NoTypeInformation -Append
         }
         
+        if ($All -or $TPM){
+            Get-THR_TPM -Computer $Computer | Export-Csv "TPM.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $Hosts){
+            Get-THR_Hosts -Computer $Computer | Export-Csv "Hosts.csv" -NoTypeInformation -Append
+        }
+        
         if ($All -or $Software){
             Get-THR_Software -Computer $Computer | Export-Csv "Software.csv" -NoTypeInformation -Append
         }
         
+        if ($All -or $EnvVars){
+            Get-THR_EnvVars -Computer $Computer | Export-Csv "EnvVars.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $MRU){
+            Get-THR_MRU -Computer $Computer | Export-Csv "MRU.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $Drivers){
+            Get-THR_Drivers -Computer $Computer | Export-Csv "Drivers.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $Hotfixes){
+            Get-THR_Hotfixes -Computer $Computer | Export-Csv "Hotfixes.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $Hardware){
+            Get-THR_Hardware -Computer $Computer | Export-Csv "Hardware.csv" -NoTypeInformation -Append
+        }
+
+        if ($All -or $Certificates){
+            Get-THR_Certificates -Computer $Computer | Export-Csv "Certificates.csv" -NoTypeInformation -Append            
+        }
+
+        if ($All -or $DLLs){
+            if (!$Micro) {
+                Get-THR_DLLs -Computer $Computer | Export-Csv "DLLs.csv" -NoTypeInformation -Append
+            }
+        }
+
+        if ($All -or $ADS){
+            if (!$Quick) {
+                Get-THR_ADS -Computer $Computer | Export-Csv "ADS.csv" -NoTypeInformation -Append
+            }
+        }
+
         if ($All -or $Strings){
             if (!$Quick) {
                 Get-THR_Strings -Computer $Computer | Export-Csv "Strings.csv" -NoTypeInformation -Append
             }
-        }
-        
-        if ($All -or $TPM){
-            Get-THR_TPM -Computer $Computer | Export-Csv "TPM.csv" -NoTypeInformation -Append
         }
 
         if ($All -or $Logs){
             if (!$Quick -and !$Micro) {
                 Get-THR_EventLogs -Computer $Computer | Export-Csv "EventLogs.csv" -NoTypeInformation -Append
             }
-        }
-
-        if ($All -or $Certificates){
-            Get-THR_Certificates -Computer $Computer | Export-Csv "Certificates.csv" -NoTypeInformation -Append            
         }
         
         $total++
