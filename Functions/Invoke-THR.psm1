@@ -201,7 +201,7 @@ function Invoke-THR {
         }
         else{
             Write-Information -InformationAction Continue -MessageData ("Successfully reached WinRM on {0} at port {1}" -f $Computer, $Port)
-            $SLL = $True
+            $Port = "5986"
         }
 
         If (!$Test){
