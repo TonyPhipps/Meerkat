@@ -47,7 +47,7 @@ function Get-THR_Hotfixes {
 
 	begin{
 
-        $DateScanned = Get-Date -Format "yyyy-MM-dd_hh.mm.ss.ff"
+        $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
