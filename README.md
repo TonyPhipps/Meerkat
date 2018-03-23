@@ -66,7 +66,7 @@ Import-Module THRecon.psm1
 
 Output of Command "Invoke-THR -all"
 
-![Output of Command "Invoke-THR -all"](https://i.imgur.com/arWNCCA.png)
+![Output of Command "invoke-thr -all -verbose"](https://i.imgur.com/zcmra0v.png)
 
 Output Files
 
