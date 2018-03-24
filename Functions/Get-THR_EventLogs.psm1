@@ -26,7 +26,7 @@ function Get-THR_EventLogs {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_EventLogs
 
     .NOTES 
-        Updated: 2018-03-02
+        Updated: 2018-03-23
 
         Contributing Authors:
             Anthony Phipps
