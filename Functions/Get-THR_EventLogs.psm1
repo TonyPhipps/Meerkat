@@ -1,13 +1,22 @@
 function Get-THR_EventLogs {
     <#
     .SYNOPSIS 
-        Gets all event logs for the past day on a given system.
+        Gets all event logs on a given system since the specified time frame. Defaults to 8 hours.
 
     .DESCRIPTION 
-        Gets all event logs for the past day on a given system.
+        Gets all event logs on a given system since the specified time frame. Defaults to 8 hours.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
+
+    .PARAMETER Days  
+        Specify how many days prior to begin event log collection.
+        
+    .PARAMETER Hours  
+        Specify how many hours prior to begin event log collection.
+
+    .PARAMETER Minutes  
+        Specify how many minutes prior to begin event log collection.
 
     .EXAMPLE 
         Get-THR_EventLogs 
@@ -42,7 +51,17 @@ function Get-THR_EventLogs {
 
     param(
     	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
+        $Computer = $env:COMPUTERNAME,
+
+        [Parameter()]
+        [int] $Days = "0",
+
+        [Parameter()]
+        [int] $Hours = "0",
+
+        [Parameter()]
+        [int] $Minutes = "0"
+
     )
 
 	begin{
@@ -75,6 +94,10 @@ function Get-THR_EventLogs {
             [String] $ThreadId
             [String] $Version
         }
+
+        if ($Days -eq 0 -and $Hours -eq 0 -and $Minutes -eq 0){
+            $Hours = 8
+        }
 	}
 
     process{
@@ -84,14 +107,14 @@ function Get-THR_EventLogs {
         $EventLogs = $null
         $EventLogs = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $Yesterday = (Get-Date) - (New-TimeSpan -Day 1)
+           
             $Logs = Get-WinEvent -ListLog * | Select-Object LogName | 
             Where-Object LogName -ne "Microsoft-Windows-PowerShell/Operational" # Powershell operational log has no useful details
 
             $Events = @()
             Foreach ($Log in $Logs){
 
-                $Events += Get-WinEvent -FilterHashTable @{LogName=$Log.LogName; StartTime=$Yesterday} -ErrorAction SilentlyContinue | 
+                $Events += Get-WinEvent -FilterHashTable @{LogName=$Log.LogName; StartTime=(Get-Date) - (New-TimeSpan -Days $Using:Days -Hours $Using:Hours -Minutes $Using:Minutes)} -ErrorAction SilentlyContinue | 
                 Select-Object TimeCreated, MachineName, UserId, ProcessId, LogName, ProviderName, LevelDisplayName, Id, OpcodeDisplayName, TaskDisplayName, Message, RecordId, RelatedActivityId, ThreadId, Version
             }
 
