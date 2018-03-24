@@ -17,7 +17,7 @@ function Get-THR_MRU {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-03-11
+        Updated: 2018-03-23
 
         Contributing Authors:
             Anthony Phipps
