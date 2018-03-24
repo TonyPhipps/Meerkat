@@ -110,7 +110,8 @@ function Get-THR_MRU {
             "\Software\Microsoft\Office\16.0\Word\File MRU",
             "\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\Recent File List",
             "\Software\Microsoft\Microsoft Management Console\Recent File List",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs"
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\Map Network Drive MRU"
             
             $MachineValues = ""
 

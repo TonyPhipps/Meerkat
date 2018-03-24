@@ -100,13 +100,13 @@ function Get-THR_Registry {
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects"
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad",
-            "HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices"
+            "HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor"
 
             $UserKeys =
             "\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "\Software\Microsoft\Windows\CurrentVersion\RunServices",
-            "\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell",
             "\Software\Microsoft\Windows\CurrentVersion\Run",
             "\Software\Microsoft\Windows\CurrentVersion\RunOnce",
             "\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
@@ -115,7 +115,8 @@ function Get-THR_Registry {
             "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
             "\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
             "\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
-            "\Software\Microsoft\Windows NT\CurrentVersion\Windows\load"
+            "\Software\Microsoft\Windows NT\CurrentVersion\Windows\load",
+            "\Software\Microsoft\Command Processor"
 
             $MachineValues = 
             "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\UserInit",
