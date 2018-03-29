@@ -17,7 +17,7 @@ function Get-THR_Registry {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Registry
 
     .NOTES 
-        Updated: 2018-03-11
+        Updated: 2018-03-28
 
         Contributing Authors:
             Anthony Phipps
