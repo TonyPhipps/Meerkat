@@ -40,8 +40,9 @@ function Get-THR_Registry {
        https://github.com/TonyPhipps/THRecon
        https://github.com/TonyPhipps/THRecon/wiki/Registry
        https://blog.cylance.com/windows-registry-persistence-part-2-the-run-keys-and-search-order
-       http://resources.infosecinstitute.com/common-malware-persistence-mechanisms/
-       https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis/
+       http://resources.infosecinstitute.com/common-malware-persistence-mechanisms
+       https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis
+       https://github.com/redcanaryco/atomic-red-team
     #>
 
     [CmdletBinding()]
@@ -124,8 +125,14 @@ function Get-THR_Registry {
             "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs",
             "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify",
             "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\boot\Shell"
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\osk.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\sethc.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\utilman.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\magnify.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\narrator.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\DisplaySwitch.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AtBroker.exe\Debugger",
             "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\ClearPagefileAtShutdown"
-
             $OutputArray = @()
         
             foreach ($Key in $MachineKeys){
