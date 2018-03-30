@@ -17,7 +17,7 @@ function Get-THR_MRU {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-03-23
+        Updated: 2018-03-29
 
         Contributing Authors:
             Anthony Phipps
@@ -81,37 +81,29 @@ function Get-THR_MRU {
             $MachineKeys = ""
 
             $UserKeys =
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedMRU",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRULegacy",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\CIDSizeMRU",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU",
-            "\Software\Microsoft\Internet Explorer\TypedURLs",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist",
-            "\Software\Microsoft\Search Assistant\ACMru",
-            "\Software\Microsoft\Currentversion\Search\RecentApps",
-            "\Software\Microsoft\Office\13.0\Access\File MRU",
-            "\Software\Microsoft\Office\14.0\Access\File MRU",
-            "\Software\Microsoft\Office\15.0\Access\File MRU",
-            "\Software\Microsoft\Office\16.0\Access\File MRU",
-            "\Software\Microsoft\Office\13.0\Excel\File MRU",
-            "\Software\Microsoft\Office\14.0\Excel\File MRU",
-            "\Software\Microsoft\Office\15.0\Excel\File MRU",
-            "\Software\Microsoft\Office\16.0\Excel\File MRU",
-            "\Software\Microsoft\Office\13.0\Powerpoint\File MRU",
-            "\Software\Microsoft\Office\14.0\Powerpoint\File MRU",
-            "\Software\Microsoft\Office\15.0\Powerpoint\File MRU"
-            "\Software\Microsoft\Office\16.0\Powerpoint\File MRU"
-            "\Software\Microsoft\Office\13.0\Word\File MRU",
-            "\Software\Microsoft\Office\14.0\Word\File MRU",
-            "\Software\Microsoft\Office\15.0\Word\File MRU",
-            "\Software\Microsoft\Office\16.0\Word\File MRU",
-            "\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\Recent File List",
-            "\Software\Microsoft\Microsoft Management Console\Recent File List",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\Map Network Drive MRU"
+                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU",
+                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedMRU",
+                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU",
+                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRULegacy",
+                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\CIDSizeMRU",
+                "\Software\Microsoft\Currentversion\Search\RecentApps",
+                "\Software\Microsoft\Internet Explorer\TypedURLs",
+                "\Software\Microsoft\Microsoft Management Console\Recent File List",
+                "\Software\Microsoft\Office\*\Access\User MRU\*\File MRU",
+                "\Software\Microsoft\Office\*\Excel\User MRU\*\File MRU",
+                "\Software\Microsoft\Office\*\OneNote\User MRU\*\File MRU",
+                "\Software\Microsoft\Office\*\Powerpoint\User MRU\*\File MRU",
+                "\Software\Microsoft\Office\*\Visio\User MRU\*\File MRU",
+                "\Software\Microsoft\Office\*\Word\User MRU\*\File MRU",
+                "\Software\Microsoft\Search Assistant\ACMru",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\FindComputerMRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\Map Network Drive MRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\PrnPortsMRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\TypedPaths",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist",
+                "\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\Recent File List"
             
             $MachineValues = ""
 
