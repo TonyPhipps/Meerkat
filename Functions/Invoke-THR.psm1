@@ -94,36 +94,11 @@ function Invoke-THR {
         [Parameter()]
         [alias("M", "Mod")]
         [ValidateSet(
-            'ADS',
-            'ARP',
-            'Autoruns',
-            'BitLocker',
-            'Certificates',
-            'Computer',
-            'DLLs',
-            'DNS',
-            'Drivers',
-            'EnvVars',
-            'EventLogs',
-            'GroupMembers',
-            'Handles',
-            'Hardware',
-            'Hosts',
-            'Hotfixes',
-            'MRU',
-            'NetAdapters',
-            'NetRoute',
-            'Ports',
-            'Processes',
-            'RecycleBin',
-            'Registry',
-            'Services',
-            'Sessions',
-            'Software',
-            'ScheduledTasks',
-            'Shares',
-            'Strings',
-            'TPM'
+            "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs","DNS",
+            "Drivers", "EnvVars", "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts",
+            "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", "Processes", "RecycleBin",
+            "Registry", "Services", "Sessions", "Software", "ScheduledTasks", "Shares",
+            "Strings", "TPM"
         )]
         [array]$Modules
     )
@@ -138,15 +113,18 @@ function Invoke-THR {
             "Strings", "TPM"
 
         if ($All) {
+
             $Modules = $AllModules
         }
 
         if ($Quick) {
+
             $Modules = $Modules | 
             Where-Object {$_ -notin ("ADS","DLLs","Drivers","EventLogs","MRU", "RecycleBin","Sessions","Strings")}
         }
 
         if ($Micro){
+
             $Modules = $Modules | 
             Where-Object {$_ -notin "ADS", "DLLs", "EventLogs", "Hardware", "HotFixes", "MRU", "Processes", 
                 "RecycleBin", "Services", "Sessions", "Software", "ScheduledTasks", "Strings"}
@@ -163,15 +141,18 @@ function Invoke-THR {
         $total = 0
 
         if (!($Computer = $env:COMPUTERNAME)) {
+            
             $Test=$null
             $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -ErrorAction SilentlyContinue)
 
             If (!$Test){
-                Write-Information -InformationAction Continue -MessageData ("Could not reach WinRM on {0} at port {1}" -f $Computer, $Port)
+
+                Write-Information -InformationAction Continue -MessageData ("Could not reach WinRM at {0} on port {1}" -f $Computer, $Port)
                 break
             }
             else{
-                Write-Information -InformationAction Continue -MessageData ("Successfully reached WinRM on {0} at port {1}" -f $Computer, $Port)
+
+                Write-Information -InformationAction Continue -MessageData ("Successfully reached WinRM at {0} on port {1}" -f $Computer, $Port)
             }
         }
     }
@@ -196,13 +177,13 @@ function Invoke-THR {
             }
 
             & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + "$Module.csv") -NoTypeInformation -Append
-
         }
         
         $total++
     }
 
     end{
+
         $elapsed = $stopwatch.Elapsed
 
         Write-Verbose ("Started at {0}" -f $DateScanned)
