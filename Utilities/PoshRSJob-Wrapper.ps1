@@ -1,29 +1,27 @@
-$RunDate = Get-Date -Format 'yyyy-MM-dd'
-
+$Module = "Get-THR_Computer"
 $InputList = "C:\Temp\Scope.csv"
-$OutputPath = "C:\Temp\Hunt-Environmentvariables_{0}.csv" -f $RunDate
+$OutputPath = "C:\Temp\{0}_{1}.csv" -f $Module, (Get-Date -Format 'yyyy-MM-dd')
 
-$jobArguments = @{
+$JobArguments = @{
     Name = "$_"
-    Throttle = 20
-    InputObject = (Get-Content $InputList -totalcount 10)
-    FunctionsToLoad = "Hunt-Environmentvariables"
-    ScriptBlock = [scriptblock]::Create('Hunt-Environmentvariables $_')
+    Throttle = 200
+    InputObject = (Get-Content $InputList)
+    FunctionsToLoad = $Module
+    ScriptBlock = [scriptblock]::Create('& $Using:Module $_')
 }
 
 $stopwatch = New-Object System.Diagnostics.Stopwatch
 $stopwatch.Start()
 
-Start-RSJob @JobArguments | Select-Object ID, Name, Command | Format-Table -Autosize
+Start-RSJob @JobArguments
 
 # Job management 
 While (Get-RSJob) { # So long as there is a job remaining 
     $CompletedJobs = Get-RSJob -State Completed
     $RunningJobs = Get-RSJob -State Running
     $NotStartedJobs = Get-RSJob -State NotStarted
-    $TimeStamp = Get-Date -Format 'yyyy/MM/dd hh:mm:ss'
     
-    Write-Host -Object ("$TimeStamp - Saving $($CompletedJobs.Count) completed jobs. There are $($RunningJobs.Count)/$($NotStartedJobs.Count) jobs still running.")
+    Write-Host -Object ("{0} `t {1} completed jobs `t {2} active jobs `t {3} not started." -f (Get-Date -Format u), $CompletedJobs.Count, $RunningJobs.Count, $NotStartedJobs.Count)
     
     ForEach ($DoneJob in $CompletedJobs) {
 
@@ -35,5 +33,5 @@ While (Get-RSJob) { # So long as there is a job remaining
     Start-Sleep -Seconds 10
 }
 
-$elapsed = $stopwatch.Elapsed
-Write-Host $elapsed
+$Elapsed = $stopwatch.Elapsed
+Write-Host -Object ("Completed Jobs: {0} `t Total time elapsed: {1}" -f $CompletedJobs.Count, $Elapsed)
