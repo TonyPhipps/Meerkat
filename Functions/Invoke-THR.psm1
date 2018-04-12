@@ -94,11 +94,9 @@ function Invoke-THR {
         [Parameter()]
         [alias("M", "Mod")]
         [ValidateSet(
-            "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs","DNS",
-            "Drivers", "EnvVars", "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts",
-            "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", "Processes", "RecycleBin",
-            "Registry", "Services", "Sessions", "Software", "ScheduledTasks", "Shares",
-            "Strings", "TPM"
+            "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
+            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", 
+            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM"
         )]
         [array]$Modules
     )
@@ -106,11 +104,9 @@ function Invoke-THR {
     begin{
 
         [array]$AllModules = 
-            "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs","DNS",
-            "Drivers", "EnvVars", "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts",
-            "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", "Processes", "RecycleBin",
-            "Registry", "Services", "Sessions", "Software", "ScheduledTasks", "Shares",
-            "Strings", "TPM"
+            "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
+            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", 
+            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM"
 
         if ($All) {
 
@@ -120,14 +116,14 @@ function Invoke-THR {
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object {$_ -notin ("ADS","DLLs","Drivers","EventLogs","MRU", "RecycleBin","Sessions","Strings")}
+            Where-Object {$_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "MRU", "RecycleBin", "Sessions", "Strings"}
         }
 
         if ($Micro){
 
             $Modules = $Modules | 
-            Where-Object {$_ -notin "ADS", "DLLs", "EventLogs", "Hardware", "HotFixes", "MRU", "Processes", 
-                "RecycleBin", "Services", "Sessions", "Software", "ScheduledTasks", "Strings"}
+            Where-Object {$_ -notin "ADS", "DLLs", "EventLogs", "Hardware", "HotFixes", "MRU", "Processes", "RecycleBin", "ScheduledTasks", "Services", 
+                "Sessions", "Software", "Strings"}
         }
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
