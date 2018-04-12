@@ -41,7 +41,7 @@ function Invoke-THR {
         Invoke-THR -All -Quick -Path .\Results\
 
     .NOTES 
-        Updated: 2018-04-09
+        Updated: 2018-04-11
 
         Contributing Authors:
             Anthony Phipps
@@ -96,7 +96,8 @@ function Invoke-THR {
         [ValidateSet(
             "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", 
-            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM"
+            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
+            "UserFiles"
         )]
         [array]$Modules
     )
@@ -106,7 +107,8 @@ function Invoke-THR {
         [array]$AllModules = 
             "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", 
-            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM"
+            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
+            "UserFiles"
 
         if ($All) {
 
