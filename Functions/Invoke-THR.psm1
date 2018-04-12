@@ -18,7 +18,7 @@ function Invoke-THR {
     .PARAMETER Micro
         Excludes collections that are anticipated to consume more than about half a megabyte.
 
-    .PARAMETER OutputPath  
+    .PARAMETER Output
         Specify a path to save results to. Default is the current working directory.
 
     .PARAMETER Ingest
@@ -71,7 +71,7 @@ function Invoke-THR {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        [String] $Path = $pwd,
+        [String] $Output = $pwd,
 
         [Parameter()]
         [alias("Database","Index","Indexable","Ingestible", "Bulk")]
