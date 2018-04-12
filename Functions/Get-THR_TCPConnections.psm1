@@ -1,26 +1,23 @@
-﻿function Get-THR_Ports {
+﻿function Get-THR_TCPConnections {
     <#
     .SYNOPSIS
-        Gets the active ports for the given computer(s).
+        Gets the active TCP connections for the given computer(s).
 
     .DESCRIPTION
-        Gets the active ports for the given computer(s) and returns a PS Object.
+        Gets the active TCP connections for the given computer(s).
 
     .PARAMETER Computer
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Path
-        Resolve owning PID to process path. Increases hunt time per system.       
-
     .EXAMPLE
-        Get-THR_Ports 
-        Get-THR_Ports SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Ports
-        Get-THR_Ports -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Ports
+        Get-THR_TCPConnections 
+        Get-THR_TCPConnections SomeHostName.domain.com
+        Get-Content C:\hosts.csv | Get-THR_TCPConnections
+        Get-THR_TCPConnections -Computer $env:computername
+        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TCPConnections
 
     .NOTES
-        Updated: 2018-02-19
+        Updated: 2018-04-11
 
         Contributing Authors:
             Jeremy Arnold
@@ -41,7 +38,7 @@
 
     .LINK
         https://github.com/TonyPhipps/THRecon
-        https://github.com/TonyPhipps/THRecon/wiki/Ports
+        https://github.com/TonyPhipps/THRecon/wiki/TCPConnections
     #>
 
     param(
@@ -78,23 +75,23 @@
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        $TCPConnections = $null
-        $TCPConnections = Invoke-Command -ComputerName $Computer -ScriptBlock {
-            $TCPConnections = Get-NetTCPConnection -State Listen, Established
+        $TCPConnectionArray = $null
+        $TCPConnectionArray = Invoke-Command -ComputerName $Computer -ScriptBlock {
+            $TCPConnectionArray = Get-NetTCPConnection -State Listen, Established
         
-            foreach ($TCPConnection in $TCPConnections){
+            foreach ($TCPConnection in $TCPConnectionArray){
                 $TCPConnection | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $TCPConnection.OwningProcess).Path)
             }
 
-            return $TCPConnections
+            return $TCPConnectionArray
         }
         
-        if ($TCPConnections) {
+        if ($TCPConnectionArray) {
 
             Write-Verbose ("{0}: Parsing results." -f $Computer)
             $OutputArray = @()
           
-            foreach ($TCPConnection in $TCPConnections) {
+            foreach ($TCPConnection in $TCPConnectionArray) {
 
                 $output = $null
                 $output = [TCPConnection]::new()
