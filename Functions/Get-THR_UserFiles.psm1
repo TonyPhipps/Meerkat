@@ -87,10 +87,10 @@ function Get-THR_UserFiles {
 
             $FileArray = $null
             foreach ($UserDirectory in $UserDirectoryArray){
-                $FileArray += Get-Childitem $UserDirectory -Recurse -Include *.exe,      
-                *.ps1, *.com, *.cmd, *.vbs, *.vbe, *.js, *.jse, *.wsf, *.wsh, *.dll, *.bat,*.psm1, #Executables
-                *.bin, *.cpl, *.gadget, *.inf, *.ins, *.inx, *.isu, *.job, *.msc, *.msi, *.msp, #Executables
-                *.mst, *.paf, *.pif, *.reg, *.rgs, *.scr, *.sct, *.shb, *.shs, *.u3p, *.ws #Executables
+                $FileArray += Get-Childitem $UserDirectory -Recurse -Include *.exe, *.ps1, *.com,  
+                 *.cmd, *.vbs, *.vbe, *.js, *.jse, *.wsf, *.wsh, *.dll, *.bat,*.psm1, #Executables
+                *.bin, *.cpl, *.gadget, *.ins, *.inp, *.hta, *.msc, *.msi, *.msp, *.mst, #Executables
+                *.paf, *.pif, *.reg, *.rgs, *.scr, *.sct, *.shb, *.shs, *.u3p, *.ws #Executables
             }
 
             $FileArray = $FileArray | Select-Object FullName, IsReadOnly, Attributes, Mode, LinkType, Length, CreationTimeUtc, LastAccessTimeUtc, LastWriteTimeUtc
