@@ -9,14 +9,11 @@ function Get-THR_EventLogs {
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER Days  
-        Specify how many days prior to begin event log collection.
+    .PARAMETER StartTime  
+        Specify when to begin event log collection. Defaults to 2 hours ago based on target system time.
         
-    .PARAMETER Hours  
-        Specify how many hours prior to begin event log collection.
-
-    .PARAMETER Minutes  
-        Specify how many minutes prior to begin event log collection.
+    .PARAMETER EndTime  
+        Specify when to end event log collection. Defaults to current time on target system time.
 
     .EXAMPLE 
         Get-THR_EventLogs 
