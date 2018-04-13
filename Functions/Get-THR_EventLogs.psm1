@@ -1,10 +1,10 @@
 function Get-THR_EventLogs {
     <#
     .SYNOPSIS 
-        Gets all event logs on a given system since the specified time frame. Defaults to 8 hours.
+        Gets all event logs on a given system since the specified time frame. Defaults to 2 hours.
 
     .DESCRIPTION 
-        Gets all event logs on a given system since the specified time frame. Defaults to 8 hours.
+        Gets all event logs on a given system since the specified time frame. Defaults to 2 hours.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
@@ -26,7 +26,7 @@ function Get-THR_EventLogs {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_EventLogs
 
     .NOTES 
-        Updated: 2018-03-23
+        Updated: 2018-04-12
 
         Contributing Authors:
             Anthony Phipps
@@ -47,6 +47,7 @@ function Get-THR_EventLogs {
         
     .LINK
        https://github.com/TonyPhipps/THRecon
+       https://github.com/TonyPhipps/THRecon/wiki/EventLogs
     #>
 
     param(
@@ -54,14 +55,10 @@ function Get-THR_EventLogs {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        [int] $Days = "0",
+        [datetime] $StartTime,
 
         [Parameter()]
-        [int] $Hours = "0",
-
-        [Parameter()]
-        [int] $Minutes = "0"
-
+        [datetime] $EndTime
     )
 
 	begin{
@@ -94,10 +91,6 @@ function Get-THR_EventLogs {
             [String] $ThreadId
             [String] $Version
         }
-
-        if ($Days -eq 0 -and $Hours -eq 0 -and $Minutes -eq 0){
-            $Hours = 8
-        }
 	}
 
     process{
@@ -107,25 +100,36 @@ function Get-THR_EventLogs {
         $EventLogs = $null
         $EventLogs = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-           
-            $Logs = Get-WinEvent -ListLog * | Select-Object LogName | 
-            Where-Object LogName -ne "Microsoft-Windows-PowerShell/Operational" # Powershell operational log has no useful details
-
-            $Events = @()
-            Foreach ($Log in $Logs){
-
-                $Events += Get-WinEvent -FilterHashTable @{LogName=$Log.LogName; StartTime=(Get-Date) - (New-TimeSpan -Days $Using:Days -Hours $Using:Hours -Minutes $Using:Minutes)} -ErrorAction SilentlyContinue | 
-                Select-Object TimeCreated, MachineName, UserId, ProcessId, LogName, ProviderName, LevelDisplayName, Id, OpcodeDisplayName, TaskDisplayName, Message, RecordId, RelatedActivityId, ThreadId, Version
+            if(!($Using:StartTime)){
+                $StartTime = (Get-Date) - (New-TimeSpan -Hours 2)
+            }
+            else{
+                $StartTime = $Using:StartTime
             }
 
-            return $Events
+            if(!($Using:EndTime)){
+                $EndTime = (Get-Date)
+            }
+            else{
+                $EndTime = $Using:EndTime
+            }
+           
+            $Logs = Get-WinEvent -ListLog * | Where-Object { ($_.RecordCount -gt 0) }
+
+            $EventLogs = Foreach ($Log in $Logs){
+
+                Get-WinEvent -FilterHashTable @{ LogName=$Log.LogName; StartTime=$StartTime; EndTime=$EndTime } -ErrorAction SilentlyContinue
+            }
+
+            $EventLogs = $EventLogs | Select-Object TimeCreated, MachineName, UserId, ProcessId, LogName, ProviderName, LevelDisplayName, Id, OpcodeDisplayName, TaskDisplayName, Message, RecordId, RelatedActivityId, ThreadId, Version
+            return $EventLogs
         }
             
         if ($EventLogs) {
             
             $outputArray = @()
 
-            Foreach ($Event in $EventLogs) {
+            Foreach ($ThisEvent in $EventLogs) {
 
                 $output = $null
                 $output = [Event]::new()
@@ -133,21 +137,21 @@ function Get-THR_EventLogs {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
 
-                $output.TimeCreated = $Event.TimeCreated
-                $output.MachineName = $Event.MachineName
-                $output.UserId = $Event.UserId
-                $output.ProcessId = $Event.ProcessId
-                $output.LogName = $Event.LogName
-                $output.Source = $Event.ProviderName
-                $output.LevelDisplayName = $Event.LevelDisplayName
-                $output.EventId = $Event.Id
-                $output.OpcodeDisplayName = $Event.OpcodeDisplayName
-                $output.TaskDisplayName = $Event.TaskDisplayName
-                $output.Message = $Event.Message
-                $output.RecordId = $Event.RecordId
-                $output.RelatedActivityId = $Event.RelatedActivityId
-                $output.ThreadId = $Event.ThreadId
-                $output.Version = $Event.Version
+                $output.TimeCreated = $ThisEvent.TimeCreated
+                $output.MachineName = $ThisEvent.MachineName
+                $output.UserId = $ThisEvent.UserId
+                $output.ProcessId = $ThisEvent.ProcessId
+                $output.LogName = $ThisEvent.LogName
+                $output.Source = $ThisEvent.ProviderName
+                $output.LevelDisplayName = $ThisEvent.LevelDisplayName
+                $output.EventId = $ThisEvent.Id
+                $output.OpcodeDisplayName = $ThisEvent.OpcodeDisplayName
+                $output.TaskDisplayName = $ThisEvent.TaskDisplayName
+                $output.Message = $ThisEvent.Message
+                $output.RecordId = $ThisEvent.RecordId
+                $output.RelatedActivityId = $ThisEvent.RelatedActivityId
+                $output.ThreadId = $ThisEvent.ThreadId
+                $output.Version = $ThisEvent.Version
                 
                 $outputArray += $output
             }
