@@ -22,7 +22,7 @@ function Invoke-THR {
         Specify a path to save results to. Default is the current working directory.
 
     .PARAMETER Ingest
-        When used, an additional subfolder will me made under -Path for each collection type enabled. 
+        When used, an additional subfolder will me made under -Output for each collection type enabled. 
         Intended for use with products that ingest files, like ELK, Graylog, Splunk, etc.
         To speed up bulk collections, consider using a jobs manager like PoshRSJob 
         (https://github.com/proxb/PoshRSJob)
@@ -35,10 +35,10 @@ function Invoke-THR {
         Invoke-THR -Modules Computer, Autoruns
 
     .EXAMPLE
-        Invoke-THR -All -Ingest -Path C:\temp
+        Invoke-THR -All -Ingest -Output C:\temp
 
     .EXAMPLE
-        Invoke-THR -All -Quick -Path .\Results\
+        Invoke-THR -All -Quick -Output .\Results\
 
     .NOTES 
         Updated: 2018-04-11
@@ -157,17 +157,17 @@ function Invoke-THR {
 
     process{
    
-        if (!(Test-Path $Path)){
-            mkdir $Path
+        if (!(Test-Path $Output)){
+            mkdir $Output
         }
 
-        $FilePath = $Path + "\"
+        $FilePath = $Output + "\"
         
         foreach ($Module in $Modules){
 
             if ($Ingest){
                 
-                $FilePath = $Path + "\" + $Module + "\"                
+                $FilePath = $Output + "\" + $Module + "\"                
                 
                 if (!(Test-Path $FilePath)){ mkdir $FilePath }
                 
