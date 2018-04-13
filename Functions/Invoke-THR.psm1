@@ -95,7 +95,7 @@ function Invoke-THR {
         [alias("M", "Mod")]
         [ValidateSet(
             "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", 
+            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "UserFiles"
         )]
@@ -106,7 +106,7 @@ function Invoke-THR {
 
         [array]$AllModules = 
             "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "Ports", 
+            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "UserFiles"
 
@@ -118,14 +118,13 @@ function Invoke-THR {
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object {$_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "MRU", "RecycleBin", "Sessions", "Strings"}
+            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "MRU", "RecycleBin", "Sessions", "Strings" }
         }
 
         if ($Micro){
 
             $Modules = $Modules | 
-            Where-Object {$_ -notin "ADS", "DLLs", "EventLogs", "Hardware", "HotFixes", "MRU", "Processes", "RecycleBin", "ScheduledTasks", "Services", 
-                "Sessions", "Software", "Strings"}
+            Where-Object { $_ -notin "DLLs", "EventLogs" }
         }
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
