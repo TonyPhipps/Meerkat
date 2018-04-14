@@ -81,9 +81,6 @@ function Invoke-THR {
         $Port = "5985",
 
         [Parameter()]
-        [switch] $All,
-
-        [Parameter()]
         [alias("Fast")]
         [switch] $Quick,
 
@@ -99,21 +96,13 @@ function Invoke-THR {
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "UserFiles"
         )]
-        [array]$Modules
+        [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
+        "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
+        "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
+        "UserFiles")
     )
 
     begin{
-
-        [array]$AllModules = 
-            "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
-            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
-            "UserFiles"
-
-        if (($All) -or !($Modules)) {
-
-            $Modules = $AllModules
-        }
 
         if ($Quick) {
 
