@@ -110,7 +110,7 @@ function Invoke-THR {
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "UserFiles"
 
-        if ($All) {
+        if (($All) -or !($Modules)) {
 
             $Modules = $AllModules
         }
