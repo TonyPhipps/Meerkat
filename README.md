@@ -49,7 +49,7 @@ To run a "quick" scan on your own system, you will need to create a blank folder
 ```
 mkdir c:\temp\
 cd c:\temp\
-Invoke-THR -All -Quick
+Invoke-THR -Quick
 ```
 
 ## Troubleshooting
@@ -64,9 +64,9 @@ Import-Module THRecon.psm1
 
 ### Screenshots
 
-Output of Command "Invoke-THR -all"
+Output of Command "Invoke-THR"
 
-![Output of Command "invoke-thr -all -verbose"](https://i.imgur.com/zcmra0v.png)
+![Output of Command "invoke-thr -verbose"](https://i.imgur.com/zcmra0v.png)
 
 Output Files
 
