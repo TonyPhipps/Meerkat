@@ -9,9 +9,6 @@ function Invoke-THR {
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER All
-        Collect all possible results. Exlcusions like -Quick and -Micro are applied AFTER -All
-
     .PARAMETER Quick
         Excludes collections that are anticipated to take more than a few minutes to retrieve results.
     
@@ -29,19 +26,19 @@ function Invoke-THR {
         A PoshRSJob wrapper is provided in the \Utilities folder of this project.
 
     .EXAMPLE
-        Invoke-THR -All -Micro
+        Invoke-THR -Micro
 
     .EXAMPLE
         Invoke-THR -Modules Computer, Autoruns
 
     .EXAMPLE
-        Invoke-THR -All -Ingest -Output C:\temp
+        Invoke-THR -Ingest -Output C:\temp
 
     .EXAMPLE
-        Invoke-THR -All -Quick -Output .\Results\
+        Invoke-THR -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2018-04-11
+        Updated: 2018-04-14
 
         Contributing Authors:
             Anthony Phipps
