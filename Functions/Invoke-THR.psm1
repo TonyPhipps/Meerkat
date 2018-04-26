@@ -9,6 +9,9 @@ function Invoke-THR {
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
+    .PARAMETER All
+        Collect all possible results. Exlcusions like -Quick and -Micro are applied AFTER -All.
+
     .PARAMETER Quick
         Excludes collections that are anticipated to take more than a few minutes to retrieve results.
     
@@ -26,19 +29,22 @@ function Invoke-THR {
         A PoshRSJob wrapper is provided in the \Utilities folder of this project.
 
     .EXAMPLE
-        Invoke-THR -Micro
+        Invoke-THR -Computer WorkComputer
+
+    .EXAMPLE
+        Invoke-THR -All -Computer WorkComputer2
 
     .EXAMPLE
         Invoke-THR -Modules Computer, Autoruns
 
     .EXAMPLE
-        Invoke-THR -Ingest -Output C:\temp
+        Invoke-THR -Ingest -Output $pwd
 
     .EXAMPLE
         Invoke-THR -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2018-04-14
+        Updated: 2018-04-25
 
         Contributing Authors:
             Anthony Phipps
@@ -60,6 +66,7 @@ function Invoke-THR {
 
     .LINK
        https://github.com/TonyPhipps/THRecon
+       https://docs.microsoft.com/en-us/sysinternals/downloads/
     #>
 
     [CmdletBinding()]
@@ -68,7 +75,7 @@ function Invoke-THR {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        [String] $Output = $pwd,
+        [String] $Output = "C:\temp",
 
         [Parameter()]
         [alias("Database","Index","Indexable","Ingestible", "Bulk")]
@@ -76,6 +83,9 @@ function Invoke-THR {
 
         [Parameter()]
         $Port = "5985",
+
+        [Parameter()]
+        [switch] $All,
 
         [Parameter()]
         [alias("Fast")]
@@ -91,18 +101,25 @@ function Invoke-THR {
             "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "UserFiles" )]
-        [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-        "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
-        "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
-        "UserFiles")
+        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts",
+        "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services",
+        "Sessions", "Shares", "Software", "TPM")
     )
 
     begin{
 
+        if ($All) {
+
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
+            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
+            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
+            "UserFiles")
+        }
+
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "MRU", "RecycleBin", "Sessions", "Strings" }
+            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "Handles", "MRU", "RecycleBin", "Sessions", "Strings" }
         }
 
         if ($Micro){

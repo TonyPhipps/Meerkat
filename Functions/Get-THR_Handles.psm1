@@ -15,13 +15,13 @@
 
     .EXAMPLE 
         Get-THR_Handles -HandlePath c:\tools\sysinternals
-        Get-THR_Handles SomeHostName.domain.com -HandlePath c:\tools\sysinternals
-        Get-Content C:\hosts.csv | Get-THR_Handles -HandlePath c:\tools\sysinternals
-        Get-THR_Handles $env:computername -HandlePath c:\tools\sysinternals
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Handles -HandlePath c:\tools\sysinternals
+        Get-THR_Handles SomeHostName.domain.com -HandlePath "\\server\share\sysinternals"
+        Get-Content C:\hosts.csv | Get-THR_Handles -HandlePath "\\server\share\sysinternals"
+        Get-THR_Handles $env:computername -HandlePath "\\server\share\sysinternals"
+        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Handles -HandlePath "\\server\share\sysinternals"
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-25
 
         Contributing Authors:
             Jeremy Arnold
@@ -43,6 +43,7 @@
         
     .LINK
        https://github.com/TonyPhipps/THRecon
+       https://docs.microsoft.com/en-us/sysinternals/downloads/
     #>
 
     param(
@@ -50,7 +51,7 @@
         $Computer = $env:COMPUTERNAME,
 
         [Parameter(HelpMessage="The folder path of Sysinternals Handle.exe, not including trailing backslash (\).")]
-        [string]$HandlePath = "C:\Temp"
+        [string]$HandlePath = "C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\Utilities"
     )
 
 	begin{
