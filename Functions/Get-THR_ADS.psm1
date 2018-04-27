@@ -24,7 +24,7 @@ function Get-THR_ADS {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ADS -Path "C:\"
 
     .NOTES 
-        Updated: 2018-03-03
+        Updated: 2018-04-26
 
         Contributing Authors:
             Anthony Phipps
@@ -114,10 +114,7 @@ function Get-THR_ADS {
         if ($Streams) {
             Write-Verbose "Streams were found."
 
-            $OutputArray = $null
-            $OutputArray = @()
-
-            ForEach ($Stream in $Streams) {
+            $OutputArray = ForEach ($Stream in $Streams) {
 
                 $output = $null
                 $output = [ADS]::new()
@@ -134,7 +131,7 @@ function Get-THR_ADS {
                 $output.LastAccessTimeUtc = $Stream.LastAccessTimeUtc
                 $output.LastWriteTimeUtc = $Stream.LastWriteTimeUtc
                 
-                $OutputArray += $output
+                $output
             }
 
             $total++

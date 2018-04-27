@@ -17,7 +17,7 @@ function Get-THR_BitLocker {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_BitLocker
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
             Jeremy Arnold
@@ -88,17 +88,13 @@ function Get-THR_BitLocker {
         
         if ($Volumes) {
 
-            $OutputArray = $null
-            $OutputArray = @()
-
-            ForEach ($Volume in $Volumes) {
+            $OutputArray = ForEach ($Volume in $Volumes) {
                 
                 $output = $null
                 $output = [BitLocker]::new()
         
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
-                
                 
                 $output.ComputerName = $Volume.ComputerName
                 $output.MountPoint = $Volume.MountPoint
@@ -118,12 +114,10 @@ function Get-THR_BitLocker {
                     $output.RecoveryPassword = Invoke-Command -ComputerName $Computer -ScriptBlock {(Get-BitLockerVolume).KeyProtector.RecoveryPassword[1]} -ErrorAction SilentlyContinue
                 }
 
-                $Volume | Add-Member -MemberType NoteProperty -Name RecoveryPassword -Value $Key
-
-                $OutputArray += $output
+                $output
             }
         
-            $total = $total+1
+            $total++
             return $OutputArray
         }
         else {

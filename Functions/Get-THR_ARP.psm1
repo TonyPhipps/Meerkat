@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ARP
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
             Jeremy Arnold
@@ -87,9 +87,8 @@
         if ($arpCache) {
 
             Write-Verbose ("{0}: Parsing results." -f $Computer)
-            $OutputArray = @()
             
-            foreach ($record in $arpCache) {
+            $OutputArray = foreach ($record in $arpCache) {
              
                 $output = $null
                 $output = [ArpCache]::new()
@@ -104,10 +103,10 @@
                 $output.State = $record.State
                 $output.PolicyStore = $record.Store                 
 
-                $OutputArray += $output
+                $output
             }
 
-            $total = $total+1
+            $total++
             return $OutputArray
 
         }

@@ -20,7 +20,7 @@ function Get-THR_UserFiles {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_UserFiles
 
     .NOTES 
-        Updated: 2018-04-11
+        Updated: 2018-04-26
 
         Contributing Authors:
             Anthony Phipps
@@ -82,13 +82,14 @@ function Get-THR_UserFiles {
         $FileArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
             $UserDirectoryArray = Get-ChildItem "c:\" -Directory -Force -Depth 0
-            $UserDirectoryArray = $UserDirectoryArray | Where-Object { !($_.Name -in "Documents and Settings", "Config.Msi", "`$Windows.~WS", "PerfLogs", "Program Files", "Program Files (x86)", "ProgramData", "Recovery", "System Volume Information", "Windows")}
+            $UserDirectoryArray = $UserDirectoryArray | Where-Object { !($_.Name -in "Documents and Settings", "Config.Msi", "`$Windows.~WS", "PerfLogs", "Program Files", "Program Files (x86)", "Recovery", "System Volume Information", "Windows")}
             $UserDirectoryArray = $UserDirectoryArray.FullName
+            $UserDirectoryArray += "C:\Windows\Temp\"
 
             $FileArray = $null
-            foreach ($UserDirectory in $UserDirectoryArray){
-                $FileArray += Get-Childitem $UserDirectory -Recurse -Include *.exe, *.ps1, *.com,  
-                 *.cmd, *.vbs, *.vbe, *.js, *.jse, *.wsf, *.wsh, *.dll, *.bat,*.psm1, #Executables
+            $FileArray = foreach ($UserDirectory in $UserDirectoryArray){
+                Get-Childitem $UserDirectory -Recurse -Include *.exe, *.ps1, *.com,  
+                *.cmd, *.vbs, *.vbe, *.js, *.jse, *.wsf, *.wsh, *.dll, *.bat,*.psm1, #Executables
                 *.bin, *.cpl, *.gadget, *.ins, *.inp, *.hta, *.msc, *.msi, *.msp, *.mst, #Executables
                 *.paf, *.pif, *.reg, *.rgs, *.scr, *.sct, *.shb, *.shs, *.u3p, *.ws #Executables
             }
@@ -100,9 +101,7 @@ function Get-THR_UserFiles {
             
         if ($FileArray) {
             
-            $outputArray = @()
-
-            Foreach ($File in $FileArray) {
+            $outputArray = Foreach ($File in $FileArray) {
 
                 $output = $null
                 $output = [UserFile]::new()
@@ -119,8 +118,7 @@ function Get-THR_UserFiles {
                 $output.LastAccessTimeUtc = $File.LastAccessTimeUtc
                 $output.LastWriteTimeUtc = $File.LastWriteTimeUtc
 
-                
-                $outputArray += $output
+                $output
             }
 
             return $outputArray

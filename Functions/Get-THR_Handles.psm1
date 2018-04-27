@@ -21,7 +21,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Handles -HandlePath "\\server\share\sysinternals"
 
     .NOTES 
-        Updated: 2018-04-25
+        Updated: 2018-04-26
 
         Contributing Authors:
             Jeremy Arnold
@@ -99,28 +99,19 @@
             $handles = Invoke-Expression "$HandlePath\$tool -a -nobanner -accepteula"
 
             return $handles
-        
         }
             
         if ($handles) {
+            
             [regex]$regexProcess = '(?<process>\S+)\spid:\s(?<pid>\d+)\s(?<string>.*)'
             [regex]$regexHandle = '(?<location>[A-F0-9]+):\s(?<type>\w+)\s{2}(?<attributes>\(.*\))?\s+(?<string>.*)'
             [regex]$nullHandle = '([A-F0-9]+):\s(\w+)\s+$'
-
-            $outputArray = @()
             
             $handles = $handles | Where-Object {($_.length -gt 0) -and ($_ -notmatch $nullHandle)}
             
-            Foreach ($handle in $handles) {
-            
-                if ($handle -match $regexProcess){
-            
-                    $process = $Matches.process
-                    $processPID = $Matches.pid
-                    $owner = $Matches.string
-                }
-            
-                if ($handle -match $regexHandle){
+            $outputArray = Foreach ($handle in $handles) {
+                        
+                if (($handle -match $regexHandle) -or ($handle -match $regexProcess)){
             
                     $output = $null
                     $output = [Handle]::new()
@@ -136,9 +127,8 @@
                     $output.Attributes = $Matches.attributes
                     $output.String = $Matches.string
                                         
-                    $outputArray += $output
+                    $output
                 }
-
             }
             
             $total++

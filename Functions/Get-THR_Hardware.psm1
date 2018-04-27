@@ -17,10 +17,11 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hardware
 
     .NOTES
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
             Jeremy Arnold
+            Anthony Phipps
             
         LEGAL: Copyright (C) 2018
         This program is free software: you can redistribute it and/or modify
@@ -71,14 +72,13 @@
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        $OutputArray = @()
-        $devices = $null
+        
         Write-Verbose "Getting a list of installed devices..."
         $devices = Invoke-Command -Computer $Computer -ScriptBlock {Get-CimInstance Win32_PnPEntity -ErrorAction SilentlyContinue}
        
         if ($devices) { 
             
-            foreach ($device in $devices) {
+            $OutputArray = ForEach ($device in $devices) {
              
                 $output = $null
                 $output = [Device]::new()
@@ -90,13 +90,11 @@
                 $output.description = $device.description
                 $output.deviceID = $device.deviceID
 
-                $OutputArray += $output
-            
+                $output
             }
 
             $total++
             Return $OutputArray
-        
         }
         else {
                 

@@ -17,7 +17,7 @@ function Get-THR_Drivers {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Drivers
 
     .NOTES
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
             Jeremy Arnold
@@ -73,13 +73,13 @@ function Get-THR_Drivers {
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        $OutputArray = @()
+        
         $drivers = $null
         $drivers = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-WindowsDriver -Online -ErrorAction SilentlyContinue} # get list of drivers
        
         if ($drivers) { 
           
-            foreach ($driver in $drivers) {
+            $OutputArray = foreach ($driver in $drivers) {
              
                 $output = $null
                 $output = [Driver]::new()
@@ -94,11 +94,11 @@ function Get-THR_Drivers {
                 $output.DriverSigned = $driver.DriverSignature
                 $output.OrginalFileName = $driver.OriginalFileName
 
-                $OutputArray += $output
-            
+                $output
             }
 
-            Return $OutputArray | Sort-Object -Property date -Descending
+            $total++
+            Return $OutputArray
         
         }
         else {

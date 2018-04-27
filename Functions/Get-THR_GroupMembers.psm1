@@ -83,9 +83,7 @@ function Get-THR_GroupMembers {
             
             $GroupArray = Get-LocalGroup
             
-            $GroupMembers = @()
-            
-            Foreach ($Group in $GroupArray) { # get members of each group
+            $GroupMembers = Foreach ($Group in $GroupArray) { # get members of each group
                 
                 $MemberArray = Get-LocalGroupMember -Group $Group.Name
                 
@@ -98,7 +96,8 @@ function Get-THR_GroupMembers {
                     $Member | Add-Member -MemberType NoteProperty -Name "GroupSID" -Value $Group.SID
                     $Member | Add-Member -MemberType NoteProperty -Name "GroupPrincipalSource" -Value $Group.PrincipalSource
                     $Member | Add-Member -MemberType NoteProperty -Name "GroupObjectClass" -Value $Group.ObjectClass
-                    $GroupMembers += $Member
+                    
+                    $Member
                 }
             }
 
@@ -107,9 +106,7 @@ function Get-THR_GroupMembers {
 
         if ($GroupMembers) {
             
-            $outputArray = @()
-
-            Foreach ($GroupMember in $GroupMembers) {
+            $outputArray = Foreach ($GroupMember in $GroupMembers) {
                 
                 $output = $null
                 $output = [Member]::new()
@@ -128,7 +125,7 @@ function Get-THR_GroupMembers {
                 $output.GroupPrincipalSource = $GroupMember.GroupPrincipalSource
                 $output.GroupObjectClass = $GroupMember.GroupObjectClass
 
-                $outputArray += $output
+                $output
             }
 
             $total++

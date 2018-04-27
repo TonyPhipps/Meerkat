@@ -1,29 +1,29 @@
 function Get-THR_EventLogs {
     <#
-    .SYNOPSIS 
+    .SYNOPSIS
         Gets all event logs on a given system since the specified time frame. Defaults to 2 hours.
 
-    .DESCRIPTION 
+    .DESCRIPTION
         Gets all event logs on a given system since the specified time frame. Defaults to 2 hours.
 
-    .PARAMETER Computer  
+    .PARAMETER Computer
         Computer can be a single hostname, FQDN, or IP address.
 
-    .PARAMETER StartTime  
+    .PARAMETER StartTime
         Specify when to begin event log collection. Defaults to 2 hours ago based on target system time.
         
-    .PARAMETER EndTime  
+    .PARAMETER EndTime
         Specify when to end event log collection. Defaults to current time on target system time.
 
-    .EXAMPLE 
+    .EXAMPLE
         Get-THR_EventLogs 
         Get-THR_EventLogs SomeHostName.domain.com
         Get-Content C:\hosts.csv | Get-THR_EventLogs
         Get-THR_EventLogs $env:computername
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_EventLogs
 
-    .NOTES 
-        Updated: 2018-04-12
+    .NOTES
+        Updated: 2018-04-26
 
         Contributing Authors:
             Anthony Phipps
@@ -124,9 +124,7 @@ function Get-THR_EventLogs {
             
         if ($EventLogs) {
             
-            $outputArray = @()
-
-            Foreach ($ThisEvent in $EventLogs) {
+            $outputArray = Foreach ($ThisEvent in $EventLogs) {
 
                 $output = $null
                 $output = [Event]::new()
@@ -150,9 +148,10 @@ function Get-THR_EventLogs {
                 $output.ThreadId = $ThisEvent.ThreadId
                 $output.Version = $ThisEvent.Version
                 
-                $outputArray += $output
+                $output
             }
 
+            $total++
             return $outputArray
         }
         else {

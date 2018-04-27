@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Certificates
 
     .NOTES
-        Updated: 2018-03-21
+        Updated: 2018-04-26
 
         Contributing Authors:
             Anthony Phipps
@@ -86,9 +86,7 @@
        
         if ($CertificateArray) { 
             
-            $outputArray = @()
-
-            foreach ($Certificate in $CertificateArray) {
+            $outputArray = foreach ($Certificate in $CertificateArray) {
              
                 $output = $null
                 $output = [Certificate]::new()
@@ -107,13 +105,11 @@
                 $output.Thumbprint = $Certificate.Thumbprint
                 $output.Algorithm = $Certificate.Algorithm
 
-                $outputArray += $output
-            
+                $output
             }
 
             $total++
             return $OutputArray
-        
         }
         else {
                 

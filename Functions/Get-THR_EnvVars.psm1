@@ -13,7 +13,7 @@ Function Get-THR_EnvVars {
         get-content .\hosts.txt | Get-THR_EnvVars $env:computername | export-csv envVars.csv -NoTypeInformation
     
      .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
             Anthony Phipps
@@ -74,10 +74,7 @@ Function Get-THR_EnvVars {
         
         if ($AllVariables) {
 
-            $OutputArray = $null
-            $OutputArray = @()
-
-            ForEach ($Variable in $AllVariables) {
+            $OutputArray = ForEach ($Variable in $AllVariables) {
                 $VariableValues = $Variable.VariableValue.Split("") | Where-Object {$_ -ne ""}
             
                 Foreach ($VariableValue in $VariableValues) {
@@ -94,14 +91,11 @@ Function Get-THR_EnvVars {
                     $output.UserName = $VariableValueSplit.UserName
                     $output.VariableValue = $VariableValueSplit.VariableValue         
 
-                    $OutputArray += $output
-
+                    $output
                 }
             }
 
-            $elapsed = $stopwatch.Elapsed
-            $total = $total+1
-
+            $total++
             return $OutputArray
         }
         else {

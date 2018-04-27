@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DNS
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
             Jeremy Arnold
@@ -109,10 +109,7 @@
        
         if ($dnsCache) { 
             
-            $OutputArray = @()
-
-            Write-Verbose ("{0}: Looping through retrived results" -f $Computer)
-            foreach ($dnsRecord in $dnsCache) {
+            $OutputArray = foreach ($dnsRecord in $dnsCache) {
              
                 $output = $null
                 $output = [DNSCache]::new()
@@ -129,16 +126,11 @@
                 $output.Entry = $dnsRecord.entry
                 $output.RecordName = $dnsRecord.Name                 
 
-                $OutputArray += $output
+                $output
             }
 
-            $elapsed = $stopwatch.Elapsed
-            $total = $total + 1
-            
-            Write-Verbose ("System {0} complete: `t {1} `t Total Time Elapsed: {2}" -f $total, $Computer, $elapsed)
-
-            $total = $total+1
-            Return $OutputArray
+            $total++
+            return $OutputArray
         }
         else {
                 

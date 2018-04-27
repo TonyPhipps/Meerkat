@@ -17,9 +17,10 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DLLs
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
+            Anthony Phipps
             Jeremy Arnold
             
         LEGAL: Copyright (C) 2018
@@ -66,7 +67,6 @@
             [String] $DLLName
             [String] $DLLCompany
             [String] $DLLProduct
-
         }
 	}
 
@@ -74,22 +74,19 @@
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $processes = $null
-        $processes = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $Processes = $null
+        $Processes = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $processes = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules 
+            $Processes = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules 
 
-            return $processes
-        
+            return $Processes
         }
             
-        if ($processes) {
+        if ($Processes) {
             
-            $outputArray = @()
-
-            Foreach ($process in $processes) {
+            $outputArray = Foreach ($Process in $Processes) {
                 
-                Foreach ($module in $process.modules){
+                Foreach ($Module in $Process.modules){
                     
                     $output = $null
                     $output = [DLL]::new()
@@ -97,18 +94,18 @@
                     $output.Computer = $Computer
                     $output.DateScanned = Get-Date -Format u
     
-                    $output.ProcessID = $process.id
-                    $output.Process = $process.processname
-                    $output.DLLCompany = $module.company
-                    $output.DLLProduct = $module.Product
-                    $output.DLLName = $module.modulename
+                    $output.ProcessID = $Process.Id
+                    $output.Process = $Process.ProcessName
+                    $output.DLLCompany = $Module.Company
+                    $output.DLLProduct = $Module.Product
+                    $output.DLLName = $Module.ModuleName
                     
-                    $outputArray += $output
+                    $output
                 }
             }
 
+            $total++
             return $outputArray
-
         }
         else {
                 

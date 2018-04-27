@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Autoruns
 
     .NOTES
-        Updated: 2018-02-07
+        Updated: 2018-04-26
 
         Contributing Authors:
             Jeremy Arnold
@@ -79,9 +79,7 @@
        
         if ($autoruns) { 
             
-            $outputArray = @()
-
-            foreach ($autorun in $autoruns) {
+            $outputArray = foreach ($autorun in $autoruns) {
              
                 $output = $null
                 $output = [Autorun]::new()
@@ -94,8 +92,7 @@
                 $output.Command = $autorun.Command
                 $output.Location = $autorun.Location
 
-                $outputArray += $output
-            
+                $output
             }
 
             $total++
