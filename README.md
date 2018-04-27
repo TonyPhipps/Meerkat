@@ -27,11 +27,11 @@ _Linked to Hunt Use Cases_
 | :---: | :---: | :---: | :---: | :---: |
 | ARP | [DLLs](https://github.com/TonyPhipps/THRecon/wiki/DLLs)* | EnvVars | Hosts File | ADS |
 | [DNS](https://github.com/TonyPhipps/THRecon/wiki/DNS) | Strings* | [Users & Groups](https://github.com/TonyPhipps/THRecon/wiki/GroupMembers) | [Ports](https://github.com/TonyPhipps/THRecon/wiki/Ports) | [Select Registry](https://github.com/TonyPhipps/THRecon/wiki/Registry) |
-| Hotfixes | Handles* | Sofware | Hardware | [Event Logs (24h)](https://github.com/TonyPhipps/THRecon/wiki/EventLogs) |
+| Hotfixes | Handles* | Sofware | Hardware | [Event Logs](https://github.com/TonyPhipps/THRecon/wiki/EventLogs) |
 | Net Adapters | Net Routes | Sessions | Shares | [Certificates](https://github.com/TonyPhipps/THRecon/wiki/Certificates) | 
-| [Scheduled Tasks](https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks) | TPM | Bitlocker | Recycle Bin | |
+| [Scheduled Tasks](https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks) | TPM | Bitlocker | Recycle Bin | User Files |
 
-\* Info pulled from current running processes, or their executables on disk.
+\* Info pulled from current running processes or their executables on disk.
   
 ## Quick Install
 Run this command in Powershell with [git](https://gitforwindows.org/) installed, then open a new Powershell session.
