@@ -17,7 +17,7 @@ function Get-THR_Sessions {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Sessions
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -71,16 +71,12 @@ function Get-THR_Sessions {
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $sessions = $null
-        $sessions = (qwinsta /server:$Computer 2> $null | Foreach-Object { (($_.trim() -replace "\s+",","))} | ConvertFrom-Csv)
+        $SessionArray = $null
+        $SessionArray = (qwinsta /server:$Computer 2> $null | Foreach-Object { (($_.trim() -replace "\s+",","))} | ConvertFrom-Csv)
        
-        if ($sessions) { 
+        if ($SessionArray) { 
             
-            $OutputArray = @()
-
-            Write-Verbose ("{0}: Looping through retrived results" -f $Computer)
-            foreach ($session in $sessions) {
+            $OutputArray = foreach ($Session in $SessionArray) {
              
                 $output = $null
                 $output = [LoginSession]::new()
@@ -88,31 +84,26 @@ function Get-THR_Sessions {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
 
-                $output.SessionName = $session.SESSIONNAME
+                $output.SessionName = $Session.SESSIONNAME
                 
-                if ($session.STATE -eq $null) {
-                    $output.Id = $session.USERNAME
-                    $output.State = $session.ID
-                    $output.Type = $session.STATE
+                if ($Session.State -eq $null) {
+                    $output.Id = $Session.USERNAME
+                    $output.State = $Session.ID
+                    $output.Type = $Session.STATE
                 }
                 else {
-                    $output.UserName = $session.USERNAME
-                    $output.Id = $session.ID
-                    $output.State = $session.STATE
-                    $output.Type = $session.TYPE
-                    $output.Device = $session.DEVICE
+                    $output.UserName = $Session.USERNAME
+                    $output.Id = $Session.ID
+                    $output.State = $Session.STATE
+                    $output.Type = $Session.TYPE
+                    $output.Device = $Session.DEVICE
                 }
 
-                $OutputArray += $output
+                $output
             }
 
-            $elapsed = $stopwatch.Elapsed
-            $total = $total + 1
-            
-            Write-Verbose ("System {0} complete: `t {1} `t Total Time Elapsed: {2}" -f $total, $Computer, $elapsed)
-
-            $total = $total+1
-            Return $OutputArray
+            $total++
+            return $OutputArray
         }
         else {
                 

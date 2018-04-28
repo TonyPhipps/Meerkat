@@ -17,7 +17,7 @@ function Get-THR_Registry {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Registry
 
     .NOTES 
-        Updated: 2018-03-28
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -133,9 +133,8 @@ function Get-THR_Registry {
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\DisplaySwitch.exe\Debugger",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AtBroker.exe\Debugger",
             "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\ClearPagefileAtShutdown"
-            $OutputArray = @()
-        
-            foreach ($Key in $MachineKeys){
+            
+            $MachineKeysArray = foreach ($Key in $MachineKeys){
                 
                 $Key = "Registry::" + $Key
 
@@ -149,18 +148,20 @@ function Get-THR_Registry {
             
                         foreach ($Property in $Properties){
             
-                            $OutputArray += [pscustomobject] @{
+                            $output = [pscustomobject] @{
                                 Key = $Key.Split(":")[2]
                                 Value = $Property 
                                 Data = $keyObject.GetValue($Property)
                             }
+
+                            $output
                         }
                     }
                     
                 }
             }
 
-            foreach ($Key in $MachineValues){
+            $MachineValuesArray = foreach ($Key in $MachineValues){
                 
                 $Key = "Registry::" + $Key
             
@@ -175,12 +176,13 @@ function Get-THR_Registry {
                         
                         if ($Data) {
             
-                            $OutputArray += [pscustomobject] @{
+                            $output = [pscustomobject] @{
                                 Key = $Key.Split(":")[2]
                                 Value = $Value 
                                 Data = $Data
                             }
                             
+                            $output
                         }
                     }
                 }
@@ -203,7 +205,7 @@ function Get-THR_Registry {
             $UnloadedHives = Compare-Object $UserArray.SID $LoadedHives.SID | 
                 Select-Object @{name="SID";expression={$_.InputObject}}, UserHive, Username
 
-            Foreach ($User in $UserArray) {
+            $UserKeysArray = foreach ($User in $UserArray) {
                 
                 If ($User.SID -in $UnloadedHives.SID) {
 
@@ -224,11 +226,13 @@ function Get-THR_Registry {
                                 
                             foreach ($Property in $Properties){
                                 
-                                $OutputArray += [pscustomobject] @{
+                                $output = [pscustomobject] @{
                                     Key = $Key.Split(":")[2]
                                     Value = $Property 
                                     Data = $KeyObject.GetValue($Property)
                                 }
+
+                                $output
                             }  
                         }
                     }
@@ -242,14 +246,13 @@ function Get-THR_Registry {
                 }
             }
             
+            $OutputArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
             return $OutputArray
         }
 
         if ($ResultsArray){
             
-            $OutputArray = @()
-            
-            foreach ($Result in $ResultsArray){
+            $OutputArray = foreach ($Result in $ResultsArray){
                 $Output = [RegistryKey]::new()
                 $Output.Computer = $Computer
                 $Output.DateScanned = $DateScanned
@@ -258,7 +261,7 @@ function Get-THR_Registry {
                 $Output.Value = $Result.Value
                 $Output.Data = $Result.Data
 
-                $OutputArray += $Output
+                $Output
             }
 
             $OutputArray = $OutputArray | Where-Object {$_.Data -ne ""}

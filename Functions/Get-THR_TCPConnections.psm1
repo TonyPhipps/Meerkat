@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TCPConnections
 
     .NOTES
-        Updated: 2018-04-11
+        Updated: 2018-04-27
 
         Contributing Authors:
             Jeremy Arnold
@@ -89,9 +89,7 @@
         if ($TCPConnectionArray) {
 
             Write-Verbose ("{0}: Parsing results." -f $Computer)
-            $OutputArray = @()
-          
-            foreach ($TCPConnection in $TCPConnectionArray) {
+            $OutputArray = foreach ($TCPConnection in $TCPConnectionArray) {
 
                 $output = $null
                 $output = [TCPConnection]::new()
@@ -108,7 +106,7 @@
                 $output.OwningProcessID = $TCPConnection.OwningProcess
                 $output.OwningProcessPath = $TCPConnection.Path
                 
-                $OutputArray += $output
+                $output
             }
         
             $total++

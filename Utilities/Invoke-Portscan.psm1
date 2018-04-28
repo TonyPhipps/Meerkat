@@ -18,7 +18,7 @@ function Invoke-PortScan {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Invoke-PortScan
 
     .NOTES
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -71,10 +71,7 @@ function Invoke-PortScan {
             [String] $TCPTestSucceeded
         }
 
-        $OutputArray = $null
-        $OutputArray = @()
-
-        Foreach ($Port in $Ports) {
+        $OutputArray = foreach ($Port in $Ports) {
 
             $Scan = Test-NetConnection -ComputerName $Computer -Port $Port | Select-Object ComputerName, RemoteAddress, RemotePort, TCPTestSucceeded
 
@@ -89,9 +86,9 @@ function Invoke-PortScan {
             $output.RemotePort = $Scan.RemotePort
             $output.TcpTestSucceeded = $Scan.TcpTestSucceeded
             
-            $OutputArray += $output
+            $output
         }
 
-        Return $OutputArray
+        return $OutputArray
     }
 }

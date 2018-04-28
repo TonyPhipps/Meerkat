@@ -17,7 +17,7 @@ function Get-THR_Hosts {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hosts
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -69,7 +69,7 @@ function Get-THR_Hosts {
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $HostsData = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
+        $HostsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
             $Hosts = Join-Path -Path $($env:windir) -ChildPath "system32\drivers\etc\hosts"
 
             [regex]$nonwhitespace = "\S"
@@ -79,25 +79,22 @@ function Get-THR_Hosts {
             }
         }
 
-        if ($HostsData){
+        if ($HostsArray){
 
-            $OutputArray = @()
-
-            Write-Verbose ("{0}: Parsing results." -f $Computer)
-            $HostsData | ForEach-Object {
+            $OutputArray = foreach($Entry in $HostsArray) {
 
                 $ip = $null
                 $hostname = $null
                 $comment = $null
 
-                $_ -match "(?<IP>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+(?<HOSTNAME>\S+)" | Out-Null
+                $Entry -match "(?<IP>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+(?<HOSTNAME>\S+)" | Out-Null
 
                 $ip = $matches.ip
                 $hostname = $matches.hostname
 
-                if ($_.contains("#")) {
+                if ($Entry.contains("#")) {
                     
-                    $comment = $_.substring($_.indexof("#")+1)
+                    $comment = $Entry.substring($Entry.indexof("#")+1)
                 }
 
                 $output = $null
@@ -110,7 +107,7 @@ function Get-THR_Hosts {
                 $output.HostsName = $hostname
                 $output.HostsComment = $comment
 
-                $OutputArray += $output
+                $output
             }
 
             $total++

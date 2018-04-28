@@ -17,7 +17,7 @@ function Get-THR_Hotfixes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hotfixes
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -77,7 +77,7 @@ function Get-THR_Hotfixes {
 
     process{
 
-        $Hotfixes = invoke-command -Computer $Computer -scriptblock {
+        $HotfixArray = invoke-command -Computer $Computer -scriptblock {
 
             $Session = New-Object -ComObject "Microsoft.Update.Session"
             $Searcher = $Session.CreateUpdateSearcher()
@@ -85,11 +85,9 @@ function Get-THR_Hotfixes {
             $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null
         }
 
-        if ($Hotfixes){
+        if ($HotfixArray){
             
-            $OutputArray = @()
-
-            foreach ($item in $Hotfixes) {
+            $OutputArray = foreach ($Hotfix in $HotfixArray) {
 
                 $output = $null
                 $output = [Hotfix]::new()
@@ -97,21 +95,21 @@ function Get-THR_Hotfixes {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
 
-                $output.PSComputerName = $item.PSComputerName
-                $output.Operation = $item.Operation
-                $output.ResultCode = $item.ResultCode
-                $output.HResult = $item.HResult
-                $output.Date = $item.Date
-                $output.Title = $item.Title
-                $output.DESCRIPTION = $item.DESCRIPTION
-                $output.UnmappedResultCode = $item.UnmappedResultCode
-                $output.ClientApplicationID = $item.ClientApplicationID
-                $output.ServerSelection = $item.ServerSelection
-                $output.ServiceID = $item.ServiceID
-                $output.UninstallationNotes = $item.UninstallationNotes
-                $output.SupportUrl = $item.SupportUrl
+                $output.PSComputerName = $Hotfix.PSComputerName
+                $output.Operation = $Hotfix.Operation
+                $output.ResultCode = $Hotfix.ResultCode
+                $output.HResult = $Hotfix.HResult
+                $output.Date = $Hotfix.Date
+                $output.Title = $Hotfix.Title
+                $output.DESCRIPTION = $Hotfix.DESCRIPTION
+                $output.UnmappedResultCode = $Hotfix.UnmappedResultCode
+                $output.ClientApplicationID = $Hotfix.ClientApplicationID
+                $output.ServerSelection = $Hotfix.ServerSelection
+                $output.ServiceID = $Hotfix.ServiceID
+                $output.UninstallationNotes = $Hotfix.UninstallationNotes
+                $output.SupportUrl = $Hotfix.SupportUrl
 
-                $OutputArray += $output
+                $output
             }
 
             $total++

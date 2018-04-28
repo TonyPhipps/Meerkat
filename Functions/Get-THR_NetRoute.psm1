@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Hunt-Get-THR_NetRoute
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Jeremy Arnold
@@ -83,28 +83,23 @@
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $routes = $null
-        $routes = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $RouteArray = $null
+        $RouteArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $interfaces = $null
-            $interfaces = Get-NetAdapter | Where-Object {$_.MediaConnectionState -eq "Connected"}
-            $routeTable = $null
-
-            Foreach ($interface in $interfaces) { # loop through each interface
+            $InterfaceArray = $null
+            $InterfaceArray = Get-NetAdapter | Where-Object {$_.MediaConnectionState -eq "Connected"}
+            
+            $RouteArray = foreach ($Interface in $InterfaceArray) {
                                 
-                $routeTable += Get-NetRoute -AddressFamily IPv4 -InterfaceIndex $interface.ifIndex -IncludeAllCompartments
-                
+                Get-NetRoute -AddressFamily IPv4 -InterfaceIndex $Interface.ifIndex -IncludeAllCompartments
             }
 
-            return $routeTable
-        
+            return $RouteArray        
         }
             
-        if ($routes) {
+        if ($RouteArray) {
             
-            $outputArray = @()
-
-            Foreach ($route in $routes) {
+            $OutputArray = foreach ($route in $RouteArray) {
                 
                 $output = $null
                 $output = [Route]::new()
@@ -122,11 +117,11 @@
                 $output.PublishedRoute = $route.Publish
                 $output.TypeOfRoute = $route.TypeOfRoute
 
-                $outputArray += $output
+                $output
             }
 
-            return $outputArray
-
+            $total++
+            return $OutputArray
         }
         else {
                 

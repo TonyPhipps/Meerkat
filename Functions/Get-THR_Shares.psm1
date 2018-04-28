@@ -17,7 +17,7 @@ function Get-THR_Shares {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Shares
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -79,7 +79,7 @@ function Get-THR_Shares {
             [String] $TrusteeSID
             [String] $AccessType
             [String] $AccessMask
-            [String] $Permissions
+            [String] $SharePermissions
         }
 	}
 
@@ -91,18 +91,16 @@ function Get-THR_Shares {
         $Shares = Get-WmiObject -class Win32_share -Filter "type=0" -ComputerName $Computer -ErrorAction SilentlyContinue
 
         if ($Shares) {
-            $OutputArray = $null
-            $OutputArray = @()
-
-            foreach ($Share in $Shares) {
+            
+            $OutputArray = foreach ($Share in $Shares) {
 
                 $ShareName = $Share.Name
 
                 $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'" -ComputerName $Computer -ErrorAction SilentlyContinue
 
-                $DACLs = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
+                $DACLArray = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
 
-                foreach ($DACL in $DACLs) {
+                foreach ($DACL in $DACLArray) {
 
                     $TrusteeName = $DACL.Trustee.Name
                     $TrusteeDomain = $DACL.Trustee.Domain
@@ -114,15 +112,11 @@ function Get-THR_Shares {
                     else 
                         { $Type = "Allow" }
         
-                    $SharePermission = $null
-
-                    # Convert AccessMask to human-readable format
-                    foreach ($Key in $PermissionFlags.Keys) {
+                    $SharePermission = foreach ($Key in $PermissionFlags.Keys) { # Convert AccessMask to human-readable format
 
                         if ($Key -band $DACL.AccessMask) {
                                           
-                            $SharePermission += $PermissionFlags[$Key]       
-                            $SharePermission += " "
+                            $PermissionFlags[$Key] + ";"
                         }
                     }
 
@@ -140,12 +134,13 @@ function Get-THR_Shares {
                     $output.TrusteeSID = $TrusteeSID
                     $output.AccessType = $Type
                     $output.AccessMask = $DACL.AccessMask
-                    $output.Permissions = $SharePermission
+                    $output.SharePermissions = $SharePermission
 
-                    $OutputArray += $output
+                    $output
                 }
             }
 
+            $total++
             return $OutputArray
         }
         else {

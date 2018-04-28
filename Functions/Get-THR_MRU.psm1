@@ -17,7 +17,7 @@ function Get-THR_MRU {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-03-29
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -107,9 +107,9 @@ function Get-THR_MRU {
             
             $MachineValues = ""
 
-            $OutputArray = @()
-        
-            foreach ($Key in $MachineKeys){
+            
+
+            $MachineKeysArray = foreach ($Key in $MachineKeys){
                 
                 $Key = "Registry::" + $Key
 
@@ -123,18 +123,21 @@ function Get-THR_MRU {
             
                         foreach ($Property in $Properties){
             
-                            $OutputArray += [pscustomobject] @{
+                            $output = [pscustomobject] @{
                                 Key = $Key.Split(":")[2]
                                 Value = $Property 
                                 Data = $keyObject.GetValue($Property)
                             }
+
+                            $output
                         }
                     }
                     
                 }
             }
 
-            foreach ($Key in $MachineValues){
+
+            $MachineValuesArray = foreach ($Key in $MachineValues){
                 
                 $Key = "Registry::" + $Key
             
@@ -149,16 +152,18 @@ function Get-THR_MRU {
                         
                         if ($Data) {
             
-                            $OutputArray += [pscustomobject] @{
+                            $output = [pscustomobject] @{
                                 Key = $Key.Split(":")[2]
                                 Value = $Value 
                                 Data = $Data
                             }
                             
+                            $output
                         }
                     }
                 }
             }
+
 
             # Regex pattern for SIDs
             $PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
@@ -177,7 +182,7 @@ function Get-THR_MRU {
             $UnloadedHives = Compare-Object $UserArray.SID $LoadedHives.SID | 
                 Select-Object @{name="SID";expression={$_.InputObject}}, UserHive, Username
 
-            Foreach ($User in $UserArray) {
+            $UserKeysArray = Foreach ($User in $UserArray) {
                 
                 If ($User.SID -in $UnloadedHives.SID) {
 
@@ -198,11 +203,13 @@ function Get-THR_MRU {
                                 
                             foreach ($Property in $Properties){
                                 
-                                $OutputArray += [pscustomobject] @{
+                                $output = [pscustomobject] @{
                                     Key = $Key.Split(":")[2]
                                     Value = $Property 
                                     Data = $KeyObject.GetValue($Property)
                                 }
+
+                                $output
                             }  
                         }
                     }
@@ -216,14 +223,14 @@ function Get-THR_MRU {
                 }
             }
             
+
+            $OutputArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
             return $OutputArray
         }
 
         if ($ResultsArray){
             
-            $OutputArray = @()
-            
-            foreach ($Result in $ResultsArray){
+            $OutputArray = foreach ($Result in $ResultsArray){
                 $Output = [RegistryItem]::new()
                 $Output.Computer = $Computer
                 $Output.DateScanned = $DateScanned
@@ -232,9 +239,10 @@ function Get-THR_MRU {
                 $Output.Value = $Result.Value
                 $Output.Data = $Result.Data
 
-                $OutputArray += $Output
+                $output
             }
 
+            $total++
             $OutputArray = $OutputArray | Where-Object {$_.Data -ne ""}
             return $OutputArray
         }

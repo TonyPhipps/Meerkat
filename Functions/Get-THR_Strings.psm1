@@ -22,7 +22,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Strings -MinimumLength
 
     .NOTES 
-        Updated: 2018-02-14
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps    
@@ -82,57 +82,59 @@
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $processStrings = $null
-        $processStrings = Invoke-Command -ArgumentList $MinimumLength, $PathContains -ComputerName $Computer -ScriptBlock {
+        $ProcessStringsArray = $null
+        $ProcessStringsArray = Invoke-Command -ArgumentList $MinimumLength, $PathContains -ComputerName $Computer -ScriptBlock {
 
             $MinimumLength = $args[0]
             $PathContains = $args[1]
 
-            $Processes = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path
+            $ProcessArray = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path
 
             if ($PathContains){
-                $Processes = $Processes | Where-Object {$_.Path -like $PathContains} | Select-Object -Unique path    
+                $ProcessArray = $ProcessArray | Where-Object {$_.Path -like $PathContains} | Select-Object -Unique path    
             }
 
-            $processStrings = @()
-            
-            foreach ($File in $Processes) {
+            $ProcessStringsArray = foreach ($ProcessFile in $ProcessArray) {
                 
-                $path = $File.Path
+                $ProcessLocation = $ProcessFile.Path
 
-                $UnicodeFileContents = Get-Content -Encoding "Unicode" -Path $path
+                $UnicodeFileContents = Get-Content -Encoding "Unicode" -Path $ProcessLocation
                 $UnicodeRegex = [Regex] "[\u0020-\u007E]{$MinimumLength,}"
-                $Results += $UnicodeRegex.Matches($UnicodeFileContents).Value
-                $processStrings += [pscustomobject] @{
-                    Process = $path 
-                    Stringsfound = $Results
+                $StringArray = $UnicodeRegex.Matches($UnicodeFileContents).Value
+                
+                $Process = [pscustomobject] @{
+                    ProcessLocation = $ProcessLocation 
+                    StringArray = $StringArray
                 }
+
+                $Process
                     
-                $AsciiFileContents = Get-Content -Encoding "UTF7" -Path $path
+                $AsciiFileContents = Get-Content -Encoding "UTF7" -Path $ProcessLocation
                 $AsciiRegex = [Regex] "[\x20-\x7E]{$MinimumLength,}"
-                $Results = $AsciiRegex.Matches($AsciiFileContents).Value
-                $processStrings += [pscustomobject] @{
-                    Process = $path 
-                    Stringsfound = $Results
+                $StringArray = $AsciiRegex.Matches($AsciiFileContents).Value
+                
+                $Process = [pscustomobject] @{
+                    ProcessLocation = $ProcessLocation 
+                    StringArray = $StringArray
                 }
+
+                $Process
             }
 
-            return $processStrings
+            return $ProcessStringsArray
         }
                     
-        if ($processStrings) {
+        if ($ProcessStringsArray) {
 
             [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$'
             [regex]$regexIP = '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$'
             [regex]$regexURL = '^https?:\/\/'
             
-            $outputArray = @()
-
-            foreach ($process in $processStrings) {
+            $outputArray = foreach ($Process in $ProcessStringsArray) {
                 
-                foreach ($string in $process.Stringsfound){
+                foreach ($StringItem in $Process.StringArray){
 
-                    if (($string -match $regexEmail) -or ($string -match $regexIP) -or ($string -match $regexURL)){
+                    if (($StringItem -match $regexEmail) -or ($StringItem -match $regexIP) -or ($StringItem -match $regexURL)){
                                         
                         $output = $null
                         $output = [StringMatch]::new()
@@ -140,10 +142,10 @@
                         $output.Computer = $Computer
                         $output.DateScanned = Get-Date -Format u
     
-                        $output.ProcessLocation = $process.process
-                        $output.String = $string
+                        $output.ProcessLocation = $Process.ProcessLocation
+                        $output.String = $StringItem
                                         
-                        $outputArray += $output
+                        $output
                     }
                 }
             }

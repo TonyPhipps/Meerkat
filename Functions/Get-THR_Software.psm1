@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Software
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -74,7 +74,7 @@
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        $Software += Invoke-Command -Computer $Computer -ScriptBlock {
+        $SoftwareArray = Invoke-Command -Computer $Computer -ScriptBlock {
             $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
             $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
                 
@@ -82,10 +82,8 @@
                 Where-Object DisplayName -ne $null
         }
        
-        if ($Software) { 
-            $OutputArray = @()
-
-            foreach ($item in $Software) {
+        if ($SoftwareArray) { 
+            $OutputArray = foreach ($Software in $SoftwareArray) {
                 
                 $output = $null
                 $output = [Software]::new()
@@ -93,21 +91,21 @@
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
                 
-                $output.Publisher = $item.Publisher
-                $output.DisplayName = $item.DisplayName
-                $output.DisplayVersion = $item.DisplayVersion
-                $output.InstallDate = $item.InstallDate
-                $output.InstallSource = $item.InstallSource
-                $output.InstallLocation = $item.InstallLocation
-                $output.InstallLocation = $item.InstallLocation
-                $output.PSChildName = $item.PSChildName
-                $output.HelpLink = $item.HelpLink
+                $output.Publisher = $Software.Publisher
+                $output.DisplayName = $Software.DisplayName
+                $output.DisplayVersion = $Software.DisplayVersion
+                $output.InstallDate = $Software.InstallDate
+                $output.InstallSource = $Software.InstallSource
+                $output.InstallLocation = $Software.InstallLocation
+                $output.InstallLocation = $Software.InstallLocation
+                $output.PSChildName = $Software.PSChildName
+                $output.HelpLink = $Software.HelpLink
 
-                $OutputArray += $output
+                $output
             }
         
-        Return $OutputArray
-
+            $total++
+            return $OutputArray
         }
         else {
             

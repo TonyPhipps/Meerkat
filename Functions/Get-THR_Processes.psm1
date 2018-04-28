@@ -17,7 +17,7 @@ function Get-THR_Processes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Processes
 
     .NOTES 
-        Updated: 2018-03-01
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -95,14 +95,14 @@ function Get-THR_Processes {
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Processes = $null
-        $Processes = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $ProcessArray = $null
+        $ProcessArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             
-            $Processes = Get-Process -IncludeUserName
+            $ProcessArray = Get-Process -IncludeUserName
             $CIMProcesses = Get-CimInstance -class win32_Process
             $CIMServices = Get-CIMinstance -class Win32_Service
 
-            foreach ($Process in $Processes){
+            foreach ($Process in $ProcessArray){
                 
                 $Services = $CIMServices | Where-Object ProcessID -eq $Process.ID 
                 $Services = $Services.PathName -Join "; "
@@ -114,14 +114,12 @@ function Get-THR_Processes {
                 
             }
 
-            return $Processes
+            return $ProcessArray
         }
             
-        if ($Processes) {
+        if ($ProcessArray) {
             
-            $outputArray = @()
-
-            Foreach ($Process in $Processes) {
+            $OutputArray = foreach ($Process in $ProcessArray) {
 
                 $output = $null
                 $output = [Process]::new()
@@ -160,11 +158,11 @@ function Get-THR_Processes {
                 $output.DLLs = $Process.Modules -join "; "
                 $output.DLLs = $output.DLLs.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
                 
-                $outputArray += $output
+                $output
             }
 
-            return $outputArray
-
+            $total++
+            return $OutputArray
         }
         else {
                 

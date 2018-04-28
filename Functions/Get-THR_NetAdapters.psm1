@@ -17,10 +17,11 @@ function Get-THR_NetAdapters {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_NetAdapters
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Jeremy Arnold
+            Anthony Phipps
             
         LEGAL: Copyright (C) 2018
         This program is free software: you can redistribute it and/or modify
@@ -79,15 +80,12 @@ function Get-THR_NetAdapters {
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present get-netadapter
-        $Adapters = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-NetAdapter -ErrorAction SilentlyContinue} #get a list of network adapters
+        $AdapterArray = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-NetAdapter -ErrorAction SilentlyContinue} #get a list of network adapters
         
-        if ($Adapters) {
+        if ($AdapterArray) {
 
             $AdapterConfigs = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-CimInstance Win32_NetworkAdapterConfiguration | Select-Object * -ErrorAction SilentlyContinue}  #get the configuration for the current adapter
-            $OutputArray = $null
-            $OutputArray = @()
-
-            foreach ($Adapter in $Adapters) {#loop through the Interfaces and build the outputArray
+            $OutputArray = foreach ($Adapter in $AdapterArray) {#loop through the Interfaces and build the outputArray
                 
                 if ($Adapter.MediaConnectionState -eq "Connected") {
 
@@ -111,14 +109,12 @@ function Get-THR_NetAdapters {
                     $output.MTU = $Adapter.MtuSize
                     $output.PromiscuousMode = $Adapter.PromiscuousMode
 
-                    $OutputArray += $output
-
+                    $output
                 }
-
             }
 
-        Return $OutputArray
-            
+            $total++
+            Return $OutputArray
         }
         else {
                 

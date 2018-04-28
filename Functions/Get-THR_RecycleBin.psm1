@@ -17,7 +17,7 @@ function Get-THR_RecycleBin {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_RecycleBin
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-04-27
 
         Contributing Authors:
             Anthony Phipps
@@ -78,17 +78,14 @@ function Get-THR_RecycleBin {
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
         Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $recycleBin = $null
-        $recycleBin = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
+        $RecycleBin = $null
+        $RecycleBin = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
             Get-ChildItem ("{0}\`$Recycle.Bin" -f $env:SystemDrive) -Force -Recurse
          }
        
-        if ($recycleBin) { 
+        if ($RecycleBin) { 
             
-            $OutputArray = @()
-
-            Write-Verbose ("{0}: Looping through retrived results" -f $Computer)
-            foreach ($recycled in $recycleBin) {
+            $OutputArray = foreach ($RecycledItem in $RecycleBin) {
              
                 $output = $null
                 $output = [DeletedItem]::new()
@@ -96,28 +93,23 @@ function Get-THR_RecycleBin {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
 
-                $output.LINKType = $recycled.LINKType
-                $output.Name = $recycled.Name
-                $output.Length = $recycled.Length
-                $output.Directory = $recycled.Directory
-                $output.IsReadOnly = $recycled.IsReadOnly
-                $output.Exists = $recycled.Exists
-                $output.FullName = $recycled.FullName
-                $output.CreationTimeUtc = $recycled.CreationTimeUtc
-                $output.LastAccessTimeUtc = $recycled.LastAccessTimeUtc
-                $output.LastWriteTimeUtc = $recycled.LastWriteTimeUtc
-                $output.IsContainer = $recycled.PSIsContainer
-                $output.Mode = $recycled.Mode
+                $output.LINKType = $RecycledItem.LINKType
+                $output.Name = $RecycledItem.Name
+                $output.Length = $RecycledItem.Length
+                $output.Directory = $RecycledItem.Directory
+                $output.IsReadOnly = $RecycledItem.IsReadOnly
+                $output.Exists = $RecycledItem.Exists
+                $output.FullName = $RecycledItem.FullName
+                $output.CreationTimeUtc = $RecycledItem.CreationTimeUtc
+                $output.LastAccessTimeUtc = $RecycledItem.LastAccessTimeUtc
+                $output.LastWriteTimeUtc = $RecycledItem.LastWriteTimeUtc
+                $output.IsContainer = $RecycledItem.PSIsContainer
+                $output.Mode = $RecycledItem.Mode
 
-                $OutputArray += $output
+                $output
             }
 
-            $elapsed = $stopwatch.Elapsed
-            $total = $total + 1
-            
-            Write-Verbose ("System {0} complete: `t {1} `t Total Time Elapsed: {2}" -f $total, $Computer, $elapsed)
-
-            $total = $total+1
+            $total++
             return $OutputArray
         }
         else {
