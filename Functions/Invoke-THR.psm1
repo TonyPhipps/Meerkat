@@ -101,19 +101,19 @@ function Invoke-THR {
             "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "UserFiles" )]
-        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts",
-        "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services",
-        "Sessions", "Shares", "Software", "TPM")
+        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
+        "MRU", "NetAdapters", "NetRoute", "TCPConnections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
+        "TPM", "Processes", "RecycleBin", "DLLs")
     )
 
     begin{
 
         if ($All) {
 
-            [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
-            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
-            "UserFiles")
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers",
+            "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", "Registry", "ScheduledTasks",
+            "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "UserFiles", "Processes", "RecycleBin", "DLLs",
+            "EventLogs")
         }
 
         if ($Quick) {
