@@ -57,7 +57,7 @@ $OutputShare = $RemoteOutputPath.Replace(':', '$')
 Copy-WithProgress -Source "$ModulePath" -Destination "\\$Computer\$ModuleShare"
 
 # Import modulea and execute command
-& $PSExec\PsExec.exe \\$Computer -accepteula powershell -ExecutionPolicy ByPass -nologo -command "& {import-module $ModuleNTFS\$ModuleName; & $Command}"
+& $PSExec\PsExec.exe -s \\$Computer -accepteula powershell -ExecutionPolicy ByPass -nologo -command "& {import-module $ModuleNTFS\$ModuleName; & $Command}"
 
 # Retrieve Results
 Copy-WithProgress -Source \\$Computer\$OutputShare -Destination $Output
