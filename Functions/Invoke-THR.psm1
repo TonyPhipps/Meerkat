@@ -44,7 +44,7 @@ function Invoke-THR {
         Invoke-THR -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2018-04-25
+        Updated: 2018-05-31
 
         Contributing Authors:
             Anthony Phipps
@@ -112,7 +112,7 @@ function Invoke-THR {
 
             [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers",
             "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", "Registry", "ScheduledTasks",
-            "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "UserFiles", "Processes", "RecycleBin", "DLLs",
+            "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs",
             "EventLogs")
         }
 

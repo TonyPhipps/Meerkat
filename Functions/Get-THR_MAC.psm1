@@ -11,17 +11,20 @@ function Get-THR_MAC {
         Computer can be a single hostname, FQDN, or IP address.
 
     .PARAMETER Path  
-        Specify a path to begin recursive recording of MAC times (Defaults to c:\users)
+        Specify a path to begin recursive recording of MAC times (Defaults to "$ENV:SystemDrive\Users")
+
+    .PARAMETER Hash
+        Include file hashes. Will increase scan time significantly.
 
     .EXAMPLE 
         Get-THR_MAC
         Get-THR_MAC SomeHostName.domain.com -Path "C:\"
         Get-Content C:\hosts.csv | Get-THR_MAC
-        Get-THR_MAC $env:computername -Path "C:\Windows"
+        Get-THR_MAC $env:computername -Path "C:\Windows" -Hash
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MAC
 
     .NOTES 
-        Updated: 2018-05-23
+        Updated: 2018-05-31
 
         Contributing Authors:
             Anthony Phipps
@@ -50,7 +53,10 @@ function Get-THR_MAC {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        $Path = "C:\Users"
+        $Path, # Will default to "$ENV:SystemDrive\Users" on endpoint.
+
+        [Parameter()]
+        [switch] $Hash
     )
 
     begin{
@@ -70,6 +76,7 @@ function Get-THR_MAC {
             [String] $FileName
             [String] $Mode
             [String] $Bytes
+            [String] $Hash
             [String] $LastWriteTimeUTC
             [DateTime] $LastAccessTimeUTC
             [DateTime] $CreationTimeUTC
@@ -80,18 +87,32 @@ function Get-THR_MAC {
 
         $Computer = $Computer.Replace('"', '')
         
-        $MACArray = $null
-        $MACArray = Invoke-Command -ComputerName $Computer -ScriptBlock {
-           
-            $MACArray = Get-ChildItem -Path $Using:Path -File -Recurse | Select-Object FullName, Mode, Length, LastWriteTimeUtc, LastAccessTimeUtc, CreationTimeUtc
+        $FileMACArray = $null
+        $FileMACArray = Invoke-Command -ComputerName $Computer -ScriptBlock {
+            
+            if (!$Using:Path) {
+                $Path = "$ENV:SystemDrive\Users"
+            } else {
+                $Path = $Using:Path
+            }
 
-            return $MACArray
+            $FileMACArray = Get-ChildItem -Path $Path -File -Recurse | 
+                Select-Object FullName, Mode, Length, Hash, LastWriteTimeUtc, LastAccessTimeUtc, CreationTimeUtc
+
+            if ($Using:Hash){
+                
+                foreach ($File in $FileMACArray){
+
+                    $File.Hash = (Get-FileHash -Path $File.FullName -ErrorAction SilentlyContinue).Hash
+                }
+            }
+
+            return $FileMACArray
         }
         
-        if ($MACArray) {
-            Write-Verbose "MAC times were received."
+        if ($FileMACArray) {
 
-            $OutputArray = ForEach ($FileMAC in $MACArray) {
+            $OutputArray = ForEach ($FileMAC in $FileMACArray) {
 
                 $output = $null
                 $output = [FileMAC]::new()
@@ -102,6 +123,7 @@ function Get-THR_MAC {
                 $output.FileName = $FileMAC.FullName
                 $output.Mode = $FileMAC.Mode
                 $output.Bytes = $FileMAC.Length
+                $output.Hash = $FileMAC.Hash
                 $output.LastWriteTimeUTC = $FileMAC.LastWriteTimeUtc
                 $output.LastAccessTimeUTC = $FileMAC.LastAccessTimeUtc
                 $output.CreationTimeUTC = $FileMAC.creationTimeUtc
