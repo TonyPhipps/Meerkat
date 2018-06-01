@@ -30,14 +30,14 @@ function Invoke-THR_PSExec {
 
     .PARAMETER Command
         Command to execute on remote system. Default is "Invoke-THR". 
-        Special parameters to Invoke-THR like "Invoke-THR -Module Get-THR_Computer" can also be used.        
+        Special parameters to Invoke-THR like "Invoke-THR -Module MAC" can also be used.        
 
     .EXAMPLE
         Invoke-THR-PSExec -Computer WorkComputer
         Invoke-thr_psexec -Computer WorkComputer -Command 'Get-THR_MAC -Hash | export-csv c:\windows\toolkit\results\computer.csv -notypeinformation'
 
     .NOTES 
-        Updated: 2018-05-31
+        Updated: 2018-06-01
 
         Contributing Authors:
             Anthony Phipps
