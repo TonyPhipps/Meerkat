@@ -85,8 +85,6 @@ function Get-THR_ADS {
     process{
 
         $Computer = $Computer.Replace('"', '')
-
-        Write-Verbose "Attemting to run Invoke-Command on remote system."
         
         $Streams = $null
         $Streams = Invoke-Command -ArgumentList $Path -ComputerName $Computer -ScriptBlock {
