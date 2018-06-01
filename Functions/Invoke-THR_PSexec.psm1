@@ -116,12 +116,13 @@ function Invoke-THR_PSExec {
 
         if($Command -like "Invoke-THR*"){
             
-            $Command = $Command + " -Output $RemoteOutputPath"
-
             if($Command -like "*output*"){
                 Write-Error -Message "Specify remote output via -RemoteOutputPath parameter."
                 exit
             }
+
+            $Command = $Command + " -Output $RemoteOutputPath"
+            
         } else {
             
             mkdir \\$Computer\$OutputShare -ErrorAction SilentlyContinue
