@@ -103,7 +103,7 @@ function Invoke-THR {
             "MAC" )]
         [array]$Modules = ("ARP", "Autoruns", "BitLocker", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
             "MRU", "NetAdapters", "NetRoute", "TCPConnections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
-            "TPM", "Processes", "RecycleBin", "MAC", "DLLs")
+            "TPM", "Processes", "RecycleBin", "DLLs")
     )
 
     begin{
@@ -119,13 +119,13 @@ function Invoke-THR {
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "Handles", "MRU", "RecycleBin", "Sessions", "Strings" }
+            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "Handles", "MAC", "MRU", "RecycleBin", "Sessions", "Strings" }
         }
 
         if ($Micro){
 
             $Modules = $Modules | 
-            Where-Object { $_ -notin "DLLs", "EventLogs" }
+            Where-Object { $_ -notin "DLLs", "EventLogs", "MAC" }
         }
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
