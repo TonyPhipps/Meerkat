@@ -64,17 +64,18 @@ function Invoke-THR_PSExec {
 
     [CmdletBinding()]
     param(
+    #Remote Parameters
+    [Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
+    [string]$Computer = "127.0.0.1",
+    [string]$RemoteModulePath = "c:\Windows\Toolkit\",
+    [string]$RemoteOutputPath = "c:\Windows\Toolkit\Results\",
+    [string]$Command = "Invoke-THR",
+    
     #Local Parameters
     [string]$ModulePath = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\THRecon\",
     [string]$Output = "C:\Temp\Results\",
     [string]$ModuleName = "THRecon.psm1",
-    [string]$PSExec = "C:\Program Files\Sysinternals",
-    
-    #Remote Parameters
-    [string]$Computer = "127.0.0.1",
-    [string]$RemoteModulePath = "c:\Windows\Toolkit\",
-    [string]$RemoteOutputPath = "c:\Windows\Toolkit\Results\",
-    [string]$Command = "Invoke-THR"
+    [string]$PSExec = "C:\Program Files\Sysinternals"
     )
 
     begin{
