@@ -24,7 +24,7 @@ function Get-THR_ADS {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ADS -Path "C:\"
 
     .NOTES 
-        Updated: 2018-04-26
+        Updated: 2018-06-13
 
         Contributing Authors:
             Anthony Phipps
@@ -87,10 +87,9 @@ function Get-THR_ADS {
         $Computer = $Computer.Replace('"', '')
         
         $Streams = $null
-        $Streams = Invoke-Command -ArgumentList $Path -ComputerName $Computer -ScriptBlock {
-            $Path = $args[0]
+        $Streams = Invoke-Command -ComputerName $Computer -ScriptBlock {
 
-            $Streams = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
+            $Streams = Get-ChildItem -Path $Using:Path -Recurse -PipelineVariable FullName | 
             ForEach-Object { Get-Item $_.FullName -Stream * } | # Doesn't work without foreach
             Where-Object {($_.Stream -notlike "*DATA") -AND ($_.Stream -ne "Zone.Identifier")}
 
