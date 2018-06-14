@@ -109,7 +109,6 @@ function Get-THR_ADS {
         }
         
         if ($Streams) {
-            Write-Verbose "Streams were found."
 
             $OutputArray = ForEach ($Stream in $Streams) {
 
