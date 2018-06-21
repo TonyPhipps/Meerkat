@@ -98,7 +98,7 @@ function Invoke-THR {
         [Parameter()]
         [alias("M", "Mod")]
         [ValidateSet( "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
+            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "MAC" )]
         [array]$Modules = ("ARP", "Autoruns", "BitLocker", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
@@ -111,7 +111,7 @@ function Invoke-THR {
         if ($All) {
 
             [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers",
-            "Handles", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", "Registry", "ScheduledTasks",
+            "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoute", "TCPConnections", "Registry", "ScheduledTasks",
             "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs",
             "EventLogs")
         }
@@ -119,7 +119,7 @@ function Invoke-THR {
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "Handles", "MAC", "MRU", "RecycleBin", "Sessions", "Strings" }
+            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "MAC", "MRU", "RecycleBin", "Sessions", "Strings" }
         }
 
         if ($Micro){
