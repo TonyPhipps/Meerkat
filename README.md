@@ -5,9 +5,7 @@ Collect endpoint information for use in incident response triage / threat huntin
 
 Alternatively, the output of this tool may be ingested into an analysis tool like [ELK](https://www.elastic.co/elk-stack), [Graylog](https://www.graylog.org/), or [Splunk](https://www.splunk.com/) for stack-counting and other analysis techniques.
 
-Requires Powershell 5.0 or above on the "scanning" device.
 
-Requires Powershell 3.0 or higher on target systems (2.0 may be adequate in some cases).
 
 ______________________________________________________
 
@@ -18,6 +16,7 @@ ______________________________________________________
   * [Screenshots](#screenshots)
   
 ______________________________________________________
+
 
 ## Information Collected 
 
@@ -32,7 +31,13 @@ _Linked to Hunt Use Cases_
 | [Scheduled Tasks](https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks) | TPM | Bitlocker | Recycle Bin | User Files |
 
 \* Info pulled from current running processes or their executables on disk.
-  
+
+## Requirements
+
+* Requires Powershell 5.0 or above on the "scanning" device.
+* Requires Powershell 3.0 or higher on target systems (2.0 may be adequate in some cases).
+* When scanning a remote machine without the psexec wrapper (Invoke-THR_PSExec), requires WinRM service on remote machine.
+
 ## Quick Install
 Run this command in Powershell with [git](https://gitforwindows.org/) installed, then open a new Powershell session.
 ```
