@@ -17,7 +17,7 @@ function Get-THR_NetAdapters {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_NetAdapters
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-20
 
         Contributing Authors:
             Jeremy Arnold
@@ -75,42 +75,67 @@ function Get-THR_NetAdapters {
             [bool] $PromiscuousMode
         }
         
+        $Command = {
+
+            $AdaptersArray = Get-NetAdapter -ErrorAction SilentlyContinue
+            $AdapterConfigArray = Get-CimInstance Win32_NetworkAdapterConfiguration -ErrorAction SilentlyContinue  #get the configuration for the current adapter
+
+            $AdaptersArray = $AdaptersArray | Where-Object {$_.MediaConnectionState -eq "Connected"}
+            
+            foreach ($Adapter in $AdaptersArray) {
+                
+                $AdapterConfig = $AdapterConfigArray | Where-Object {$_.InterfaceIndex -eq $Adapter.IfIndex}
+
+                $Adapter | Add-Member -MemberType NoteProperty -Name ipaddress -Value $AdapterConfig.ipaddress[0]
+                $Adapter | Add-Member -MemberType NoteProperty -Name IPsubnet -Value $AdapterConfig.IPsubnet[0]
+                $Adapter | Add-Member -MemberType NoteProperty -Name DefaultIPGateway -Value $AdapterConfig.DefaultIPGateway
+                $Adapter | Add-Member -MemberType NoteProperty -Name DNSServerSearchOrder -Value $AdapterConfig.DNSServerSearchOrder                
+            }
+
+            return $AdaptersArray
+        } 
 	}
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present get-netadapter
-        $AdapterArray = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-NetAdapter -ErrorAction SilentlyContinue} #get a list of network adapters
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
         
-        if ($AdapterArray) {
+        if ($ResultsArray) {
 
-            $AdapterConfigs = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-CimInstance Win32_NetworkAdapterConfiguration | Select-Object * -ErrorAction SilentlyContinue}  #get the configuration for the current adapter
-            $OutputArray = foreach ($Adapter in $AdapterArray) {#loop through the Interfaces and build the outputArray
+            
+            $OutputArray = foreach ($Adapter in $ResultsArray) {#loop through the Interfaces and build the outputArray
                 
-                if ($Adapter.MediaConnectionState -eq "Connected") {
+                $output = $null
+                $output = [NetAdapter]::new()
 
-                    $AdapterConfig = $AdapterConfigs | Where-Object {$_.InterfaceIndex -eq $Adapter.InterfaceIndex}
-                    $output = $null
-			        $output = [NetAdapter]::new()
-   
-                    $output.Computer = $Computer
-                    $output.DateScanned = Get-Date -Format u
-                    $output.FQDN = $Adapter.SystemName
-                    $output.DESCRIPTION = $Adapter.InterfaceDescription
-                    $output.NetConnectionID = $Adapter.Name
-                    $output.NetConnected= $Adapter.MediaConnectionState
-                    $output.InterfaceIndex = $Adapter.ifIndex
-                    $output.Speed = $Adapter.Speed
-                    $output.MACAddress = $Adapter.MACAddress
-                    $output.IPAddress = $AdapterConfig.ipaddress[0]
-                    $output.Subnet = $AdapterConfig.IPsubnet[0]
-                    $output.Gateway = $AdapterConfig.DefaultIPGateway
-                    $output.DNS = $AdapterConfig.DNSServerSearchOrder
-                    $output.MTU = $Adapter.MtuSize
-                    $output.PromiscuousMode = $Adapter.PromiscuousMode
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
+                $output.FQDN = $Adapter.SystemName
+                $output.DESCRIPTION = $Adapter.InterfaceDescription
+                $output.NetConnectionID = $Adapter.Name
+                $output.NetConnected= $Adapter.MediaConnectionState
+                $output.InterfaceIndex = $Adapter.ifIndex
+                $output.Speed = $Adapter.Speed
+                $output.MACAddress = $Adapter.MACAddress
+                $output.IPAddress = $Adapter.ipaddress
+                $output.Subnet = $Adapter.IPsubnet
+                $output.Gateway = $Adapter.DefaultIPGateway
+                $output.DNS = $Adapter.DNSServerSearchOrder
+                $output.MTU = $Adapter.MtuSize
+                $output.PromiscuousMode = $Adapter.PromiscuousMode
 
-                    $output
-                }
+                $output
             }
 
             $total++

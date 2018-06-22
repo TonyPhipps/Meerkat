@@ -17,7 +17,7 @@ function Get-THR_Services {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Services
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-06-21
 
             Contributing Authors:
                 Anthony Phipps
@@ -85,20 +85,33 @@ function Get-THR_Services {
             [uint32] $TagId
             [uint32] $TotalSessions
             [uint32] $WaitHint
-		}
+        }
+        
+        $Command = {
+            Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'"
+            # Odd filter explanation: http://itknowledgeexchange.techtarget.com/powershell/cim-session-oddity/
+        }
 	}
 
     process{        
                 
         $Computer = $Computer.Replace('"', '')
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $Services = Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'" -ComputerName $Computer -ErrorAction SilentlyContinue
-        # Odd filter explanation: http://itknowledgeexchange.techtarget.com/powershell/cim-session-oddity/
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Services){
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+        
+
+        if ($ResultsArray){
                 
-            $Services | ForEach-Object {
+            $OutputArray = foreach($Entry in $ResultsArray) {
                 
 				$output = $null
 				$output = [Service]::new()
@@ -106,37 +119,39 @@ function Get-THR_Services {
 				$output.Computer = $Computer
 				$output.DateScanned = Get-Date -Format u
                 
-				$output.AcceptPause = $_.AcceptPause
-                $output.AcceptStop = $_.AcceptStop
-                $output.Caption = $_.Caption
-                $output.CheckPoint = $_.CheckPoint
-                $output.DelayedAutoStart = $_.DelayedAutoStart
-                $output.DESCRIPTION = $_.DESCRIPTION
-                $output.DesktopInteract = $_.DesktopInteract
-                $output.DisconnectedSessions = $_.DisconnectedSessions
-                $output.DisplayName = $_.DisplayName
-                $output.ErrorControl = $_.ErrorControl
-                $output.ExitCode = $_.ExitCode
-                if ($_.InstallDate) {
-                    $output.InstallDate = $_.InstallDate
+				$output.AcceptPause = $Entry.AcceptPause
+                $output.AcceptStop = $Entry.AcceptStop
+                $output.Caption = $Entry.Caption
+                $output.CheckPoint = $Entry.CheckPoint
+                $output.DelayedAutoStart = $Entry.DelayedAutoStart
+                $output.DESCRIPTION = $Entry.DESCRIPTION
+                $output.DesktopInteract = $Entry.DesktopInteract
+                $output.DisconnectedSessions = $Entry.DisconnectedSessions
+                $output.DisplayName = $Entry.DisplayName
+                $output.ErrorControl = $Entry.ErrorControl
+                $output.ExitCode = $Entry.ExitCode
+                if ($Entry.InstallDate) {
+                    $output.InstallDate = $Entry.InstallDate
                 }
-                $output.Name = $_.Name
-                $output.PathName = $_.PathName
-                $output.ProcessId = $_.ProcessId
-                $output.ServiceSpecificExitCode = $_.ServiceSpecificExitCode
-                $output.ServiceType = $_.ServiceType
-                $output.Started = $_.Started
-                $output.StartMode = $_.StartMode
-                $output.StartName = $_.StartName
-                $output.State = $_.State
-                $output.SystemName = $_.SystemName
-                $output.TagId = $_.TagId
-                $output.TotalSessions = $_.TotalSessions
-                $output.WaitHint = $_.WaitHint
+                $output.Name = $Entry.Name
+                $output.PathName = $Entry.PathName
+                $output.ProcessId = $Entry.ProcessId
+                $output.ServiceSpecificExitCode = $Entry.ServiceSpecificExitCode
+                $output.ServiceType = $Entry.ServiceType
+                $output.Started = $Entry.Started
+                $output.StartMode = $Entry.StartMode
+                $output.StartName = $Entry.StartName
+                $output.State = $Entry.State
+                $output.SystemName = $Entry.SystemName
+                $output.TagId = $Entry.TagId
+                $output.TotalSessions = $Entry.TotalSessions
+                $output.WaitHint = $Entry.WaitHint
                     
-                $total++
-                return $output 
+                $output 
             }
+
+            $total++
+            return $OutputArray
         }
         else {
                 

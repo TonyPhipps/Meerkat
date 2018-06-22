@@ -17,7 +17,7 @@ function Get-THR_Hotfixes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hotfixes
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-20
 
         Contributing Authors:
             Anthony Phipps
@@ -59,7 +59,6 @@ function Get-THR_Hotfixes {
             [string] $Computer
             [Datetime] $DateScanned
 
-            [String] $PSComputerName
             [String] $Operation
             [string] $ResultCode
             [String] $HResult
@@ -73,21 +72,32 @@ function Get-THR_Hotfixes {
             [String] $UninstallationNotes
             [String] $SupportUrl
         }
-	}
 
-    process{
-
-        $HotfixArray = invoke-command -Computer $Computer -scriptblock {
+        $Command = {
 
             $Session = New-Object -ComObject "Microsoft.Update.Session"
             $Searcher = $Session.CreateUpdateSearcher()
             $historyCount = $Searcher.GetTotalHistoryCount()
             $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null
         }
+	}
 
-        if ($HotfixArray){
+    process{
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-            $OutputArray = foreach ($Hotfix in $HotfixArray) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+
+        if ($ResultsArray){
+            
+            $OutputArray = foreach ($Hotfix in $ResultsArray) {
 
                 $output = $null
                 $output = [Hotfix]::new()
@@ -95,7 +105,6 @@ function Get-THR_Hotfixes {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
 
-                $output.PSComputerName = $Hotfix.PSComputerName
                 $output.Operation = $Hotfix.Operation
                 $output.ResultCode = $Hotfix.ResultCode
                 $output.HResult = $Hotfix.HResult

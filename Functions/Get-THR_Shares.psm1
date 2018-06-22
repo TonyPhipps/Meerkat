@@ -17,7 +17,7 @@ function Get-THR_Shares {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Shares
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -55,19 +55,8 @@ function Get-THR_Shares {
 
         $total = 0
 
-        $PermissionFlags = @{
-            0x1     =     "Read-List"
-            0x2     =     "Write-Create"
-            0x4     =     "Append-Create Subdirectory"                  	
-            0x20    =     "Execute file-Traverse directory"
-            0x40    =     "Delete child"
-            0x10000 =     "Delete"                     
-            0x40000 =     "Write access to DACL"
-            0x80000 =     "Write Owner"
-        }
+        class SharePermission {
 
-        class SharePermission
-        {
             [String] $Computer
             [Datetime] $DateScanned
             
@@ -81,67 +70,115 @@ function Get-THR_Shares {
             [String] $AccessMask
             [String] $SharePermissions
         }
+
+        $Command = {
+
+            $PermissionFlags = @{
+                0x1     =     "Read-List"
+                0x2     =     "Write-Create"
+                0x4     =     "Append-Create Subdirectory"                  	
+                0x20    =     "Execute file-Traverse directory"
+                0x40    =     "Delete child"
+                0x10000 =     "Delete"                     
+                0x40000 =     "Write access to DACL"
+                0x80000 =     "Write Owner"
+            }
+
+            $Shares = Get-WmiObject -class Win32_share -Filter "type=0"
+
+            if ($Shares) {
+                
+                $OutputArray = foreach ($Share in $Shares) {
+
+                    $ShareName = $Share.Name
+
+                    $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'"
+
+                    $DACLArray = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
+
+                    foreach ($DACL in $DACLArray) {
+
+                        $TrusteeName = $DACL.Trustee.Name
+                        $TrusteeDomain = $DACL.Trustee.Domain
+                        $TrusteeSID = $DACL.Trustee.SIDString
+
+                        # 1 Deny 0 Allow
+                        if ($DACL.AceType) 
+                            { $Type = "Deny" }
+                        else 
+                            { $Type = "Allow" }
+            
+                        $SharePermission = foreach ($Key in $PermissionFlags.Keys) { # Convert AccessMask to human-readable format
+
+                            if ($Key -band $DACL.AccessMask) {
+                                            
+                                $PermissionFlags[$Key] + ";"
+                            }
+                        }
+
+                        $output = New-Object -TypeName PSObject
+                        
+                        $output | Add-Member -MemberType NoteProperty -Name Computer -Value $Share.PSComputerName
+                        $output | Add-Member -MemberType NoteProperty -Name Name -Value $Share.Name
+                        $output | Add-Member -MemberType NoteProperty -Name Path -Value $Share.Path
+                        $output | Add-Member -MemberType NoteProperty -Name DESCRIPTION -Value $Share.DESCRIPTION
+                        $output | Add-Member -MemberType NoteProperty -Name TrusteeName -Value $TrusteeName
+                        $output | Add-Member -MemberType NoteProperty -Name TrusteeDomain -Value $TrusteeDomain
+                        $output | Add-Member -MemberType NoteProperty -Name TrusteeSID -Value $TrusteeSID
+                        $output | Add-Member -MemberType NoteProperty -Name AccessType -Value $Type
+                        $output | Add-Member -MemberType NoteProperty -Name AccessMask -Value $DACL.AccessMask
+                        $output | Add-Member -MemberType NoteProperty -Name SharePermissions -Value $SharePermission
+
+                        $output
+                    }
+                }
+
+                return $OutputArray
+            }
+        }
 	}
 
     process{
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Shares = $null
-        $Shares = Get-WmiObject -class Win32_share -Filter "type=0" -ComputerName $Computer -ErrorAction SilentlyContinue
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Shares) {
+        if ($Computer = $env:COMPUTERNAME){
             
-            $OutputArray = foreach ($Share in $Shares) {
+            $ResultsArray = & $Command 
+        } 
+        else {
 
-                $ShareName = $Share.Name
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
 
-                $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'" -ComputerName $Computer -ErrorAction SilentlyContinue
+        if ($ResultsArray){
 
-                $DACLArray = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
+            $OutputArray = foreach($Entry in $ResultsArray) {
 
-                foreach ($DACL in $DACLArray) {
-
-                    $TrusteeName = $DACL.Trustee.Name
-                    $TrusteeDomain = $DACL.Trustee.Domain
-                    $TrusteeSID = $DACL.Trustee.SIDString
-
-                    # 1 Deny 0 Allow
-                    if ($DACL.AceType) 
-                        { $Type = "Deny" }
-                    else 
-                        { $Type = "Allow" }
+                $output = $null
+                $output = [SharePermission]::new()
         
-                    $SharePermission = foreach ($Key in $PermissionFlags.Keys) { # Convert AccessMask to human-readable format
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
+                
+                $output.Name = $Entry.Name
+                $output.Path = $Entry.Path
+                $output.DESCRIPTION = $Entry.DESCRIPTION
+                $output.TrusteeName = $Entry.TrusteeName
+                $output.TrusteeDomain = $Entry.TrusteeDomain
+                $output.TrusteeSID = $Entry.TrusteeSID
+                $output.AccessType = $Entry.Type
+                $output.AccessMask = $Entry.AccessMask
+                $output.SharePermissions = $Entry.SharePermissions
 
-                        if ($Key -band $DACL.AccessMask) {
-                                          
-                            $PermissionFlags[$Key] + ";"
-                        }
-                    }
-
-                    $output = $null
-                    $output = [SharePermission]::new()
-
-                    $output.Computer = $Computer
-                    $output.DateScanned = Get-Date -Format u
-                    $output.Computer = $Share.PSComputerName
-                    $output.Name = $Share.Name
-                    $output.Path = $Share.Path
-                    $output.DESCRIPTION = $Share.DESCRIPTION
-                    $output.TrusteeName = $TrusteeName
-                    $output.TrusteeDomain = $TrusteeDomain
-                    $output.TrusteeSID = $TrusteeSID
-                    $output.AccessType = $Type
-                    $output.AccessMask = $DACL.AccessMask
-                    $output.SharePermissions = $SharePermission
-
-                    $output
-                }
+                $output
             }
 
             $total++
             return $OutputArray
+        
         }
         else {
                 

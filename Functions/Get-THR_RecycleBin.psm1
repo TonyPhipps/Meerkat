@@ -17,7 +17,7 @@ function Get-THR_RecycleBin {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_RecycleBin
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -71,21 +71,30 @@ function Get-THR_RecycleBin {
             [String] $IsContainer
             [String] $Mode
         }
+
+        $Command = {
+            Get-ChildItem ("{0}\`$Recycle.Bin" -f $env:SystemDrive) -Force -Recurse
+         }
     }
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $RecycleBin = $null
-        $RecycleBin = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-            Get-ChildItem ("{0}\`$Recycle.Bin" -f $env:SystemDrive) -Force -Recurse
-         }
-       
-        if ($RecycleBin) { 
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-            $OutputArray = foreach ($RecycledItem in $RecycleBin) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+       
+        if ($ResultsArray) { 
+            
+            $OutputArray = foreach ($RecycledItem in $ResultsArray) {
              
                 $output = $null
                 $output = [DeletedItem]::new()

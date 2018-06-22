@@ -23,7 +23,7 @@ function Get-THR_EventLogs {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_EventLogs
 
     .NOTES
-        Updated: 2018-04-26
+        Updated: 2018-06-20
 
         Contributing Authors:
             Anthony Phipps
@@ -88,27 +88,25 @@ function Get-THR_EventLogs {
             [String] $ThreadId
             [String] $Version
         }
-	}
 
-    process{
-
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        $EventLogs = $null
-        $EventLogs = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $Command = {
+            if ($args){ 
+                $StartTime = $args[0]
+                $EndTime = $args[1]
+            }
             
-            if(!($Using:StartTime)){
+            if(!($StartTime)){
                 $StartTime = (Get-Date) - (New-TimeSpan -Hours 2)
             }
             else{
-                $StartTime = $Using:StartTime
+                $StartTime = $StartTime
             }
 
-            if(!($Using:EndTime)){
+            if(!($EndTime)){
                 $EndTime = (Get-Date)
             }
             else{
-                $EndTime = $Using:EndTime
+                $EndTime = $EndTime
             }
            
             $Logs = Get-WinEvent -ListLog * | Where-Object { ($_.RecordCount -gt 0) }
@@ -121,10 +119,26 @@ function Get-THR_EventLogs {
             $EventLogs = $EventLogs | Select-Object TimeCreated, MachineName, UserId, ProcessId, LogName, ProviderName, LevelDisplayName, Id, OpcodeDisplayName, TaskDisplayName, Message, RecordId, RelatedActivityId, ThreadId, Version
             return $EventLogs
         }
+	}
+
+    process{
+
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-        if ($EventLogs) {
+            $ResultsArray = & $Command
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ArgumentList $StartTime, $EndTime -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
             
-            $outputArray = Foreach ($ThisEvent in $EventLogs) {
+        if ($ResultsArray) {
+            
+            $outputArray = Foreach ($ThisEvent in $ResultsArray) {
 
                 $output = $null
                 $output = [Event]::new()

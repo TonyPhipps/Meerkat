@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Software
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -68,22 +68,34 @@
             [string]$PSChildName
             [string]$HelpLink
         }
-    }
 
-    process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        $SoftwareArray = Invoke-Command -Computer $Computer -ScriptBlock {
+        $Command = {
             $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
             $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
                 
             Get-ItemProperty -Path $pathAllUser, $pathAllUser32 |
                 Where-Object DisplayName -ne $null
         }
+    }
+
+    process{
+            
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
        
-        if ($SoftwareArray) { 
-            $OutputArray = foreach ($Software in $SoftwareArray) {
+        if ($ResultsArray) { 
+            
+            $OutputArray = foreach ($Software in $ResultsArray) {
                 
                 $output = $null
                 $output = [Software]::new()

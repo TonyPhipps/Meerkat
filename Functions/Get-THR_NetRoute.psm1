@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Hunt-Get-THR_NetRoute
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-20
 
         Contributing Authors:
             Jeremy Arnold
@@ -55,8 +55,7 @@
 
         $total = 0
 
-        Enum RouteType
-        {
+        Enum RouteType {
             AdminDefinedRoute = 2
             ComputedRoute = 3
             ActualRoute = 4        
@@ -77,14 +76,14 @@
             [String] $PublishedRoute
             [RouteType] $TypeOfRoute
         }
-	}
 
-    process{
+        $Command = {
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        $RouteArray = $null
-        $RouteArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+            Enum RouteType {
+                AdminDefinedRoute = 2
+                ComputedRoute = 3
+                ActualRoute = 4        
+            }
             
             $InterfaceArray = $null
             $InterfaceArray = Get-NetAdapter | Where-Object {$_.MediaConnectionState -eq "Connected"}
@@ -96,10 +95,26 @@
 
             return $RouteArray        
         }
+	}
+
+    process{
+
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-        if ($RouteArray) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        } 
             
-            $OutputArray = foreach ($route in $RouteArray) {
+        if ($ResultsArray) {
+            
+            $OutputArray = foreach ($route in $ResultsArray) {
                 
                 $output = $null
                 $output = [Route]::new()

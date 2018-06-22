@@ -17,7 +17,7 @@ function Get-THR_MRU {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -68,17 +68,8 @@ function Get-THR_MRU {
             [string] $Value
             [string] $Data
         }
-    }
 
-    process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $ResultsArray = $null
-        $ResultsArray = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-            
-            $MachineKeys = ""
+        $Command = {
 
             $UserKeys =
                 #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU",
@@ -104,66 +95,6 @@ function Get-THR_MRU {
                 "\Software\Microsoft\Windows\CurrentVersion\Explorer\TypedPaths",
                 "\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist",
                 "\Software\Microsoft\Windows\CurrentVersion\Applets\Wordpad\Recent File List"
-            
-            $MachineValues = ""
-
-            
-
-            $MachineKeysArray = foreach ($Key in $MachineKeys){
-                
-                $Key = "Registry::" + $Key
-
-                if (Test-Path $Key){
-            
-                    $keyObject = Get-Item $Key
-            
-                    $Properties = $keyObject.Property
-            
-                    if ($Properties) {
-            
-                        foreach ($Property in $Properties){
-            
-                            $output = [pscustomobject] @{
-                                Key = $Key.Split(":")[2]
-                                Value = $Property 
-                                Data = $keyObject.GetValue($Property)
-                            }
-
-                            $output
-                        }
-                    }
-                    
-                }
-            }
-
-
-            $MachineValuesArray = foreach ($Key in $MachineValues){
-                
-                $Key = "Registry::" + $Key
-            
-                $Value = Split-Path -Path $Key -Leaf
-                $Key = Split-Path -Path $Key
-            
-                if (Test-Path $Key){
-                        
-                    if (Get-Item $Key){
-                        
-                        $Data = (Get-Item $Key).GetValue($Value)
-                        
-                        if ($Data) {
-            
-                            $output = [pscustomobject] @{
-                                Key = $Key.Split(":")[2]
-                                Value = $Value 
-                                Data = $Data
-                            }
-                            
-                            $output
-                        }
-                    }
-                }
-            }
-
 
             # Regex pattern for SIDs
             $PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
@@ -182,7 +113,7 @@ function Get-THR_MRU {
             $UnloadedHives = Compare-Object $UserArray.SID $LoadedHives.SID | 
                 Select-Object @{name="SID";expression={$_.InputObject}}, UserHive, Username
 
-            $UserKeysArray = Foreach ($User in $UserArray) {
+            $UserKeysArray = foreach ($User in $UserArray) {
                 
                 If ($User.SID -in $UnloadedHives.SID) {
 
@@ -223,9 +154,24 @@ function Get-THR_MRU {
                 }
             }
             
-
             $OutputArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
             return $OutputArray
+        }
+    }
+
+    process{
+            
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
         }
 
         if ($ResultsArray){

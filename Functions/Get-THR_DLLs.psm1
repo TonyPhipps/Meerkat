@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DLLs
 
     .NOTES 
-        Updated: 2018-04-26
+        Updated: 2018-06-20
 
         Contributing Authors:
             Anthony Phipps
@@ -68,23 +68,32 @@
             [String] $DLLCompany
             [String] $DLLProduct
         }
+
+        $Command = { 
+            
+            $Processes = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules 
+            return $Processes
+        }
 	}
 
     process{
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Processes = $null
-        $Processes = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
-            
-            $Processes = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules 
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-            return $Processes
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
         }
             
-        if ($Processes) {
+        if ($ResultsArray) {
             
-            $outputArray = Foreach ($Process in $Processes) {
+            $outputArray = Foreach ($Process in $ResultsArray) {
                 
                 Foreach ($Module in $Process.modules){
                     

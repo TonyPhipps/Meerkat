@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Certificates
 
     .NOTES
-        Updated: 2018-04-26
+        Updated: 2018-06-14
 
         Contributing Authors:
             Anthony Phipps
@@ -70,23 +70,32 @@
             [String] $NotBefore
             [String] $Algorithm
         }
+
+        $Command = {
+            Get-ChildItem Cert:\LocalMachine\ -Recurse | 
+                Select-Object @{Name="Path"; Expression = {$_.PSParentPath.Split("::")[2]}}, Thumbprint, SendAsTrustedIssuer, DnsNameList, FriendlyName, Issuer, Subject, NotAfter, NotBefore, PSIsContainer, @{Name="Algorithm"; Expression = {$_.SignatureAlgorithm.FriendlyName}} | 
+                Where-Object {$_.PSIsContainer -ne $True}
+        }
     }
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $CertificateArray = $null
-        $CertificateArray = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-            Get-ChildItem Cert:\LocalMachine\ -Recurse | 
-                Select-Object @{Name="Path"; Expression = {$_.PSParentPath.Split("::")[2]}}, Thumbprint, SendAsTrustedIssuer, DnsNameList, FriendlyName, Issuer, Subject, NotAfter, NotBefore, PSIsContainer, @{Name="Algorithm"; Expression = {$_.SignatureAlgorithm.FriendlyName}} | 
-                Where-Object {$_.PSIsContainer -ne $True}
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
         }
        
-        if ($CertificateArray) { 
+        if ($ResultsArray) { 
             
-            $outputArray = foreach ($Certificate in $CertificateArray) {
+            $outputArray = foreach ($Certificate in $ResultsArray) {
              
                 $output = $null
                 $output = [Certificate]::new()

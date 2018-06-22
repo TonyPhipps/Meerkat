@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ARP
 
     .NOTES 
-        Updated: 2018-04-26
+        Updated: 2018-06-14
 
         Contributing Authors:
             Jeremy Arnold
@@ -67,14 +67,8 @@
             [String] $State
             [String] $PolicyStore
         }
-	}
 
-    process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        
-        $arpCache = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
+        $Command = {
             Get-NetNeighbor | 
             Where-Object {($_.LINKLayerAddress -ne "") -and
                 ($_.LINKLayerAddress -ne "FF-FF-FF-FF-FF-FF") -and # Broadcast. Filtered by LinkLayerAddress rather than "$_.State -ne "permanent" to maintain manual entries
@@ -82,13 +76,29 @@
                 ($_.LINKLayerAddress -notlike "33-33-*")           # IPv6 multicast
             }
         }
+	}
+
+    process{
+            
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
         
         
-        if ($arpCache) {
+        if ($ResultsArray) {
 
             Write-Verbose ("{0}: Parsing results." -f $Computer)
             
-            $OutputArray = foreach ($record in $arpCache) {
+            $OutputArray = foreach ($record in $ResultsArray) {
              
                 $output = $null
                 $output = [ArpCache]::new()

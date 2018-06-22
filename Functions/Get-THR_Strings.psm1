@@ -11,7 +11,6 @@
 
     .PARAMETER PathContains
         If specified, limits the strings collection via -like.
-        Example: 
 
     .PARAMETER MinimumLength
         7 by default. Specifies the minimum string length to return. 
@@ -22,7 +21,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Strings -MinimumLength
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps    
@@ -76,17 +75,13 @@
             [string] $ProcessLocation
             [string] $String
         }
-	}
 
-    process{
+        $Command = {
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        $ProcessStringsArray = $null
-        $ProcessStringsArray = Invoke-Command -ArgumentList $MinimumLength, $PathContains -ComputerName $Computer -ScriptBlock {
-
-            $MinimumLength = $args[0]
-            $PathContains = $args[1]
+            if ($args) { 
+                $MinimumLength = $args[0] 
+                $PathContains = $args[1] 
+            }
 
             $ProcessArray = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path
 
@@ -121,33 +116,64 @@
                 $Process
             }
 
-            return $ProcessStringsArray
-        }
-                    
-        if ($ProcessStringsArray) {
+            if ($ProcessStringsArray) {
 
-            [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$'
-            [regex]$regexIP = '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$'
-            [regex]$regexURL = '^https?:\/\/'
-            
-            $outputArray = foreach ($Process in $ProcessStringsArray) {
+                [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$'
+                [regex]$regexIP = '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$'
+                [regex]$regexURL = '^https?:\/\/'
                 
-                foreach ($StringItem in $Process.StringArray){
-
-                    if (($StringItem -match $regexEmail) -or ($StringItem -match $regexIP) -or ($StringItem -match $regexURL)){
-                                        
-                        $output = $null
-                        $output = [StringMatch]::new()
+                $outputArray = foreach ($Process in $ProcessStringsArray) {
+                    
+                    foreach ($StringItem in $Process.StringArray){
     
-                        $output.Computer = $Computer
-                        $output.DateScanned = Get-Date -Format u
-    
-                        $output.ProcessLocation = $Process.ProcessLocation
-                        $output.String = $StringItem
-                                        
-                        $output
+                        if (($StringItem -match $regexEmail) -or ($StringItem -match $regexIP) -or ($StringItem -match $regexURL)){
+                                            
+                            $output = $null
+                            $output = New-Object -TypeName PSObject
+                            
+                            $output | Add-Member -MemberType NoteProperty -Name ProcessLocation -Value $Process.ProcessLocation -ErrorAction SilentlyContinue
+                            $output | Add-Member -MemberType NoteProperty -Name String -Value $StringItem -ErrorAction SilentlyContinue
+                                            
+                            $output
+                        }
                     }
                 }
+                
+                return $outputArray
+            }
+        }
+	}
+
+    process{
+
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ArgumentList $MinimumLength, $PathContains -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+
+                    
+        if ($ResultsArray) {
+
+            $OutputArray = foreach($Entry in $ResultsArray) {
+
+                $output = $null
+                $output = [StringMatch]::new()
+        
+                $output.Computer = $Computer
+                $output.DateScanned = Get-Date -Format u
+                
+                $output.ProcessLocation = $Entry.ProcessLocation
+                $output.String = $Entry.String
+
+                $output
             }
             
             $total++

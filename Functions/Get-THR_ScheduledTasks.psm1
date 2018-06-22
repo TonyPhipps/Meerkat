@@ -16,7 +16,7 @@ function Get-THR_ScheduledTasks {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ScheduledTasks
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -79,19 +79,28 @@ function Get-THR_ScheduledTasks {
             [String] $TriggersStartBoundary
             [String] $URI
         }
+
+        $Command = { Get-ScheduledTask }
 	}
 
     process{
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Tasks = $null
-                        
-		$Tasks = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-ScheduledTask | Select-Object *} -ErrorAction SilentlyContinue
-            
-        if ($Tasks) {
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-            $Tasks | ForEach-Object {
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+            
+        if ($ResultsArray) {
+
+            $OutputArray = foreach($Entry in $ResultsArray) {
 
                 $output = $null
                 $output = [Task]::new()
@@ -99,28 +108,31 @@ function Get-THR_ScheduledTasks {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format u
 
-                $output.ActionsArguments = ($_.Actions.Arguments -join " ")
-                $output.ActionsExecute = ($_.Actions.Execute -join " ")
-                $output.ActionsId = ($_.Actions.Id -join " ")
-                $output.ActionsWorkingDirectory = ($_.Actions.WorkingDirectory -join " ")
-                $output.Author = $_.Author
-                $output.DESCRIPTION = $_.DESCRIPTION
-                $output.SecurityDescriptor = $_.SecurityDescriptor
-                $output.Source = $_.Source
-                $output.State = $_.State
-                $output.TaskName = $_.TaskName
-                $output.TaskPath = $_.TaskPath
-                $output.TriggersDelay = ($_.Triggers.Delay -join " ")
-                $output.TriggersEnabled = ($_.Triggers.Enabled -join " ")
-                $output.TriggersEndBoundary = ($_.Triggers.EndBoundary -join " ")
-                $output.TriggersExecutionTimeLimit = ($_.Triggers.ExecutionTimeLimit -join " ")
-                $output.TriggersPSComputerName = ($_.Triggers.PSComputerName -join " ")
-                $output.TriggersRepetition = ($_.Triggers.Repetition -join " ")
-                $output.TriggersStartBoundary = ($_.Triggers.StartBoundary -join " ")
-                $output.URI = $_.URI
+                $output.ActionsArguments = ($Entry.Actions.Arguments -join " ")
+                $output.ActionsExecute = ($Entry.Actions.Execute -join " ")
+                $output.ActionsId = ($Entry.Actions.Id -join " ")
+                $output.ActionsWorkingDirectory = ($Entry.Actions.WorkingDirectory -join " ")
+                $output.Author = $Entry.Author
+                $output.DESCRIPTION = $Entry.DESCRIPTION
+                $output.SecurityDescriptor = $Entry.SecurityDescriptor
+                $output.Source = $Entry.Source
+                $output.State = $Entry.State
+                $output.TaskName = $Entry.TaskName
+                $output.TaskPath = $Entry.TaskPath
+                $output.TriggersDelay = ($Entry.Triggers.Delay -join " ")
+                $output.TriggersEnabled = ($Entry.Triggers.Enabled -join " ")
+                $output.TriggersEndBoundary = ($Entry.Triggers.EndBoundary -join " ")
+                $output.TriggersExecutionTimeLimit = ($Entry.Triggers.ExecutionTimeLimit -join " ")
+                $output.TriggersPSComputerName = ($Entry.Triggers.PSComputerName -join " ")
+                $output.TriggersRepetition = ($Entry.Triggers.Repetition -join " ")
+                $output.TriggersStartBoundary = ($Entry.Triggers.StartBoundary -join " ")
+                $output.URI = $Entry.URI
 
-                return $output
+                $output
             }
+
+            $total++
+            return $OutputArray
         }
         else {
                 

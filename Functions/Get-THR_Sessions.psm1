@@ -17,7 +17,7 @@ function Get-THR_Sessions {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Sessions
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -65,18 +65,30 @@ function Get-THR_Sessions {
             [String] $Type
             [String] $Device
         }
+
+        $Command = {
+            qwinsta /server:$Computer 2> $null | Foreach-Object { (($_.trim() -replace "\s+",","))} | ConvertFrom-Csv
+        }
     }
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        $SessionArray = $null
-        $SessionArray = (qwinsta /server:$Computer 2> $null | Foreach-Object { (($_.trim() -replace "\s+",","))} | ConvertFrom-Csv)
-       
-        if ($SessionArray) { 
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-            $OutputArray = foreach ($Session in $SessionArray) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+       
+        if ($ResultsArray) { 
+            
+            $OutputArray = foreach ($Session in $ResultsArray) {
              
                 $output = $null
                 $output = [LoginSession]::new()

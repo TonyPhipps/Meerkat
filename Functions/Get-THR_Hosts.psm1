@@ -17,7 +17,7 @@ function Get-THR_Hosts {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hosts
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-20
 
         Contributing Authors:
             Anthony Phipps
@@ -63,13 +63,8 @@ function Get-THR_Hosts {
             [string] $HostsName
             [String] $HostsComment
         }
-	}
 
-    process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        $HostsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock {
+        $Command = {
             $Hosts = Join-Path -Path $($env:windir) -ChildPath "system32\drivers\etc\hosts"
 
             [regex]$nonwhitespace = "\S"
@@ -78,10 +73,26 @@ function Get-THR_Hosts {
                 (($nonwhitespace.Match($_)).value -ne "#") -and ($_ -notmatch "^\s+$") -and ($_.Length -gt 0) # exlcude full-line comments and blank lines
             }
         }
+	}
 
-        if ($HostsArray){
+    process{
+            
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-            $OutputArray = foreach($Entry in $HostsArray) {
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+
+        if ($ResultsArray){
+
+            $OutputArray = foreach($Entry in $ResultsArray) {
 
                 $ip = $null
                 $hostname = $null

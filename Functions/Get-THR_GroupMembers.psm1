@@ -17,7 +17,7 @@ function Get-THR_GroupMembers {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_GroupMembers
 
     .NOTES 
-        Updated: 2018-02-07
+        Updated: 2018-06-20
 
         Contributing Authors:
             Anthony Phipps
@@ -71,15 +71,8 @@ function Get-THR_GroupMembers {
             [String] $GroupPrincipalSource
             [String] $GroupObjectClass
         }
-	}
 
-    process{
-
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        
-        $GroupMembers = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $Command = { 
             
             $GroupArray = Get-LocalGroup
             
@@ -103,10 +96,26 @@ function Get-THR_GroupMembers {
 
             return $GroupMembers
         }
+	}
 
-        if ($GroupMembers) {
+    process{
+
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-            $outputArray = Foreach ($GroupMember in $GroupMembers) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        } 
+
+        if ($ResultsArray) {
+            
+            $outputArray = Foreach ($GroupMember in $ResultsArray) {
                 
                 $output = $null
                 $output = [Member]::new()

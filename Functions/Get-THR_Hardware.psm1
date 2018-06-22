@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hardware
 
     .NOTES
-        Updated: 2018-04-26
+        Updated: 2018-06-20
 
         Contributing Authors:
             Jeremy Arnold
@@ -67,18 +67,28 @@
 
         }
 
+        $Command = { Get-CimInstance Win32_PnPEntity }
+
     }
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose "Getting a list of installed devices..."
-        $devices = Invoke-Command -Computer $Computer -ScriptBlock {Get-CimInstance Win32_PnPEntity -ErrorAction SilentlyContinue}
-       
-        if ($devices) { 
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-            $OutputArray = ForEach ($device in $devices) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+       
+        if ($ResultsArray) { 
+            
+            $OutputArray = ForEach ($device in $ResultsArray) {
              
                 $output = $null
                 $output = [Device]::new()

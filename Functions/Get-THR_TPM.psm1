@@ -17,7 +17,7 @@ function Get-THR_TPM {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TPM
 
     .NOTES 
-        Updated: 2018-03-13
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -102,14 +102,9 @@ function Get-THR_TPM {
             [String] $SelfTest
             [String] $FirmwareVersionAtLastProvision
         }
-	}
 
-    process{
+        $Command = {
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        $TPMInfo = $null
-        $TPMInfo = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
             $TPM = Get-Tpm  -ErrorAction SilentlyContinue
             $FirmwareVersionAtLastProvision = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\TPM\WMI" -Name "FirmwareVersionAtLastProvision" -ErrorAction SilentlyContinue).FirmwareVersionAtLastProvision
             
@@ -117,8 +112,24 @@ function Get-THR_TPM {
 
             return $TPM
         }
+	}
 
-        if ($TPMInfo) {
+    process{
+
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $Results = & $Command 
+        } 
+        else {
+
+            $Results = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        } 
+
+        if ($Results) {
                         
             $output = $null
             $output = [TPM]::new()
@@ -126,20 +137,20 @@ function Get-THR_TPM {
             $output.Computer = $Computer
             $output.DateScanned = Get-Date -Format u
 
-            $output.TpmPresent = $TPMInfo.TpmPresent
-            $output.TpmReady = $TPMInfo.TpmReady
-            $output.ManufacturerId = $TPMInfo.ManufacturerId
-            $output.ManufacturerVersion = $TPMInfo.ManufacturerVersion
-            $output.ManagedAuthLevel = $TPMInfo.ManagedAuthLevel
-            $output.OwnerAuth = $TPMInfo.OwnerAuth
-            $output.OwnerClearDisabled = $TPMInfo.OwnerClearDisabled
-            $output.AutoProvisioning = $TPMInfo.AutoProvisioning
-            $output.LockedOut = $TPMInfo.LockedOut
-            $output.LockoutCount = $TPMInfo.LockoutCount
-            $output.LockoutMax = $TPMInfo.LockoutMax
-            $output.SelfTest = $TPMInfo.SelfTest
-            $output.ManufacturerIdHex = "0x{0:x}" -f $TPMInfo.ManufacturerId
-            $output.FirmwareVersionAtLastProvision = $TPMInfo.FirmwareVersionAtLastProvision
+            $output.TpmPresent = $Results.TpmPresent
+            $output.TpmReady = $Results.TpmReady
+            $output.ManufacturerId = $Results.ManufacturerId
+            $output.ManufacturerVersion = $Results.ManufacturerVersion
+            $output.ManagedAuthLevel = $Results.ManagedAuthLevel
+            $output.OwnerAuth = $Results.OwnerAuth
+            $output.OwnerClearDisabled = $Results.OwnerClearDisabled
+            $output.AutoProvisioning = $Results.AutoProvisioning
+            $output.LockedOut = $Results.LockedOut
+            $output.LockoutCount = $Results.LockoutCount
+            $output.LockoutMax = $Results.LockoutMax
+            $output.SelfTest = $Results.SelfTest
+            $output.ManufacturerIdHex = "0x{0:x}" -f $Results.ManufacturerId
+            $output.FirmwareVersionAtLastProvision = $Results.FirmwareVersionAtLastProvision
 
             # Convert ManufacturerId to ManufacturerName
             foreach ($Key in $Manufacturers.Keys) {

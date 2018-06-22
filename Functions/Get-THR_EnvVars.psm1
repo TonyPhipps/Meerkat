@@ -13,7 +13,7 @@ Function Get-THR_EnvVars {
         get-content .\hosts.txt | Get-THR_EnvVars $env:computername | export-csv envVars.csv -NoTypeInformation
     
      .NOTES 
-        Updated: 2018-04-26
+        Updated: 2018-06-20
 
         Contributing Authors:
             Anthony Phipps
@@ -63,18 +63,29 @@ Function Get-THR_EnvVars {
             [String] $UserName
             [String] $VariableValue
         }
+
+        $Command = { Get-CimInstance -Class Win32_Environment }
     }
 
 
     process{
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        $AllVariables = $null
-        $AllVariables = Get-CimInstance -Class Win32_Environment -ComputerName $Computer -ErrorAction SilentlyContinue
-        
-        if ($AllVariables) {
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-            $OutputArray = ForEach ($Variable in $AllVariables) {
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+        
+        if ($ResultsArray) {
+
+            $OutputArray = ForEach ($Variable in $ResultsArray) {
+
                 $VariableValues = $Variable.VariableValue.Split("") | Where-Object {$_ -ne ""}
             
                 Foreach ($VariableValue in $VariableValues) {

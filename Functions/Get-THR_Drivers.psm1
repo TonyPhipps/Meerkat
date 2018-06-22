@@ -17,7 +17,7 @@ function Get-THR_Drivers {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Drivers
 
     .NOTES
-        Updated: 2018-04-26
+        Updated: 2018-06-20
 
         Contributing Authors:
             Jeremy Arnold
@@ -68,18 +68,28 @@ function Get-THR_Drivers {
             [string] $DriverSigned
             [string] $OrginalFileName
         }
+
+        $Command = { Get-WindowsDriver -Online -ErrorAction SilentlyContinue }
     }
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        $drivers = $null
-        $drivers = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-WindowsDriver -Online -ErrorAction SilentlyContinue} # get list of drivers
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
        
-        if ($drivers) { 
+        if ($ResultsArray) { 
           
-            $OutputArray = foreach ($driver in $drivers) {
+            $OutputArray = foreach ($driver in $ResultsArray) {
              
                 $output = $null
                 $output = [Driver]::new()

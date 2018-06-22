@@ -24,7 +24,7 @@ function Get-THR_MAC {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MAC
 
     .NOTES 
-        Updated: 2018-05-31
+        Updated: 2018-06-20
 
         Contributing Authors:
             Anthony Phipps
@@ -81,25 +81,24 @@ function Get-THR_MAC {
             [DateTime] $LastAccessTimeUTC
             [DateTime] $CreationTimeUTC
         }
-    }
 
-    process{
-
-        $Computer = $Computer.Replace('"', '')
-        
-        $FileMACArray = $null
-        $FileMACArray = Invoke-Command -ComputerName $Computer -ScriptBlock {
+        $Command = {
             
-            if (!$Using:Path) {
+            if ($args) {
+                $Path = $args[0]
+                $Hash = $args[1]
+            }
+            
+            if (!$Path) {
                 $Path = "$ENV:SystemDrive\Users"
             } else {
-                $Path = $Using:Path
+                $Path = $Path
             }
 
             $FileMACArray = Get-ChildItem -Path $Path -File -Recurse | 
                 Select-Object FullName, Mode, Length, Hash, LastWriteTimeUtc, LastAccessTimeUtc, CreationTimeUtc
 
-            if ($Using:Hash){
+            if ($Hash){
                 
                 foreach ($File in $FileMACArray){
 
@@ -109,10 +108,26 @@ function Get-THR_MAC {
 
             return $FileMACArray
         }
-        
-        if ($FileMACArray) {
+    }
 
-            $OutputArray = ForEach ($FileMAC in $FileMACArray) {
+    process{
+
+        $Computer = $Computer.Replace('"', '')
+        
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ArgumentList $Path, $Hash -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+        
+        if ($ResultsArray) {
+
+            $OutputArray = ForEach ($FileMAC in $ResultsArray) {
 
                 $output = $null
                 $output = [FileMAC]::new()

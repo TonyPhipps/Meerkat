@@ -80,16 +80,11 @@ function Get-THR_ADS {
             [DateTime] $LastWriteTimeUtc
 
         }
-    }
 
-    process{
+        $Command = {
+            if ($args) { $Path = $args[0] }
 
-        $Computer = $Computer.Replace('"', '')
-        
-        $Streams = $null
-        $Streams = Invoke-Command -ComputerName $Computer -ScriptBlock {
-
-            $Streams = Get-ChildItem -Path $Using:Path -Recurse -PipelineVariable FullName | 
+            $Streams = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
             ForEach-Object { Get-Item $_.FullName -Stream * } | # Doesn't work without foreach
             Where-Object {($_.Stream -notlike "*DATA") -AND ($_.Stream -ne "Zone.Identifier")}
 
@@ -107,10 +102,26 @@ function Get-THR_ADS {
 
             return $Streams
         }
-        
-        if ($Streams) {
+    }
 
-            $OutputArray = ForEach ($Stream in $Streams) {
+    process{
+
+        $Computer = $Computer.Replace('"', '')
+
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ArgumentList $Path -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+            
+        if ($ResultsArray) {
+
+            $OutputArray = ForEach ($Stream in $ResultsArray) {
 
                 $output = $null
                 $output = [ADS]::new()

@@ -65,21 +65,30 @@
             [string] $Command
             [String] $Location
         }
+
+        $Command = {
+            Get-CimInstance Win32_StartupCommand -ErrorAction SilentlyContinue
+        }
     }
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $autoruns = $null
-        $autoruns = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
-            Get-CimInstance Win32_StartupCommand -ErrorAction SilentlyContinue
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
         }
        
-        if ($autoruns) { 
+        if ($ResultsArray) { 
             
-            $outputArray = foreach ($autorun in $autoruns) {
+            $outputArray = foreach ($autorun in $ResultsArray) {
              
                 $output = $null
                 $output = [Autorun]::new()

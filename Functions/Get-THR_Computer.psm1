@@ -19,7 +19,7 @@ Function Get-THR_Computer {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Computer
 
     .NOTES
-        Updated: 2018-02-07
+        Updated: 2018-06-13
 
         Contributing Authors:
             Anthony Phipps
@@ -138,22 +138,55 @@ Function Get-THR_Computer {
             # Win32_Processor
             [String] $VirtualizationFirmwareEnabled
         }
+
+        $Command = {
+
+            $Win32_OperatingSystem = Get-CIMinstance -class Win32_OperatingSystem
+            $Win32_ComputerSystem = Get-CimInstance -class Win32_ComputerSystem
+            $Win32_BIOS = Get-CIMinstance -class Win32_BIOS
+            $Win32_Processor = Get-CIMinstance -class Win32_Processor
+
+            $Computer = New-Object -TypeName PSObject
+
+            foreach ($Property in $Win32_OperatingSystem.PSObject.Properties) {
+                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+            }            
+
+            foreach ($Property in $Win32_ComputerSystem.PSObject.Properties) {
+                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+            }
+                
+            foreach ($Property in $Win32_Processor.PSObject.Properties) {
+                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+            }
+
+            foreach ($Property in $Win32_BIOS.PSObject.Properties) {
+                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+            }
+
+            $Computer | Add-Member -MemberType NoteProperty -Name BIOSInstallDate -Value $Win32_BIOS.InstallDate -ErrorAction SilentlyContinue # Resolves InstallDate conflict with Win32_OperatingSystem
+
+            return $Computer
+        }
     }
 
     process{
 
         $Computer = $Computer.Replace('"', '')
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-            $Win32_OperatingSystem = Get-CIMinstance -class Win32_OperatingSystem -ComputerName $Computer -ErrorAction SilentlyContinue
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
         
-        if ($Win32_OperatingSystem) {
+        if ($Computer = $env:COMPUTERNAME){
             
-            $Win32_ComputerSystem = Get-CimInstance -class Win32_ComputerSystem -ComputerName $Computer -ErrorAction SilentlyContinue
-            
-            $Win32_BIOS = Get-CIMinstance -class Win32_BIOS -ComputerName $Computer -ErrorAction SilentlyContinue
+            $Result = & $Command 
+        } 
+        else {
 
-            $Win32_Processor = Get-CIMinstance -class Win32_Processor -ComputerName $Computer -ErrorAction SilentlyContinue
+            $Result = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+        
+        
+        if ($Result) {
 
             $output = $null
             $output = [Computer]::new()
@@ -162,79 +195,78 @@ Function Get-THR_Computer {
             $output.DateScanned = Get-Date -Format u
 
             # Win32_OperatingSystem
-            $output.BootDevice = $Win32_OperatingSystem.BootDevice
-            $output.BuildNumber = $Win32_OperatingSystem.BuildNumber
-            $output.Caption = $Win32_OperatingSystem.Caption
-            $output.CurrentTimeZone = $Win32_OperatingSystem.CurrentTimeZone
-            $output.DataExecutionPrevention_32BitApplications = $Win32_OperatingSystem.DataExecutionPrevention_32BitApplications
-            $output.DataExecutionPrevention_Available = $Win32_OperatingSystem.DataExecutionPrevention_Available
-            $output.DataExecutionPrevention_Drivers = $Win32_OperatingSystem.DataExecutionPrevention_Drivers
-            $output.DataExecutionPrevention_SupportPolicy = $Win32_OperatingSystem.DataExecutionPrevention_SupportPolicy
-            $output.Debug = $Win32_OperatingSystem.Debug
-            $output.DESCRIPTION = $Win32_OperatingSystem.DESCRIPTION
-            $output.Distributed = $Win32_OperatingSystem.Distributed
-            $output.EncryptionLevel = $Win32_OperatingSystem.EncryptionLevel
-            $output.InstallDate = $Win32_OperatingSystem.InstallDate
-            $output.LastBootUpTime = $Win32_OperatingSystem.LastBootUpTime
-            $output.LocalDateTime = $Win32_OperatingSystem.LocalDateTime
-            $output.MUILanguages = $Win32_OperatingSystem.MUILanguages
-            $output.OSArchitecture = $Win32_OperatingSystem.OSArchitecture
-            $output.OSProductSuite = $Win32_OperatingSystem.OSProductSuite
-            $output.OSType = $Win32_OperatingSystem.OSType
-            $output.OperatingSystemSKU = $Win32_OperatingSystem.OperatingSystemSKU
-            $output.Organization = $Win32_OperatingSystem.Organization
-            $output.OtherTypeDescription = $Win32_OperatingSystem.OtherTypeDescription
-            $output.PortableOperatingSystem = $Win32_OperatingSystem.PortableOperatingSystem
-            $output.ProductType = $Win32_OperatingSystem.ProductType
-            $output.RegisteredUser = $Win32_OperatingSystem.RegisteredUser
-            $output.ServicePackMajorVersion = $Win32_OperatingSystem.ServicePackMajorVersion
-            $output.ServicePackMinorVersion = $Win32_OperatingSystem.ServicePackMinorVersion
-            $output.Status = $Win32_OperatingSystem.Status
-            $output.SuiteMask = $Win32_OperatingSystem.SuiteMask
-            $output.SystemDevice = $Win32_OperatingSystem.SystemDevice
-            $output.SystemDirectory = $Win32_OperatingSystem.SystemDirectory
-            $output.SystemDrive = $Win32_OperatingSystem.SystemDrive
-            $output.Version = $Win32_OperatingSystem.Version
-            $output.WindowsDirectory = $Win32_OperatingSystem.WindowsDirectory
+            $output.BootDevice = $Result.BootDevice
+            $output.BuildNumber = $Result.BuildNumber
+            $output.Caption = $Result.Caption
+            $output.CurrentTimeZone = $Result.CurrentTimeZone
+            $output.DataExecutionPrevention_32BitApplications = $Result.DataExecutionPrevention_32BitApplications
+            $output.DataExecutionPrevention_Available = $Result.DataExecutionPrevention_Available
+            $output.DataExecutionPrevention_Drivers = $Result.DataExecutionPrevention_Drivers
+            $output.DataExecutionPrevention_SupportPolicy = $Result.DataExecutionPrevention_SupportPolicy
+            $output.Debug = $Result.Debug
+            $output.Distributed = $Result.Distributed
+            $output.EncryptionLevel = $Result.EncryptionLevel
+            $output.InstallDate = $Result.InstallDate
+            $output.LastBootUpTime = $Result.LastBootUpTime
+            $output.LocalDateTime = $Result.LocalDateTime
+            $output.MUILanguages = $Result.MUILanguages
+            $output.OSArchitecture = $Result.OSArchitecture
+            $output.OSProductSuite = $Result.OSProductSuite
+            $output.OSType = $Result.OSType
+            $output.OperatingSystemSKU = $Result.OperatingSystemSKU
+            $output.Organization = $Result.Organization
+            $output.OtherTypeDescription = $Result.OtherTypeDescription
+            $output.PortableOperatingSystem = $Result.PortableOperatingSystem
+            $output.ProductType = $Result.ProductType
+            $output.RegisteredUser = $Result.RegisteredUser
+            $output.ServicePackMajorVersion = $Result.ServicePackMajorVersion
+            $output.ServicePackMinorVersion = $Result.ServicePackMinorVersion
+            $output.Status = $Result.Status
+            $output.SuiteMask = $Result.SuiteMask
+            $output.SystemDevice = $Result.SystemDevice
+            $output.SystemDirectory = $Result.SystemDirectory
+            $output.SystemDrive = $Result.SystemDrive
+            $output.Version = $Result.Version
+            $output.WindowsDirectory = $Result.WindowsDirectory
 
             # Win32_ComputerSystem
-            $output.AdminPasswordStatus = $Win32_ComputerSystem.AdminPasswordStatus
-            $output.BootROMSupported = $Win32_ComputerSystem.BootROMSupported
-            $output.BootupState = $Win32_ComputerSystem.BootupState
-            $output.ChassisBootupState = $Win32_ComputerSystem.ChassisBootupState
-            $output.DNSHostName = $Win32_ComputerSystem.DNSHostName
-            $output.DaylightInEffect = $Win32_ComputerSystem.DaylightInEffect
-            $output.DESCRIPTION = $Win32_ComputerSystem.DESCRIPTION
-            $output.Domain = $Win32_ComputerSystem.Domain
-            $output.DomainRole = $Win32_ComputerSystem.DomainRole
-            $output.EnableDaylightSavingsTime = $Win32_ComputerSystem.EnableDaylightSavingsTime
-            $output.HypervisorPresent = $Win32_ComputerSystem.HypervisorPresent
-            $output.Manufacturer = $Win32_ComputerSystem.Manufacturer
-            $output.Model = $Win32_ComputerSystem.Model
-            $output.NetworkServerModeEnabled = $Win32_ComputerSystem.NetworkServerModeEnabled
-            $output.PrimaryOwnerContact = $Win32_ComputerSystem.PrimaryOwnerContact
-            $output.PrimaryOwnerName = $Win32_ComputerSystem.PrimaryOwnerName
-            $output.SupportContactDescription = $Win32_ComputerSystem.SupportContactDescription
-            $output.SystemSKUNumber = $Win32_ComputerSystem.SystemSKUNumber
-            $output.ThermalState = $Win32_ComputerSystem.ThermalState
-            $output.UserName = $Win32_ComputerSystem.UserName
+            $output.AdminPasswordStatus = $Result.AdminPasswordStatus
+            $output.BootROMSupported = $Result.BootROMSupported
+            $output.BootupState = $Result.BootupState
+            $output.ChassisBootupState = $Result.ChassisBootupState
+            $output.DNSHostName = $Result.DNSHostName
+            $output.DaylightInEffect = $Result.DaylightInEffect
+            $output.Description = $Result.ComputerSystemDescription
+            $output.Domain = $Result.Domain
+            $output.DomainRole = $Result.DomainRole
+            $output.EnableDaylightSavingsTime = $Result.EnableDaylightSavingsTime
+            $output.HypervisorPresent = $Result.HypervisorPresent
+            $output.Manufacturer = $Result.ComputerSystemManufacturer
+            $output.Model = $Result.Model
+            $output.NetworkServerModeEnabled = $Result.NetworkServerModeEnabled
+            $output.PrimaryOwnerContact = $Result.PrimaryOwnerContact
+            $output.PrimaryOwnerName = $Result.PrimaryOwnerName
+            $output.SupportContactDescription = $Result.SupportContactDescription
+            $output.SystemSKUNumber = $Result.SystemSKUNumber
+            $output.ThermalState = $Result.ThermalState
+            $output.UserName = $Result.UserName
 
             # Win32_BIOS
-            $output.BIOSVersion = $Win32_BIOS.BIOSVersion
-            if ($Win32_BIOS.InstallDate) { $output.BIOSInstallDate = $Win32_BIOS.InstallDate }
-            $output.BIOSManufacturer = $Win32_BIOS.Manufacturer
-            $output.PrimaryBIOS = $Win32_BIOS.PrimaryBIOS
-            $output.BIOSReleaseDate = $Win32_BIOS.ReleaseDate
-            $output.SMBIOSBIOSVersion = $Win32_BIOS.SMBIOSBIOSVersion
-            $output.SMBIOSMajorVersion = $Win32_BIOS.SMBIOSMajorVersion
-            $output.SMBIOSMinorVersion = $Win32_BIOS.SMBIOSMinorVersion
-            $output.SMBIOSPresent = $Win32_BIOS.SMBIOSPresent
-            $output.SerialNumber = $Win32_BIOS.SerialNumber
-            $output.SystemBiosMajorVersion = $Win32_BIOS.SystemBiosMajorVersion
-            $output.SystemBiosMinorVersion = $Win32_BIOS.SystemBiosMinorVersion
+            $output.BIOSVersion = $Result.BIOSVersion
+            try {$output.BIOSInstallDate = $Result.BIOSInstallDate} catch{}
+            $output.BIOSManufacturer = $Result.Manufacturer
+            $output.PrimaryBIOS = $Result.PrimaryBIOS
+            $output.BIOSReleaseDate = $Result.ReleaseDate
+            $output.SMBIOSBIOSVersion = $Result.SMBIOSBIOSVersion
+            $output.SMBIOSMajorVersion = $Result.SMBIOSMajorVersion
+            $output.SMBIOSMinorVersion = $Result.SMBIOSMinorVersion
+            $output.SMBIOSPresent = $Result.SMBIOSPresent
+            $output.SerialNumber = $Result.SerialNumber
+            $output.SystemBiosMajorVersion = $Result.SystemBiosMajorVersion
+            $output.SystemBiosMinorVersion = $Result.SystemBiosMinorVersion
 
             # Win32_Processor
-            $output.VirtualizationFirmwareEnabled = $Win32_Processor.VirtualizationFirmwareEnabled
+            $output.VirtualizationFirmwareEnabled = $Result.VirtualizationFirmwareEnabled
 
             $total++
             return $output 

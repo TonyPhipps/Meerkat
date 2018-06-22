@@ -17,7 +17,7 @@ function Get-THR_Processes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Processes
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-13
 
         Contributing Authors:
             Anthony Phipps
@@ -89,14 +89,8 @@ function Get-THR_Processes {
             [String] $Services
             [String] $DLLs
         }
-	}
 
-    process{
-
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        $ProcessArray = $null
-        $ProcessArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock { 
+        $Command = { 
             
             $ProcessArray = Get-Process -IncludeUserName
             $CIMProcesses = Get-CimInstance -class win32_Process
@@ -116,10 +110,26 @@ function Get-THR_Processes {
 
             return $ProcessArray
         }
+	}
+
+    process{
+
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        $ResultsArray = $null
+
+        if ($Computer = $env:COMPUTERNAME){
             
-        if ($ProcessArray) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
             
-            $OutputArray = foreach ($Process in $ProcessArray) {
+        if ($ResultsArray) {
+            
+            $OutputArray = foreach ($Process in $ResultsArray) {
 
                 $output = $null
                 $output = [Process]::new()

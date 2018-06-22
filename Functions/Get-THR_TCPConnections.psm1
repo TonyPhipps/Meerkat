@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TCPConnections
 
     .NOTES
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Jeremy Arnold
@@ -69,14 +69,8 @@
             [String] $OwningProcessID
             [String] $OwningProcessPath
         }
-	}
 
-    process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        $TCPConnectionArray = $null
-        $TCPConnectionArray = Invoke-Command -ComputerName $Computer -ScriptBlock {
+        $Command = {
             $TCPConnectionArray = Get-NetTCPConnection -State Listen, Established
         
             foreach ($TCPConnection in $TCPConnectionArray){
@@ -85,11 +79,26 @@
 
             return $TCPConnectionArray
         }
-        
-        if ($TCPConnectionArray) {
+	}
 
-            Write-Verbose ("{0}: Parsing results." -f $Computer)
-            $OutputArray = foreach ($TCPConnection in $TCPConnectionArray) {
+    process{
+            
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+        
+        if ($ResultsArray) {
+
+            $OutputArray = foreach ($TCPConnection in $ResultsArray) {
 
                 $output = $null
                 $output = [TCPConnection]::new()

@@ -17,7 +17,7 @@ function Get-THR_Registry {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Registry
 
     .NOTES 
-        Updated: 2018-04-27
+        Updated: 2018-06-21
 
         Contributing Authors:
             Anthony Phipps
@@ -70,15 +70,8 @@ function Get-THR_Registry {
             [string] $Value
             [string] $Data
         }
-    }
 
-    process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $ResultsArray = $null
-        $ResultsArray = Invoke-Command -Computer $Computer -ErrorAction SilentlyContinue -ScriptBlock {
+        $Command = {
             
             $MachineKeys = 
             "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute",
@@ -248,6 +241,24 @@ function Get-THR_Registry {
             
             $OutputArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
             return $OutputArray
+        }
+
+        
+    }
+
+    process{
+            
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
         }
 
         if ($ResultsArray){

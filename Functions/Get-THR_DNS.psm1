@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DNS
 
     .NOTES 
-        Updated: 2018-04-26
+        Updated: 2018-06-20
 
         Contributing Authors:
             Jeremy Arnold
@@ -97,19 +97,28 @@
             [string] $Entry
             [string] $RecordName
         }
+
+        $Command = { Get-DnsClientCache }
     }
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer) 
-        $dnsCache = $null
-        $dnsCache = Invoke-Command -ComputerName $Computer -ScriptBlock { Get-DnsClientCache } -ErrorAction SilentlyContinue
-       
-        if ($dnsCache) { 
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        if ($Computer = $env:COMPUTERNAME){
             
-            $OutputArray = foreach ($dnsRecord in $dnsCache) {
+            $ResultsArray = & $Command 
+        } 
+        else {
+
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+       
+        if ($ResultsArray) { 
+            
+            $OutputArray = foreach ($dnsRecord in $ResultsArray) {
              
                 $output = $null
                 $output = [DNSCache]::new()

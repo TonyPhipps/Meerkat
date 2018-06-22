@@ -17,7 +17,7 @@ function Get-THR_BitLocker {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_BitLocker
 
     .NOTES 
-        Updated: 2018-04-26
+        Updated: 2018-06-14
 
         Contributing Authors:
             Jeremy Arnold
@@ -78,17 +78,28 @@ function Get-THR_BitLocker {
             [String] $CapacityGB
             [String] $KeyProtector
         }
+
+        $Command = { Get-BitLockerVolume }
 	}
 
     process{
             
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        $Volumes = Invoke-Command -ComputerName $Computer -ScriptBlock {Get-BitLockerVolume} -ErrorAction SilentlyContinue
+        Write-Verbose ("{0}: Querying remote system" -f $Computer)
         
-        if ($Volumes) {
+        if ($Computer = $env:COMPUTERNAME){
+            
+            $ResultsArray = & $Command 
+        } 
+        else {
 
-            $OutputArray = ForEach ($Volume in $Volumes) {
+            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        }
+        
+        if ($ResultsArray) {
+
+            $OutputArray = ForEach ($Volume in $ResultsArray) {
                 
                 $output = $null
                 $output = [BitLocker]::new()
