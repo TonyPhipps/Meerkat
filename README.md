@@ -5,19 +5,6 @@ Collect endpoint information for use in incident response triage / threat huntin
 
 Alternatively, the output of this tool may be ingested into an analysis tool like [ELK](https://www.elastic.co/elk-stack), [Graylog](https://www.graylog.org/), or [Splunk](https://www.splunk.com/) for stack-counting and other analysis techniques.
 
-
-
-______________________________________________________
-
-  * [Information Collected](#information-collected)
-  * [Quick Install](#quick-install)
-  * [Quick Test Use](#quick-test-use)
-  * [Troubleshooting](#troubleshooting)
-  * [Screenshots](#screenshots)
-  
-______________________________________________________
-
-
 ## Information Collected 
 
 _Linked to Hunt Use Cases_
@@ -31,6 +18,19 @@ _Linked to Hunt Use Cases_
 | [Scheduled Tasks](https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks) | TPM | Bitlocker | Recycle Bin | User Files |
 
 \* Info pulled from current running processes or their executables on disk.
+
+______________________________________________________
+
+  * [Requirements](#requirements)
+  * [Quick Install](#quick-install)
+  * [Quick Test Use](#quick-test-use)
+  * [Troubleshooting](#troubleshooting)
+  * [Screenshots](#screenshots)
+  
+______________________________________________________
+
+
+
 
 ## Requirements
 
