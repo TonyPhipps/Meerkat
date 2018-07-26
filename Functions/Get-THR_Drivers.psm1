@@ -17,7 +17,7 @@ function Get-THR_Drivers {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Drivers
 
     .NOTES
-        Updated: 2018-06-20
+        Updated: 2018-07-26
 
         Contributing Authors:
             Jeremy Arnold
@@ -78,7 +78,7 @@ function Get-THR_Drivers {
         
         Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Computer = $env:COMPUTERNAME){
+        if ($Computer -eq $env:COMPUTERNAME){
             
             $ResultsArray = & $Command 
         } 

@@ -19,7 +19,7 @@ Function Get-THR_Computer {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Computer
 
     .NOTES
-        Updated: 2018-06-13
+        Updated: 2018-07-26
 
         Contributing Authors:
             Anthony Phipps
@@ -176,7 +176,7 @@ Function Get-THR_Computer {
         
         Write-Verbose ("{0}: Querying remote system" -f $Computer)
         
-        if ($Computer = $env:COMPUTERNAME){
+        if ($Computer -eq $env:COMPUTERNAME){
             
             $Result = & $Command 
         } 

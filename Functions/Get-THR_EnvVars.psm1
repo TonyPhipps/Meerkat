@@ -13,7 +13,7 @@ Function Get-THR_EnvVars {
         get-content .\hosts.txt | Get-THR_EnvVars $env:computername | export-csv envVars.csv -NoTypeInformation
     
      .NOTES 
-        Updated: 2018-06-20
+        Updated: 2018-07-26
 
         Contributing Authors:
             Anthony Phipps
@@ -73,7 +73,7 @@ Function Get-THR_EnvVars {
         
         Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Computer = $env:COMPUTERNAME){
+        if ($Computer -eq $env:COMPUTERNAME){
             
             $ResultsArray = & $Command 
         } 

@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DLLs
 
     .NOTES 
-        Updated: 2018-06-20
+        Updated: 2018-07-26
 
         Contributing Authors:
             Anthony Phipps
@@ -82,7 +82,7 @@
 
         Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Computer = $env:COMPUTERNAME){
+        if ($Computer -eq $env:COMPUTERNAME){
             
             $ResultsArray = & $Command 
         } 
