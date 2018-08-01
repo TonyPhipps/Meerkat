@@ -1,23 +1,22 @@
 function Get-THR_BitLocker {
     <#
     .SYNOPSIS 
-        Gets the current BitLocker details of a given system.
+        Gets BitLocker details on a given system.
 
     .DESCRIPTION 
-        Gets the current BitLocker details to include recovery key of a given system.
+        Gets BitLocker details on a given system.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.  
 
     .EXAMPLE 
         Get-THR_BitLocker
-        '<COMPUTERNAME>','<COMPUTERNAME>','<COMPUTERNAME>' | Get-THR_BitLocker 
         Get-THR_BitLocker SomeHostName.domain.com
         Get-Content C:\hosts.csv | Get-THR_BitLocker
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_BitLocker
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-01
 
         Contributing Authors:
             Jeremy Arnold
@@ -43,10 +42,7 @@ function Get-THR_BitLocker {
 
     param(
         [Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
-        $Computer = $env:COMPUTERNAME,
-
-        [Parameter()]
-        [switch] $Key
+        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -63,7 +59,6 @@ function Get-THR_BitLocker {
             [String] $Computer
             [DateTime] $DateScanned
 
-            [String] $RecoveryPassword
             [String] $ComputerName
             [String] $MountPoint
             [String] $EncryptionMethod
@@ -120,10 +115,6 @@ function Get-THR_BitLocker {
                 $output.VolumeType = $Volume.VolumeType
                 $output.CapacityGB = $Volume.CapacityGB
                 $output.KeyProtector = $Volume.KeyProtector
-
-                if ($Key){
-                    $output.RecoveryPassword = Invoke-Command -ComputerName $Computer -ScriptBlock {(Get-BitLockerVolume).KeyProtector.RecoveryPassword[1]} -ErrorAction SilentlyContinue
-                }
 
                 $output
             }
