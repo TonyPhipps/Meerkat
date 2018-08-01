@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Autoruns
 
     .NOTES
-        Updated: 2018-07-26
+        Updated: 2018-08-01
 
         Contributing Authors:
             Jeremy Arnold
@@ -64,6 +64,8 @@
             [string] $Caption
             [string] $Command
             [String] $Location
+            [String] $Name
+            [String] $UserSID
         }
 
         $Command = {
@@ -100,6 +102,8 @@
                 $output.Caption = $autorun.Caption
                 $output.Command = $autorun.Command
                 $output.Location = $autorun.Location
+                $output.Name = $autorun.Name
+                $output.UserSID = $autorun.UserSID
 
                 $output
             }
