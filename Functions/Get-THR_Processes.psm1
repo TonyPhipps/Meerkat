@@ -17,7 +17,7 @@ function Get-THR_Processes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Processes
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-01
 
         Contributing Authors:
             Anthony Phipps
@@ -60,34 +60,68 @@ function Get-THR_Processes {
             [String] $Computer
             [DateTime] $DateScanned
 
-            [String] $StartTime
-            [Int32] $SessionId
-            [String] $UserName
-            [Int32] $Id
-            [String] $DisplayName
-            [String] $Path
-            [String] $BasePriority
-            [String] $CPU
-            [String] $CommandLine
-            [String] $Company
-            [String] $Description
-            [String] $FileVersion
-            [Int32] $HandleCount
-            [String] $MainModule
-            [String] $MainWindowHandle
-            [String] $MainWindowTitle
-            [Int32] $ModuleCount
-            [String] $PriorityClass
-            [String] $PrivilegedProcessorTime
-            [String] $ProcessName
-            [String] $ProcessorAffinity
-            [String] $Product
-            [String] $ProductVersion
-            [String] $Responding
-            [Int32] $Threads
-            [String] $TotalProcessorTime
-            [String] $Services
-            [String] $DLLs
+            [int] $ModuleCount
+            [int] $ThreadCount
+
+            [int] $BasePriority
+            [string] $Container
+            [bool] $EnableRaisingEvents
+            #[int] $ExitCode
+            [datetime] $ExitTime
+            [string] $Handle
+            [int] $HandleCount
+            [bool] $HasExited
+            [int] $Id
+            #[string] $MachineName
+            [string] $MainModule
+            [string] $MainWindowHandle
+            [string] $MainWindowTitle
+            [string] $MaxWorkingSet
+            [string] $MinWorkingSet
+            [string] $Modules
+            [int] $NonpagedSystemMemorySize
+            [long] $NonpagedSystemMemorySize64
+            [int] $PagedMemorySize
+            [long] $PagedMemorySize64
+            [int] $PagedSystemMemorySize
+            [long] $PagedSystemMemorySize64
+            [int] $PeakPagedMemorySize
+            [long] $PeakPagedMemorySize64
+            [int] $PeakVirtualMemorySize
+            [long] $PeakVirtualMemorySize64
+            [int] $PeakWorkingSet
+            [long] $PeakWorkingSet64
+            [bool] $PriorityBoostEnabled
+            [string] $PriorityClass
+            [int] $PrivateMemorySize
+            [long] $PrivateMemorySize64
+            [nullable[timespan]] $PrivilegedProcessorTime
+            [string] $ProcessName
+            [string] $ProcessorAffinity
+            [bool] $Responding
+            #[string] $SafeHandle
+            [int] $SessionId
+            [string] $Site
+            [string] $StandardError
+            [string] $StandardInput
+            [string] $StandardOutput
+            #[string] $StartInfo
+            [nullable[datetime]] $StartTime
+            [string] $SynchronizingObject
+            #[string] $Threads
+            [nullable[timespan]] $TotalProcessorTime
+            [nullable[timespan]] $UserProcessorTime
+            [int] $VirtualMemorySize
+            [long] $VirtualMemorySize64
+            [int] $WorkingSet
+            [long] $WorkingSet64
+            [string] $Company
+            [string] $CPU
+            [string] $Description
+            [string] $FileVersion
+            [string] $Path
+            [string] $Product
+            [string] $ProductVersion
         }
 
         $Command = { 
@@ -138,35 +172,70 @@ function Get-THR_Processes {
                 $output.DateScanned = Get-Date -Format u
 
                 $output.BasePriority = $Process.BasePriority
-                $output.CPU = $Process.CPU
-                $output.CommandLine = $Process.CommandLine
-                $output.Company = $Process.Company
-                $output.Description = $Process.Description
-                $output.FileVersion = $Process.FileVersion
+                $output.Container = $Process.Container
+                $output.EnableRaisingEvents = $Process.EnableRaisingEvents
+                #$output.ExitCode = $Process.ExitCode
+                #$output.ExitTime = $Process.ExitTime
+                $output.Handle = $Process.Handle
                 $output.HandleCount = $Process.HandleCount
+                $output.HasExited = $Process.HasExited
                 $output.Id = $Process.Id
+                #$output.MachineName = $Process.MachineName
                 $output.MainModule = $Process.MainModule
-                $output.MainModule = $output.MainModule.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
                 $output.MainWindowHandle = $Process.MainWindowHandle
                 $output.MainWindowTitle = $Process.MainWindowTitle
-                $output.ModuleCount = @($Process.Modules).Count
-                $output.DisplayName = $Process.Name
-                $output.Path = $Process.Path
+                $output.MaxWorkingSet = $Process.MaxWorkingSet
+                $output.MinWorkingSet = $Process.MinWorkingSet
+                $output.Modules = $Process.Modules
+                $output.NonpagedSystemMemorySize = $Process.NonpagedSystemMemorySize
+                $output.NonpagedSystemMemorySize64 = $Process.NonpagedSystemMemorySize64
+                $output.PagedMemorySize = $Process.PagedMemorySize
+                $output.PagedMemorySize64 = $Process.PagedMemorySize64
+                $output.PagedSystemMemorySize = $Process.PagedSystemMemorySize
+                $output.PagedSystemMemorySize64 = $Process.PagedSystemMemorySize64
+                $output.PeakPagedMemorySize = $Process.PeakPagedMemorySize
+                $output.PeakPagedMemorySize64 = $Process.PeakPagedMemorySize64
+                $output.PeakVirtualMemorySize = $Process.PeakVirtualMemorySize
+                $output.PeakVirtualMemorySize64 = $Process.PeakVirtualMemorySize64
+                $output.PeakWorkingSet = $Process.PeakWorkingSet
+                $output.PeakWorkingSet64 = $Process.PeakWorkingSet64
+                $output.PriorityBoostEnabled = $Process.PriorityBoostEnabled
                 $output.PriorityClass = $Process.PriorityClass
+                $output.PrivateMemorySize = $Process.PrivateMemorySize
+                $output.PrivateMemorySize64 = $Process.PrivateMemorySize64
                 $output.PrivilegedProcessorTime = $Process.PrivilegedProcessorTime
                 $output.ProcessName = $Process.ProcessName
                 $output.ProcessorAffinity = $Process.ProcessorAffinity
+                $output.Responding = $Process.Responding
+                #$output.SafeHandle = $Process.SafeHandle
+                $output.SessionId = $Process.SessionId
+                $output.Site = $Process.Site
+                $output.StandardError = $Process.StandardError
+                $output.StandardInput = $Process.StandardInput
+                $output.StandardOutput = $Process.StandardOutput
+                #$output.StartInfo = $Process.StartInfo
+                $output.StartTime = $Process.StartTime
+                $output.SynchronizingObject = $Process.SynchronizingObject
+                #$output.Threads = $Process.Threads
+                $output.TotalProcessorTime = $Process.TotalProcessorTime
+                $output.UserProcessorTime = $Process.UserProcessorTime
+                $output.VirtualMemorySize = $Process.VirtualMemorySize
+                $output.VirtualMemorySize64 = $Process.VirtualMemorySize64
+                $output.WorkingSet = $Process.WorkingSet
+                $output.WorkingSet64 = $Process.WorkingSet64
+                $output.Company = $Process.Company
+                $output.CPU = $Process.CPU
+                $output.Description = $Process.Description
+                $output.FileVersion = $Process.FileVersion
+                $output.Path = $Process.Path
                 $output.Product = $Process.Product
                 $output.ProductVersion = $Process.ProductVersion
-                $output.Responding = $Process.Responding
-                $output.SessionId = $Process.SessionId
-                $output.StartTime = $Process.StartTime
-                $output.Threads = @($Process.Threads).Count
-                $output.TotalProcessorTime = $Process.TotalProcessorTime
-                $output.UserName = $Process.UserName
-                $output.Services = $Process.Services
-                $output.DLLs = $Process.Modules -join "; "
-                $output.DLLs = $output.DLLs.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
+
+                $output.MainModule = $output.MainModule.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
+                $output.ModuleCount = @($Process.Modules).Count
+                $output.ThreadCount = @($Process.Threads).Count
+                $output.Modules = $Process.Modules -join "; "
+                $output.Modules = $output.Modules.Replace('System.Diagnostics.ProcessModule (', '').Replace(')', '')
                 
                 $output
             }
