@@ -19,7 +19,7 @@ function Get-EditDistance {
     .PARAMETER IngoreCase
         Disabled case sensitivity (default is OFF, case sensitive)
 
-    .PARAMETER Score
+    .PARAMETER Raw
         Returns the raw Distance, rather than the score.
 
     .EXAMPLE 
