@@ -55,6 +55,7 @@ function Get-EditDistance {
        https://en.wikipedia.org/wiki/Edit_distance
        https://en.wikipedia.org/wiki/Wagner-Fischer_algorithm
        https://en.wikipedia.org/wiki/Levenshtein_distance
+       https://rosettacode.org/wiki/Levenshtein_distance
     #>
 
 
