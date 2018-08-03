@@ -106,19 +106,20 @@ function Get-EditDistance {
             # for every cell in the first column
             for ($y = 1; $y -le $Matrix.GetUpperBound(1); $y++) {
                 
-                # If last characters of the two strings are exact, substitution cost is 0
+                # If the characters match, set distance to zero
                 if ([Convert]::ToInt32((($String1[$x - 1] -ceq $String2[$y - 1])))) {
-                    $SubstitutionCost = 0
+                    $Cost = 0
                 }
                 else{
-                    $SubstitutionCost = 1
+                    $Cost = 1
                 }
 
-                # Compute and fill in the internal cells of the matrix
+                # Identify differences between two characters
                 $Deletion = $Matrix[($x - 1), $y] + 1
                 $Insertion = $Matrix[$x, ($y - 1)] + 1
-                $Substitution = $Matrix[($x - 1), ($y - 1)] + $SubstitutionCost
+                $Substitution = $Matrix[($x - 1), ($y - 1)] + $Cost
                 
+                # Set this cell to the distance cost between the two characters
                 $Matrix[$x, $y] = [Math]::Min([Math]::Min($Deletion, $Insertion), $Substitution)
             }
         }
