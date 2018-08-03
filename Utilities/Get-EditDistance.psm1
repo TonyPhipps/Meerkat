@@ -114,12 +114,12 @@ function Get-EditDistance {
                     $Cost = 1
                 }
 
-                # Identify differences between two characters
+                # Calculate edit distance at current cell
                 $Deletion = $Matrix[($x - 1), $y] + 1
                 $Insertion = $Matrix[$x, ($y - 1)] + 1
                 $Substitution = $Matrix[($x - 1), ($y - 1)] + $Cost
                 
-                # Set this cell to the distance cost between the two characters
+                # Set this cell to the lowest of the distance forumlas used
                 $Matrix[$x, $y] = [Math]::Min([Math]::Min($Deletion, $Insertion), $Substitution)
             }
         }
