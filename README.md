@@ -3,7 +3,7 @@
 
 Collect endpoint information for use in incident response triage / threat hunting / live forensics using this toolkit. When a security alert raises concern over a managed system, this toolkit aims to empower the analyst with as much relevant information as possible to help [determine](https://attack.mitre.org/wiki/Main_Page) if a compromise occurred.
 
-Alternatively, the output of this tool may be ingested into an analysis tool like [ELK](https://www.elastic.co/elk-stack), [Graylog](https://www.graylog.org/), or [Splunk](https://www.splunk.com/) for stack-counting and other analysis techniques.
+Alternatively, the output of this tool may be ingested into an SIEM / analysis tool like [ELK/Elasticstack](https://www.elastic.co/products/stack), [Graylog](https://www.graylog.org/), or [Splunk](https://www.splunk.com/) for stack-counting and other analysis techniques.
 
 ## Information Collected 
 
