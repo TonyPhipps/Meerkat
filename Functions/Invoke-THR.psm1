@@ -23,10 +23,10 @@ function Invoke-THR {
 
     .PARAMETER Ingest
         When used, an additional subfolder will me made under -Output for each collection type enabled. 
-        Intended for use with products that ingest files, like ELK, Graylog, Splunk, etc.
+        Intended for use with products that ingest files, like Elasticstack, Graylog, Splunk, etc.
         To speed up bulk collections, consider using a jobs manager like PoshRSJob 
         (https://github.com/proxb/PoshRSJob)
-        A PoshRSJob wrapper is provided in the \Utilities folder of this project.
+        A PoshRSJob wrapper is provided in the \Utilities\ folder of this project.
 
     .EXAMPLE
         Invoke-THR -Computer WorkComputer
@@ -44,7 +44,7 @@ function Invoke-THR {
         Invoke-THR -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2018-06-01
+        Updated: 2018-08-04
 
         Contributing Authors:
             Anthony Phipps
@@ -66,7 +66,6 @@ function Invoke-THR {
 
     .LINK
        https://github.com/TonyPhipps/THRecon
-       https://docs.microsoft.com/en-us/sysinternals/downloads/
     #>
 
     [CmdletBinding()]
@@ -174,7 +173,7 @@ function Invoke-THR {
                 $FilePath = $FilePath + $Computer + "_"
             }
 
-            & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + "$Module.csv") -NoTypeInformation -Append
+            & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + $Computer + "_$Module.csv") -NoTypeInformation -Append
         }
         
         $total++
