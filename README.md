@@ -1,9 +1,11 @@
 # THRecon
 -Threat Hunting Reconnaissance Toolkit-
 
-Collect endpoint information for use in incident response triage / threat hunting / live forensics using this toolkit. When a security alert raises concern over a managed system, this toolkit aims to empower the analyst with as much relevant information as possible to help [determine](https://attack.mitre.org/wiki/Main_Page) if a compromise occurred.
+Collect endpoint information for use in incident response, threat hunting, live forensics, etc.
 
-Alternatively, the output of this tool may be ingested into an SIEM / analysis tool like [ELK/Elasticstack](https://www.elastic.co/products/stack), [Graylog](https://www.graylog.org/), or [Splunk](https://www.splunk.com/) for stack-counting and other analysis techniques.
+Intended to be SIEM friendly ([ELK/Elasticstack](https://www.elastic.co/products/stack), [Graylog](https://www.graylog.org/), [Splunk](https://www.splunk.com/), etc) for stack-counting and other analysis techniques.
+
+The [Mitre Attack Framework](https://attack.mitre.org/wiki/Main_Page) is recommended to help find compromise/adversary activity.
 
 ## Information Collected 
 
