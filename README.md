@@ -3,7 +3,7 @@
 
 Collect endpoint information for use in incident response, threat hunting, live forensics, baseline monitoring, etc.
 
-Intended to be SIEM friendly ([ELK/Elasticstack](https://www.elastic.co/products/stack), [Graylog](https://www.graylog.org/), [Splunk](https://www.splunk.com/), etc) for stack-counting and other analysis techniques.
+Intended to be SIEM friendly ([ELK/Elasticstack](https://www.elastic.co/products/stack), [Graylog](https://www.graylog.org/), [Splunk](https://www.splunk.com/), etc), but also useful as a pull from a single system.
 
 The [Mitre Attack Framework](https://attack.mitre.org/wiki/Main_Page) is recommended to help find compromise/adversary activity.
 
