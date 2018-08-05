@@ -7,6 +7,8 @@ Intended to be SIEM friendly ([ELK/Elasticstack](https://www.elastic.co/products
 
 The [Mitre Attack Framework](https://attack.mitre.org/wiki/Main_Page) is a recommended resource to help find compromises/adversary activity.
 
+_Interested in using this with Elasticstack? Check out [THRecon-Elasticstack](https://github.com/TonyPhipps/THRecon-Elasticstack) for full setup walkthroughs, Filebeat and logstash config files, and administration tips._
+
 ## Information Collected 
 
 _Linked to Hunt Use Cases_
