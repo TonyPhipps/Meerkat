@@ -17,7 +17,7 @@ function Get-THR_NetAdapters {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_NetAdapters
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -58,7 +58,7 @@ function Get-THR_NetAdapters {
         class NetAdapter
         {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
             
             [String] $FQDN
             [String] $Description
@@ -120,7 +120,7 @@ function Get-THR_NetAdapters {
                 $output = [NetAdapter]::new()
 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 $output.FQDN = $Adapter.SystemName
                 $output.DESCRIPTION = $Adapter.InterfaceDescription
                 $output.NetConnectionID = $Adapter.Name
@@ -147,7 +147,7 @@ function Get-THR_NetAdapters {
             $output = [NetAdapter]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

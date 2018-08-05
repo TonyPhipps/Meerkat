@@ -17,7 +17,7 @@ function Get-THR_Drivers {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Drivers
 
     .NOTES
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -58,7 +58,7 @@ function Get-THR_Drivers {
         class Driver
         {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
             
             [string] $Provider
             [string] $Driver
@@ -94,7 +94,7 @@ function Get-THR_Drivers {
                 $output = $null
                 $output = [Driver]::new()
                 
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 $output.Computer = $Computer
                 $output.Provider = $driver.ProviderName
                 $output.Driver = $driver.Driver
@@ -117,7 +117,7 @@ function Get-THR_Drivers {
             $output = [Driver]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

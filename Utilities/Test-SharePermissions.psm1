@@ -14,7 +14,7 @@ Function Test-SharePermissions {
 		Import-Csv c:\temp\shares.csv | ForEach-Object {"\\{0}\{1}\" -f $_.ComputerName, $_.Name} | Test-SharePermissions
 	
 	.NOTES 
-	Updated: 2018-02-07
+	Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -54,7 +54,7 @@ Function Test-SharePermissions {
 
         class Share {
 			[String] $SharePath
-			[DateTime] $DateScanned
+			[string] $DateScanned
 			
 			[String] $UserTested
 			[String] $FileTested
@@ -75,7 +75,7 @@ Function Test-SharePermissions {
 		$output.SharePath = $SharePath
 		$output.UserTested = whoami
 		$output.FileTested = "$RandomString.txt"
-		$output.DateScanned = Get-Date -Format u
+		$output.DateScanned = Get-Date -Format o
 		$output.Read = $False
 		$output.Write = $False
 		$output.Delete = $False

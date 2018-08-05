@@ -17,7 +17,7 @@ function Get-THR_GroupMembers {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_GroupMembers
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -58,7 +58,7 @@ function Get-THR_GroupMembers {
         class Member
         {
             [String] $Computer
-            [dateTime] $DateScanned
+            [string] $DateScanned
 
             [String] $UserDomain
             [String] $UserName
@@ -121,7 +121,7 @@ function Get-THR_GroupMembers {
                 $output = [Member]::new()
     
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
     
                 $output.UserDomain = $GroupMember.UserDomain
                 $output.UserName = $GroupMember.UserName
@@ -146,7 +146,7 @@ function Get-THR_GroupMembers {
             $output = [Member]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

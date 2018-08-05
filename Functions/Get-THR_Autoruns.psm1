@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Autoruns
 
     .NOTES
-        Updated: 2018-08-01
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -58,7 +58,7 @@
         class Autorun
         {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
             
             [String] $User
             [string] $Caption
@@ -96,7 +96,7 @@
                 $output = [Autorun]::new()
                 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.User = $autorun.User
                 $output.Caption = $autorun.Caption
@@ -118,7 +118,7 @@
             $output = [Autorun]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

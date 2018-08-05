@@ -17,7 +17,7 @@ function Get-THR_Sessions {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Sessions
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -56,7 +56,7 @@ function Get-THR_Sessions {
 
         class LoginSession {
             [string] $Computer
-            [Datetime] $DateScanned  
+            [string] $DateScanned  
 
             [String] $SessionName
             [String] $UserName
@@ -94,7 +94,7 @@ function Get-THR_Sessions {
                 $output = [LoginSession]::new()
                 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
 
                 $output.SessionName = $Session.SESSIONNAME
                 
@@ -123,7 +123,7 @@ function Get-THR_Sessions {
             $output = [LoginSession]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

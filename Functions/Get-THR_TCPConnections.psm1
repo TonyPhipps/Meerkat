@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TCPConnections
 
     .NOTES
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -58,7 +58,7 @@
         class TCPConnection
         {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
 
             [String] $LocalAddress
             [String] $LocalPort
@@ -104,7 +104,7 @@
                 $output = [TCPConnection]::new()
 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.LocalAddress = $TCPConnection.LocalAddress
                 $output.LocalPort = $TCPConnection.LocalPort

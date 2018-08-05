@@ -17,7 +17,7 @@ function Get-THR_Processes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Processes
 
     .NOTES 
-        Updated: 2018-08-01
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -58,7 +58,7 @@ function Get-THR_Processes {
 
         class Process {
             [String] $Computer
-            [DateTime] $DateScanned
+            [String] $DateScanned
 
             [int] $ModuleCount
             [int] $ThreadCount
@@ -169,7 +169,7 @@ function Get-THR_Processes {
                 $output = [Process]::new()
                                     
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
 
                 $output.BasePriority = $Process.BasePriority
                 $output.Container = $Process.Container
@@ -249,7 +249,7 @@ function Get-THR_Processes {
             $output = [Process]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

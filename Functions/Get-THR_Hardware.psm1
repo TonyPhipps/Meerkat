@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hardware
 
     .NOTES
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -58,7 +58,7 @@
         class Device
         {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
             
             [String] $Class
             [string] $Caption
@@ -93,7 +93,7 @@
                 $output = $null
                 $output = [Device]::new()
                 
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 $output.Computer = $Computer
                 $output.Class = $device.pnpclass
                 $output.caption = $device.caption
@@ -112,7 +112,7 @@
             $output = [Device]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

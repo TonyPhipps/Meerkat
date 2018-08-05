@@ -21,7 +21,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Strings -MinimumLength
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps    
@@ -70,7 +70,7 @@
         class StringMatch
         {
             [String] $Computer
-            [dateTime] $DateScanned
+            [string] $DateScanned
             
             [string] $ProcessLocation
             [string] $String
@@ -168,7 +168,7 @@
                 $output = [StringMatch]::new()
         
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.ProcessLocation = $Entry.ProcessLocation
                 $output.String = $Entry.String

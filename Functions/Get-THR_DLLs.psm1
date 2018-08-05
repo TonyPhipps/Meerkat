@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DLLs
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -60,7 +60,7 @@
         class DLL
         {
             [String] $Computer
-            [dateTime] $DateScanned
+            [string] $DateScanned
 
             [string] $ProcessID
             [string] $Process
@@ -101,7 +101,7 @@
                     $output = [DLL]::new()
     
                     $output.Computer = $Computer
-                    $output.DateScanned = Get-Date -Format u
+                    $output.DateScanned = Get-Date -Format o
     
                     $output.ProcessID = $Process.Id
                     $output.Process = $Process.ProcessName
@@ -122,7 +122,7 @@
             $output = [DLL]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

@@ -19,7 +19,7 @@ Function Get-THR_Computer {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Computer
 
     .NOTES
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -62,7 +62,7 @@ Function Get-THR_Computer {
 
         class Computer {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
 
             # Win32_OperatingSystem
             [String] $BootDevice
@@ -192,7 +192,7 @@ Function Get-THR_Computer {
             $output = [Computer]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
 
             # Win32_OperatingSystem
             $output.BootDevice = $Result.BootDevice
@@ -277,7 +277,7 @@ Function Get-THR_Computer {
             $output = [Computer]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

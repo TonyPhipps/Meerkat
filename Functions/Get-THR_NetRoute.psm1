@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Hunt-Get-THR_NetRoute
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -64,7 +64,7 @@
         class Route
         {
             [String] $Computer
-            [dateTime] $DateScanned
+            [string] $DateScanned
 
             [String] $InterfaceIndex
             [String] $InterfaceName
@@ -120,7 +120,7 @@
                 $output = [Route]::new()
     
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
     
                 $output.InterfaceIndex = $route.ifIndex
                 $output.InterfaceName= $route.interfaceAlias
@@ -144,7 +144,7 @@
             $output = [Route]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

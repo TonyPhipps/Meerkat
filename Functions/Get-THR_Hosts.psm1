@@ -17,7 +17,7 @@ function Get-THR_Hosts {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hosts
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -57,7 +57,7 @@ function Get-THR_Hosts {
         class Entry
         {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
 
             [String] $HostsIP
             [string] $HostsName
@@ -112,7 +112,7 @@ function Get-THR_Hosts {
                 $output = [Entry]::new()
         
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.HostsIP = $ip
                 $output.HostsName = $hostname
@@ -130,7 +130,7 @@ function Get-THR_Hosts {
             $output = [Entry]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

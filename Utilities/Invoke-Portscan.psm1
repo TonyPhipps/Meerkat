@@ -18,7 +18,7 @@ function Invoke-PortScan {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Invoke-PortScan
 
     .NOTES
-        Updated: 2018-04-27
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -64,7 +64,7 @@ function Invoke-PortScan {
 
         class Port {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
 
             [String] $RemoteAddress
             [String] $RemotePort
@@ -79,7 +79,7 @@ function Invoke-PortScan {
             $output = [Port]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
 
             $output.ComputerName = $Scan.ComputerName
             $output.RemoteAddress = $Scan.RemoteAddress

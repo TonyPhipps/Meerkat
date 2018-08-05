@@ -17,7 +17,7 @@ function Get-THR_Services {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Services
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
             Contributing Authors:
                 Anthony Phipps
@@ -58,7 +58,7 @@ function Get-THR_Services {
 
         class Service {
 			[String] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
             
             [bool] $AcceptPause
             [bool] $AcceptStop
@@ -117,7 +117,7 @@ function Get-THR_Services {
 				$output = [Service]::new()
 				
 				$output.Computer = $Computer
-				$output.DateScanned = Get-Date -Format u
+				$output.DateScanned = Get-Date -Format o
                 
 				$output.AcceptPause = $Entry.AcceptPause
                 $output.AcceptStop = $Entry.AcceptStop
@@ -159,7 +159,7 @@ function Get-THR_Services {
             $output = [Service]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

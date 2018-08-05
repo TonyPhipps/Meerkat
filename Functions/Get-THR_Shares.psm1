@@ -17,7 +17,7 @@ function Get-THR_Shares {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Shares
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -58,7 +58,7 @@ function Get-THR_Shares {
         class SharePermission {
 
             [String] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
             
             [String] $Name
             [String] $Path
@@ -161,7 +161,7 @@ function Get-THR_Shares {
                 $output = [SharePermission]::new()
         
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.Name = $Entry.Name
                 $output.Path = $Entry.Path
@@ -186,7 +186,7 @@ function Get-THR_Shares {
             $output = [SharePermission]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

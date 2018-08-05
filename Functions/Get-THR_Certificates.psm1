@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Certificates
 
     .NOTES
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -57,7 +57,7 @@
         class Certificate
         {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
             
             [String] $Path
             [String] $Thumbprint
@@ -101,7 +101,7 @@
                 $output = [Certificate]::new()
                 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.Path = $Certificate.Path
                 $output.DnsNameList = $Certificate.DnsNameList
@@ -126,7 +126,7 @@
             $output = [Certificate]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

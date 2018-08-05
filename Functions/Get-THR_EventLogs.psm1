@@ -23,7 +23,7 @@ function Get-THR_EventLogs {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_EventLogs
 
     .NOTES
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -70,7 +70,7 @@ function Get-THR_EventLogs {
 
         class Event {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
 
             [String] $TimeCreated
             [String] $MachineName
@@ -144,7 +144,7 @@ function Get-THR_EventLogs {
                 $output = [Event]::new()
                                     
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
 
                 $output.TimeCreated = $ThisEvent.TimeCreated
                 $output.MachineName = $ThisEvent.MachineName
@@ -174,7 +174,7 @@ function Get-THR_EventLogs {
             $output = [Event]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

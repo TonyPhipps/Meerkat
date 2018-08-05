@@ -21,7 +21,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Handles -HandlePath "\\server\share\sysinternals"
 
     .NOTES 
-        Updated: 2018-04-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -67,7 +67,7 @@
         class Handle
         {
             [String] $Computer
-            [dateTime] $DateScanned
+            [string] $DateScanned
 
             [string] $ProcessID
             [string] $Process
@@ -117,7 +117,7 @@
                     $output = [Handle]::new()
     
                     $output.Computer = $Computer
-                    $output.DateScanned = Get-Date -Format u
+                    $output.DateScanned = Get-Date -Format o
     
                     $output.ProcessID = $processPID
                     $output.Process = $process
@@ -140,7 +140,7 @@
             $output = [Handle]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

@@ -24,7 +24,7 @@ function Get-THR_ADS {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ADS -Path "C:\"
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -68,7 +68,7 @@ function Get-THR_ADS {
 
         class ADS {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
 
             [String] $FileName
             [String] $StreamName
@@ -127,7 +127,7 @@ function Get-THR_ADS {
                 $output = [ADS]::new()
 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
 
                 $output.FileName = $Stream.FileName
                 $output.StreamName = $Stream.Stream

@@ -17,7 +17,7 @@ function Get-THR_MRU {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -62,7 +62,7 @@ function Get-THR_MRU {
         class RegistryItem
         {
             [string] $Computer
-            [Datetime] $DateScanned = $DateScanned
+            [string] $DateScanned = $DateScanned
             
             [String] $Key
             [string] $Value

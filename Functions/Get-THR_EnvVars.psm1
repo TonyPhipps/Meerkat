@@ -13,7 +13,7 @@ Function Get-THR_EnvVars {
         get-content .\hosts.txt | Get-THR_EnvVars $env:computername | export-csv envVars.csv -NoTypeInformation
     
      .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -57,7 +57,7 @@ Function Get-THR_EnvVars {
 
         class EnvVariable {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
             
             [String] $Name         
             [String] $UserName
@@ -96,7 +96,7 @@ Function Get-THR_EnvVars {
                     $output = [EnvVariable]::new()
    
                     $output.Computer = $Computer
-                    $output.DateScanned = Get-Date -Format u
+                    $output.DateScanned = Get-Date -Format o
 
                     $output.Name = $VariableValueSplit.Name
                     $output.UserName = $VariableValueSplit.UserName
@@ -115,7 +115,7 @@ Function Get-THR_EnvVars {
             $output = [EnvVariable]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

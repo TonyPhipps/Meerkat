@@ -16,7 +16,7 @@ function Get-THR_BitLocker {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_BitLocker
 
     .NOTES 
-        Updated: 2018-08-01
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -57,7 +57,7 @@ function Get-THR_BitLocker {
 
         class BitLocker {
             [String] $Computer
-            [DateTime] $DateScanned
+            [string] $DateScanned
 
             [String] $ComputerName
             [String] $MountPoint
@@ -100,7 +100,7 @@ function Get-THR_BitLocker {
                 $output = [BitLocker]::new()
         
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.ComputerName = $Volume.ComputerName
                 $output.MountPoint = $Volume.MountPoint
@@ -128,7 +128,7 @@ function Get-THR_BitLocker {
             $output = [BitLocker]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

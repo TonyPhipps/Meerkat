@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ARP
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -58,7 +58,7 @@
         class ArpCache
         {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
 
             [String] $IfIndex
             [string] $InterfaceAlias
@@ -104,7 +104,7 @@
                 $output = [ArpCache]::new()
         
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
                 
                 $output.IfIndex = $record.ifIndex
                 $output.InterfaceAlias = $record.InterfaceAlias
@@ -126,7 +126,7 @@
             $output = [ArpCache]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

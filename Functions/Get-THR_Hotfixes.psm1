@@ -17,7 +17,7 @@ function Get-THR_Hotfixes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hotfixes
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -57,7 +57,7 @@ function Get-THR_Hotfixes {
         class Hotfix
         {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
 
             [String] $Operation
             [string] $ResultCode
@@ -103,7 +103,7 @@ function Get-THR_Hotfixes {
                 $output = [Hotfix]::new()
 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
 
                 $output.Operation = $Hotfix.Operation
                 $output.ResultCode = $Hotfix.ResultCode
@@ -130,7 +130,7 @@ function Get-THR_Hotfixes {
             $output = [Hotfix]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output

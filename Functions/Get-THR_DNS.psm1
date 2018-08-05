@@ -17,7 +17,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DNS
 
     .NOTES 
-        Updated: 2018-07-26
+        Updated: 2018-08-05
 
         Contributing Authors:
             Jeremy Arnold
@@ -86,7 +86,7 @@
 
         class DNSCache {
             [string] $Computer
-            [Datetime] $DateScanned
+            [string] $DateScanned
 
             [recordStatus] $Status
             [String] $DataLength
@@ -124,7 +124,7 @@
                 $output = [DNSCache]::new()
                 
                 $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format u
+                $output.DateScanned = Get-Date -Format o
 
                 $output.Status = $dnsRecord.status
                 $output.DataLength = $dnsRecord.dataLength
@@ -147,7 +147,7 @@
             $output = [DNSCache]::new()
 
             $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format u
+            $output.DateScanned = Get-Date -Format o
             
             $total++
             return $output
