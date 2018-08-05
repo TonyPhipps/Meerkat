@@ -44,7 +44,7 @@ function Invoke-THR {
         Invoke-THR -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2018-08-04
+        Updated: 2018-08-05
 
         Contributing Authors:
             Anthony Phipps
@@ -137,7 +137,7 @@ function Invoke-THR {
 
         $total = 0
 
-        if (!($Computer = $env:COMPUTERNAME)) {
+        if (!($Computer -eq $env:COMPUTERNAME)) {
             
             $Test=$null
             $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -ErrorAction SilentlyContinue)
