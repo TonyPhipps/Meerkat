@@ -169,8 +169,6 @@ function Invoke-THR {
                 $FilePath = $Output + "\" + $Module + "\"                
                 
                 if (!(Test-Path $FilePath)){ mkdir $FilePath }
-                
-                $FilePath = $FilePath + $Computer + "_"
             }
 
             & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + $Computer + "_$Module.csv") -NoTypeInformation -Append
