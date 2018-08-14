@@ -47,11 +47,10 @@ Without git... make the folder, then drop all the contents of this project into 
 mkdir C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
 ```
 ### Quick Test Use
-To run a "quick" scan on your own system, you will need to create a blank folder, then run the cmdlet within that folder, since output defaults to the current working directory.
+
+This command will output results of a scan against localhost to c:\temp\
 
 ```
-mkdir c:\temp\
-cd c:\temp\
 Invoke-THR -Quick
 ```
 
