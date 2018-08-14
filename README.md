@@ -13,10 +13,10 @@ Collect endpoint information for use in incident response, threat hunting, live 
 
 \* Info pulled from current running processes or their executables on disk.
 
+Use one of the methods below to analyze for potential compromise/adversary activity leveraging the [Mitre Attack Framework](https://attack.mitre.org/wiki/Main_Page) or other threat hunting methods:
 * Pull a snapshot from a single system into a list of easy-to-analyze csv files
+* Ingest using your SIEM of choice (_Check out [THRecon-Elasticstack](https://github.com/TonyPhipps/THRecon-Elasticstack) and [SIEM Tactics](https://github.com/TonyPhipps/SIEM)_)
 * Pull directly into Powershell objects for further enrichment
-* Ingest using your SIEM of choice (_Check out [THRecon-Elasticstack](https://github.com/TonyPhipps/THRecon-Elasticstack)_)
-* Leverage the [Mitre Attack Framework](https://attack.mitre.org/wiki/Main_Page) to help identify potential compromise/adversary activity.
 
 ______________________________________________________
 
