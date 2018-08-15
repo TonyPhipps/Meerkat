@@ -18,7 +18,7 @@ function Invoke-PortScan {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Invoke-PortScan
 
     .NOTES
-        Updated: 2018-08-05
+        Updated: 2018-08-14
 
         Contributing Authors:
             Anthony Phipps
@@ -47,18 +47,19 @@ function Invoke-PortScan {
             $Computer = $env:COMPUTERNAME,
 
             [Parameter()]
+            [alias("Port","Ports")]
             [array]
-            $Ports = (80, 443, 593, 135, 139, 445, 3389, 5988, 5989)
+            $PortsArray = (80, 443, 593, 135, 139, 445, 3389, 5988, 5989)
         )
 
 	begin{
 
-            $DateScanned = Get-Date -Format u
-            Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        $DateScanned = Get-Date -Format u
+        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
-            $stopwatch = New-Object System.Diagnostics.Stopwatch
-            $stopwatch.Start()
-	    }
+        $stopwatch = New-Object System.Diagnostics.Stopwatch
+        $stopwatch.Start()
+    }
 
     process{
 
@@ -71,7 +72,7 @@ function Invoke-PortScan {
             [String] $TCPTestSucceeded
         }
 
-        $OutputArray = foreach ($Port in $Ports) {
+        $OutputArray = foreach ($Port in $PortsArray) {
 
             $Scan = Test-NetConnection -ComputerName $Computer -Port $Port | Select-Object ComputerName, RemoteAddress, RemotePort, TCPTestSucceeded
 
@@ -81,7 +82,6 @@ function Invoke-PortScan {
             $output.Computer = $Computer
             $output.DateScanned = Get-Date -Format o
 
-            $output.ComputerName = $Scan.ComputerName
             $output.RemoteAddress = $Scan.RemoteAddress
             $output.RemotePort = $Scan.RemotePort
             $output.TcpTestSucceeded = $Scan.TcpTestSucceeded
