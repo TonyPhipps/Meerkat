@@ -53,7 +53,7 @@ cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
 git pull
 ```
 
-#### Without Git
+#### With PowerShell
 ```
 $Modules = "C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\"
 New-Item -ItemType Directory $Modules\THRecon\ -force
