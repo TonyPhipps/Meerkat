@@ -17,7 +17,7 @@ function Get-THR_MRU {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2018-08-15
 
         Contributing Authors:
             Anthony Phipps
@@ -39,7 +39,7 @@ function Get-THR_MRU {
     .LINK
        https://github.com/TonyPhipps/THRecon
        https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis/
-        https://gbhackers.com/windows-registry-analysis-tracking-everything-you-do-on-the-system/
+       https://gbhackers.com/windows-registry-analysis-tracking-everything-you-do-on-the-system/
 
     #>
 
@@ -72,12 +72,12 @@ function Get-THR_MRU {
         $Command = {
 
             $UserKeys =
-                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU",
-                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedMRU",
-                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU",
-                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRULegacy",
-                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\CIDSizeMRU",
-                #"\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSaveMRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedMRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRULegacy",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\CIDSizeMRU",
+                "\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs",
                 "\Software\Microsoft\Currentversion\Search\RecentApps",
                 "\Software\Microsoft\Internet Explorer\TypedURLs",
                 "\Software\Microsoft\Microsoft Management Console\Recent File List",
@@ -134,10 +134,41 @@ function Get-THR_MRU {
                                 
                             foreach ($Property in $Properties){
                                 
+                                $ThisKey = $Key.Split(":")[2]
+                                $ThisValue = $Property
+                                $ThisData = $KeyObject.GetValue($Property)
+                                $ThisDataType = $KeyObject.GetValue($Property).GetType()
+
+                                # If Shellbag, convert to ASCII
+                                if ($ThisDataType.Name -eq "byte[]" -and $ThisValue -match "[0-9]+"){
+                                    
+                                    # Read in the data as decimals
+                                    $decimal = $KeyObject.GetValue($Property)
+
+                                    $hexArray = @()
+        
+                                    # To determine file name only, read each byte until null is hit
+    
+                                    for($j = 0; $j -lt $decimal.length; $j+=2) {
+            
+                                        # Break at the first null character
+                                        if($decimal[$j + 1] -eq 0 -and $decimal[$j] -eq 0) { break }
+            
+                                        # Retrieve a byte and add it to the hex array
+                                        $tempstring = "{0:x2}" -f $decimal[$j + 1]
+                                        $tempstring += "{0:x2}" -f $decimal[$j]
+                                        $hexArray += $tempstring
+                                    } 
+        
+                                    $asciiArray = $hexArray | ForEach-Object { [CHAR][BYTE]([CONVERT]::toint32($_,16)) }
+                                    $ThisData = $asciiArray -join ""
+                                    
+                                }
+                                
                                 $output = [pscustomobject] @{
-                                    Key = $Key.Split(":")[2]
-                                    Value = $Property 
-                                    Data = $KeyObject.GetValue($Property)
+                                    Key = $ThisKey
+                                    Value = $ThisValue
+                                    Data = $ThisData
                                 }
 
                                 $output
