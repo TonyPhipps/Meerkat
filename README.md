@@ -37,31 +37,39 @@ ______________________________________________________
 * When scanning a remote machine without the psexec wrapper (Invoke-THR_PSExec), requires WinRM service on remote machine.
 
 ### Quick Install
-Run this command in Powershell with [git](https://gitforwindows.org/) installed, then open a new Powershell session.
-```
-git clone https://github.com/TonyPhipps/THRecon C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
+
+After install, a new Powershell window will provide access to the modules.
+
+#### With [Git](https://gitforwindows.org/)
 
 ```
-Without git... make the folder, then drop all the contents of this project into it. Then open a new Powershell session.
+git clone https://github.com/TonyPhipps/THRecon C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
 ```
-mkdir C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
+
+To update, use
+
 ```
+cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
+git pull
+```
+
+#### Without Git
+```
+$Modules = "C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\"
+New-Item -ItemType Directory $Modules\THRecon\ -force
+Invoke-WebRequest https://github.com/TonyPhipps/THRecon/archive/master.zip -OutFile $Modules\master.zip
+Expand-Archive $Modules\master.zip -DestinationPath $Modules
+Copy-Item $Modules\THRecon-master\* $Modules\THRecon\ -Force -Recurse
+Remove-Item  $Modules\THRecon-master -Recurse -Force
+```
+Commands above can be ran again to update
+
 ### Quick Test Use
 
 This command will output results of a scan against localhost to c:\temp\
 
 ```
 Invoke-THR -Quick
-```
-
-### Troubleshooting
-[Installing a Powershell Module](https://msdn.microsoft.com/en-us/library/dd878350(v=vs.85).aspx)
-
-If your system does not automatically load modules in your user [profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6), you may need to [import the module manually](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx).
-
-```
-cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
-Import-Module THRecon.psm1
 ```
 
 ### Screenshots
