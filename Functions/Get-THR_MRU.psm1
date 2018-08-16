@@ -17,7 +17,7 @@ function Get-THR_MRU {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MRU
 
     .NOTES 
-        Updated: 2018-08-15
+        Updated: 2018-08-16
 
         Contributing Authors:
             Anthony Phipps
@@ -136,8 +136,13 @@ function Get-THR_MRU {
                                 
                                 $ThisKey = $Key.Split(":")[2]
                                 $ThisValue = $Property
-                                $ThisData = $KeyObject.GetValue($Property)
-                                $ThisDataType = $KeyObject.GetValue($Property).GetType()
+                                
+                                try{
+                                    $ThisData = $KeyObject.GetValue($Property)
+                                    $ThisDataType = $ThisData.GetType()}
+                                catch{ # Necessary due to how some registry keys are structured differently
+                                    $ThisData = (Get-ItemProperty $Key)."$Property"
+                                    $ThisDataType = $ThisData.GetType()}
 
                                 # If Shellbag, convert to ASCII
                                 if ($ThisDataType.Name -eq "byte[]" -and $ThisValue -match "[0-9]+"){
