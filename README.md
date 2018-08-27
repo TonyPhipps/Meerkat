@@ -25,10 +25,10 @@ ______________________________________________________
 
   * [Quick Start](#quick-start)
   * [Usage](#usage)
-    * [Requirements](#Requirements)
-    * [Installation](#Installation)
-    * [General Syntax](#General-Syntax)
-    * [Analysis](#Analysis)
+    * [Requirements](#requirements)
+    * [Installation](#installation)
+    * [General Syntax](#general-syntax)
+    * [Analysis](#analysis)
   * [Troubleshooting](#troubleshooting)
   * [Screenshots](#screenshots)
   
