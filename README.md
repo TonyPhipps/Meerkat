@@ -53,13 +53,13 @@ git clone https://github.com/TonyPhipps/THRecon C:\Users\$env:UserName\Documents
 To update, use
 
 ```
-cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
+cd $ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\THRecon
 git pull
 ```
 
 ### Install with PowerShell
 ```
-$Modules = "C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\"
+$Modules = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\"
 New-Item -ItemType Directory $Modules\THRecon\ -force
 Invoke-WebRequest https://github.com/TonyPhipps/THRecon/archive/master.zip -OutFile $Modules\master.zip
 Expand-Archive $Modules\master.zip -DestinationPath $Modules
@@ -119,7 +119,7 @@ Analysis methodologies and techniques are provided in the [Wiki pages](https://g
 If your system does not automatically load modules in your user [profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6), you may need to [import the module manually](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx).
 
 ```
-cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
+cd $ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\THRecon\
 Import-Module .\THRecon.psm1
 ```
 
