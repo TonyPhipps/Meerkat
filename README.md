@@ -97,17 +97,26 @@ Lastly, functions can be installed by opening the .psm1 file and copy-pasting it
 
 ### General Syntax
 
-When running a single function against a single endpoint, the typical sytnax is `Get-THR_[ModuleName] -Computer [ComputerName]`, which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, `Get-THR_[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -notypeinformation` will utilize PowerShell's built-in csv export function (details via `get-help get-thr_[function] -Full`).
-
+#### Invoke-THR
 Invoke-THR takes advantage of the `export-csv` cmdlet in this way by exporting ALL enabled modules to csv. The basic syntax is `Invoke-THR -Computer [Computername] -Modules [Module1, Module2, etc.]` (details via `get-help Invoke-THR -Full`).
 
-Invoke-THR_PSexec is provided as a wrapper to simplify working with PSExec, since typical psexec use does not include deploying a function, importing it, running it, storing results, retrieving results, and removing results. 
+#### Get-Commands
+When running a single function against a single endpoint, the typical sytnax is `Get-THR_[ModuleName] -Computer [ComputerName]`, which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, `Get-THR_[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -notypeinformation` will utilize PowerShell's built-in csv export function (details via `get-help get-thr_[function] -Full`).
 
-1. The basic syntax for Invoke-THR_PSExec is `Invoke-THR-PSExec -Computer WorkComputer`, which runs a default collection. Customization of the collection requires adjusting the -Command parameter: `Invoke-thr_psexec -Computer WorkComputer -Command 'Invoke-THR -Mod Computer, MAC'`
+#### Invoke-THR_PSExec
+Invoke-THR_PSExec is provided as a wrapper to simplify working with PSExec, since typical psexec use does not include deploying a module, importing it, running it, storing results, retrieving results, and removing the module and results from the target. 
 
-2. The syntax for a single function is `Invoke-thr_psexec -Computer WorkComputer -Command 'Get-THR_[function] | export-csv c:\temp\MAC.csv -notypeinformation'`.
+1. The basic syntax for Invoke-THR_PSExec is `Invoke-THR-PSExec -Computer WorkComputer`, which runs a default collection. Customization of the collection requires adjusting the -Command parameter: `Invoke-thr_psexec -Computer "systemname" -Command 'Invoke-THR -Mod Computer, MAC'`
 
-3. More details via `get-help Invoke-THR_PSexec -Full`
+2. The syntax for a single function where you must specificy parameters (e.g. when you need to run MAC with -Path 'c:\') is 
+```
+$ModulePath = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\THRecon\Functions"
+$ModuleName = "Get-THR_MAC.psm1"
+$Command = "Get-THR_MAC -Path 'c:\' | export-csv 'c:\Windows\Toolkit\Results\mac.csv' -notypeinformation"
+
+Invoke-THR_PSExec -Computer "systemname" -ModulePath $ModulePath -ModuleName $ModuleName -Command $Command
+```
+3. More details via `get-help Invoke-THR_PSExec -Full`
 
 ### Analysis
 
