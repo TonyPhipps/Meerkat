@@ -103,7 +103,7 @@ Invoke-THR takes advantage of the `export-csv` cmdlet in this way by exporting A
 
 Invoke-THR_PSexec is provided as a wrapper to simplify working with PSExec, since typical psexec use does not include deploying a function, importing it, running it, storing results, retrieving results, and removing results. 
 
-1. The basic syntax for Invoke-THR is `Invoke-THR-PSExec -Computer WorkComputer`, which runs a default collection. Customization of the collection requires adjusting the -Command parameter: `Invoke-thr_psexec -Computer WorkComputer -Command 'Invoke-THR -Mod Computer, MAC'`
+1. The basic syntax for Invoke-THR_PSExec is `Invoke-THR-PSExec -Computer WorkComputer`, which runs a default collection. Customization of the collection requires adjusting the -Command parameter: `Invoke-thr_psexec -Computer WorkComputer -Command 'Invoke-THR -Mod Computer, MAC'`
 
 2. The syntax for a single function is `Invoke-thr_psexec -Computer WorkComputer -Command 'Get-THR_[function] | export-csv c:\temp\MAC.csv -notypeinformation'`.
 
