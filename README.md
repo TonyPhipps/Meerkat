@@ -120,7 +120,7 @@ If your system does not automatically load modules in your user [profile](https:
 
 ```
 cd C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon\
-Import-Module THRecon.psm1
+Import-Module .\THRecon.psm1
 ```
 
 ## Screenshots
