@@ -17,7 +17,7 @@ function Get-THR_Processes {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Processes
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2018-09-07
 
         Contributing Authors:
             Anthony Phipps
@@ -59,6 +59,9 @@ function Get-THR_Processes {
         class Process {
             [String] $Computer
             [String] $DateScanned
+
+            [String] $CommandLine
+            [String] $Services
 
             [int] $ModuleCount
             [int] $ThreadCount
@@ -139,7 +142,7 @@ function Get-THR_Processes {
 
                 $Process | Add-Member -MemberType NoteProperty -Name "CommandLine" -Value $CommandLine
                 $Process | Add-Member -MemberType NoteProperty -Name "Services" -Value $Services
-                
+                                
             }
 
             return $ProcessArray
@@ -171,6 +174,9 @@ function Get-THR_Processes {
                 $output.Computer = $Computer
                 $output.DateScanned = Get-Date -Format o
 
+                $output.CommandLine = $Process.CommandLine
+                $output.Services = $Process.Services
+                
                 $output.BasePriority = $Process.BasePriority
                 $output.Container = $Process.Container
                 $output.EnableRaisingEvents = $Process.EnableRaisingEvents
