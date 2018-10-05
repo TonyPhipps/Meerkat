@@ -5,8 +5,7 @@ Function Get-THR_Computer {
 
     .DESCRIPTION
         Gets general system information on a given system. Includes data from 
-        Win32_ComputerSystem, Win32_OperatingSystem, and win32_BIOS. Begins 
-        with CIM and falls back to WMI.
+        Win32_ComputerSystem, Win32_OperatingSystem, and win32_BIOS.
 
     .PARAMETER Computer
         Computer can be a single hostname, FQDN, or IP address.
