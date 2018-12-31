@@ -1,30 +1,31 @@
 function Get-THR_ADS {
     <#
     .SYNOPSIS 
-        Performs a search for alternate data streams (ADS) on a system.
+        Performs a search for alternate data streams (ADS) in a given folder.
 
     .DESCRIPTION 
-        Performs a search for alternate data streams (ADS) on a system. Default starting directory is c:\users.
+        Performs a search for alternate data streams (ADS) in a given folder. Default starting directory is c:\users.
         To test, perform the following steps first:
         $file = "C:\temp\testfile.txt"
         Set-Content -Path $file -Value 'Nobody here but us chickens!'
         Add-Content -Path $file -Value 'Super secret squirrel stuff' -Stream 'secretStream'
 
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
-
     .PARAMETER Path  
         Specify a path to search for alternate data streams in. Default is c:\users
 
     .EXAMPLE 
-        Get-THR_ADS -Path "C:\"
-        Get-THR_ADS SomeHostName.domain.com -Path "C:\"
-        Get-Content C:\hosts.csv | Get-THR_ADS -Path "C:\"
-        Get-THR_ADS $env:computername -Path "C:\"
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ADS -Path "C:\"
+        Get-THR_ADS -Path "C:\Temp"
+        
+    .EXAMPLE
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_ADS} -ArgumentList "C:\Temp" | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_ADS.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2018-12-30
 
         Contributing Authors:
             Anthony Phipps
@@ -49,122 +50,52 @@ function Get-THR_ADS {
 
     [CmdletBinding()]
     param(
-        [Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
-        $Computer = $env:COMPUTERNAME,
-
-        [Parameter()]
         $Path = "C:\Users"
     )
 
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Verbose ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
-
-        class ADS {
-            [String] $Computer
-            [string] $DateScanned
-
-            [String] $FileName
-            [String] $StreamName
-            [String] $StreamLength
-            [String] $StreamContent
-            [String] $Attributes
-            [DateTime] $CreationTimeUtc
-            [DateTime] $LastAccessTimeUtc
-            [DateTime] $LastWriteTimeUtc
-
-        }
-
-        $Command = {
-            if ($args) { $Path = $args[0] }
-
-            $Streams = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
-            ForEach-Object { Get-Item $_.FullName -Stream * } | # Doesn't work without foreach
-            Where-Object {($_.Stream -notlike "*DATA") -AND ($_.Stream -ne "Zone.Identifier")}
-
-            ForEach ($Stream in $Streams) {
-                $File = Get-Item $Stream.FileName
-                $StreamContent = Get-Content -Path $Stream.FileName -Stream $Stream.Stream
-                $Attributes = Get-ItemProperty -Path $Stream.FileName
-
-                $Stream | Add-Member -MemberType NoteProperty -Name CreationTimeUtc -Value $File.CreationTimeUtc
-                $Stream | Add-Member -MemberType NoteProperty -Name LastAccessTimeUtc -Value $File.LastAccessTimeUtc
-                $Stream | Add-Member -MemberType NoteProperty -Name LastWriteTimeUtc -Value $File.LastWriteTimeUtc
-                $Stream | Add-Member -MemberType NoteProperty -Name StreamContent -Value $StreamContent
-                $Stream | Add-Member -MemberType NoteProperty -Name Attributes -Value $Attributes.Mode
-            }
-
-            return $Streams
-        }
     }
 
     process{
 
-        $Computer = $Computer.Replace('"', '')
+        $Hostname = $ENV:COMPUTERNAME
+        $DateScanned = Get-Date -Format u
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        $Streams = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
+        ForEach-Object { Get-Item $_.FullName -Stream * } | # Doesn't work without foreach
+        Where-Object {($_.Stream -notlike "*DATA") -AND ($_.Stream -ne "Zone.Identifier")}
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command
-        } 
-        else {
+        ForEach ($Stream in $Streams) {
 
-            $ResultsArray = Invoke-Command -ArgumentList $Path -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+            $File = Get-Item $Stream.FileName
+            $StreamContent = Get-Content -Path $Stream.FileName -Stream $Stream.Stream
+            $Attributes = Get-ItemProperty -Path $Stream.FileName
+
+            $Stream | Add-Member -MemberType NoteProperty -Name "Host" -Value $Hostname
+            $Stream | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Stream | Add-Member -MemberType NoteProperty -Name "CreationTimeUtc" -Value $File.CreationTimeUtc
+            $Stream | Add-Member -MemberType NoteProperty -Name "LastAccessTimeUtc" -Value $File.LastAccessTimeUtc
+            $Stream | Add-Member -MemberType NoteProperty -Name "LastWriteTimeUtc" -Value $File.LastWriteTimeUtc
+            $Stream | Add-Member -MemberType NoteProperty -Name "StreamContent" -Value $StreamContent
+            $Stream | Add-Member -MemberType NoteProperty -Name "Attributes" -Value $Attributes.Mode
         }
-            
-        if ($ResultsArray) {
 
-            $OutputArray = ForEach ($Stream in $ResultsArray) {
-
-                $output = $null
-                $output = [ADS]::new()
-
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-
-                $output.FileName = $Stream.FileName
-                $output.StreamName = $Stream.Stream
-                $output.StreamLength = $Stream.Length
-                $output.Attributes = $Stream.Attributes
-                $output.StreamContent = $Stream.StreamContent
-                $output.CreationTimeUtc = $Stream.CreationTimeUtc
-                $output.LastAccessTimeUtc = $Stream.LastAccessTimeUtc
-                $output.LastWriteTimeUtc = $Stream.LastWriteTimeUtc
-                
-                $output
-            }
-
-            $total++
-            return $OutputArray
-        }
-        else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            
-            $Result = $null
-            $Result = [ADS]::new()
-
-            $Result.Computer = $Computer
-            $Result.DateScanned = Get-Date -Format u
-            
-            $total++
-            return $Result
-        }
+        return $Streams | Select-Object Host, DateScanned, FileName, Stream, Length, Attributes, StreamContent, CreationTimeUtc, LastAccessTimeUtc, LastWriteTimeUtc
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
         Write-Verbose ("Started at {0}" -f $DateScanned)
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
+

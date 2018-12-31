@@ -1,26 +1,25 @@
 ﻿function Get-THR_ARP {
     <#
     .SYNOPSIS 
-        Gets the arp cache for the given computer(s).
+        Gets the arp cache.
 
     .DESCRIPTION 
-        Gets the arp cache from all connected interfaces for the given computer(s).
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+        Gets the arp cache from all connected interfaces.
 
     .EXAMPLE 
-        Get-THR_ARP 
-        Get-THR_ARP  SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_ARP
-        Get-THR_ARP -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ARP
+        Get-THR_ARP
+        
+    .EXAMPLE
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_ARP} | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_ARP.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2018-12-30
 
         Contributing Authors:
-            Jeremy Arnold
             Anthony Phipps
             
         LEGAL: Copyright (C) 2018
@@ -41,102 +40,43 @@
        https://github.com/TonyPhipps/THRecon
     #>
 
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Verbose ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
+    }
 
-        class ArpCache
-        {
-            [string] $Computer
-            [string] $DateScanned
-
-            [String] $IfIndex
-            [string] $InterfaceAlias
-            [String] $IPAdress
-            [String] $LinkLayerAddress
-            [String] $State
-            [String] $PolicyStore
-        }
-
-        $Command = {
-            Get-NetNeighbor | 
+    process{
+            
+        $ARPEntryArray = Get-NetNeighbor | 
             Where-Object {($_.LINKLayerAddress -ne "") -and
                 ($_.LINKLayerAddress -ne "FF-FF-FF-FF-FF-FF") -and # Broadcast. Filtered by LinkLayerAddress rather than "$_.State -ne "permanent" to maintain manual entries
                 ($_.LINKLayerAddress -notlike "01-00-5E-*") -and   # IPv4 multicast
                 ($_.LINKLayerAddress -notlike "33-33-*")           # IPv6 multicast
             }
-        }
-	}
-
-    process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
-        
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        }
         
         
-        if ($ResultsArray) {
-
-            Write-Verbose ("{0}: Parsing results." -f $Computer)
-            
-            $OutputArray = foreach ($record in $ResultsArray) {
-             
-                $output = $null
-                $output = [ArpCache]::new()
+        foreach ($ARPEntry in $ARPEntryArray) {
+            $ARPEntry | Add-Member -MemberType NoteProperty -Name "Host" -Value $Hostname
+            $ARPEntry | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+        }
         
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-                
-                $output.IfIndex = $record.ifIndex
-                $output.InterfaceAlias = $record.InterfaceAlias
-                $output.IPAdress = $record.IPAddress
-                $output.LINKLayerAddress = $record.LINKLayerAddress
-                $output.State = $record.State
-                $output.PolicyStore = $record.Store                 
-
-                $output
-            }
-
-            $total++
-            return $OutputArray
-
-        }
-        else {
-                
-            $output = $null
-            $output = [ArpCache]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
+        return $ARPEntryArray | Select-Object IfIndex, InterfaceAlias, IPAdress, LinkLayerAddress, State, PolicyStore
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Started at {0}" -f $DateScanned)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

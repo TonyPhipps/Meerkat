@@ -44,11 +44,10 @@ function Invoke-THR {
         Invoke-THR -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2018-12-30
 
         Contributing Authors:
             Anthony Phipps
-            Jeremy Arnold
             
         LEGAL: Copyright (C) 2018
         This program is free software: you can redistribute it and/or modify
@@ -77,13 +76,6 @@ function Invoke-THR {
         [String] $Output = "C:\temp",
 
         [Parameter()]
-        [alias("Database","Index","Indexable","Ingestible", "Bulk")]
-        [switch] $Ingest = $False,
-
-        [Parameter()]
-        $Port = "5985",
-
-        [Parameter()]
         [switch] $All,
 
         [Parameter()]
@@ -107,6 +99,39 @@ function Invoke-THR {
 
     begin{
 
+        $ModuleCommandArray = @{
+            ADS = (${Function:Get-THR_ADS}, "C:\Temp")
+            ARP = (${Function:Get-THR_ARP}, $null)
+            Autoruns = ${Function:Get-THR_Autoruns}
+            BitLocker = ${Function:Get-THR_BitLocker}
+            Certificates = ${Function:Get-THR_Certificates}
+            Computer = ${Function:Get-THR_Computer}
+            DNS = ${Function:Get-THR_DNS}
+            Drivers = ${Function:Get-THR_Drivers}
+            EnvVars = ${Function:Get-THR_EnvVars}
+            GroupMembers = ${Function:Get-THR_GroupMembers}
+            Hardware = ${Function:Get-THR_Hardware}
+            Hosts = ${Function:Get-THR_Hosts}
+            Hotfixes = ${Function:Get-THR_Hotfixes}
+            MRU = ${Function:Get-THR_MRU}
+            NetAdapters = ${Function:Get-THR_NetAdapters}
+            NetRoute = ${Function:Get-THR_NetRoute}
+            TCPConnections = ${Function:Get-THR_TCPConnections}
+            Registry = ${Function:Get-THR_Registry}
+            ScheduledTasks = ${Function:Get-THR_ScheduledTasks}
+            Services = ${Function:Get-THR_Services}
+            Sessions = ${Function:Get-THR_Sessions}
+            Shares = ${Function:Get-THR_Shares}
+            Software = ${Function:Get-THR_Software}
+            Strings = ${Function:Get-THR_Strings}
+            TPM = ${Function:Get-THR_TPM}
+            MAC = ${Function:Get-THR_MAC}
+            Processes = ${Function:Get-THR_Processes}
+            RecycleBin = ${Function:Get-THR_RecycleBin}
+            DLLs = ${Function:Get-THR_DLLs}
+            EventLogs = ${Function:Get-THR_EventLogs}
+        }
+
         if ($All) {
 
             [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers",
@@ -125,9 +150,7 @@ function Invoke-THR {
 
             $Modules = $Modules | 
             Where-Object { $_ -notin "DLLs", "EventLogs", "MAC" }
-        }
-
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        }   
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
@@ -136,44 +159,26 @@ function Invoke-THR {
         $stopwatch.Start()
 
         $total = 0
-
-        if (!($Computer -eq $env:COMPUTERNAME)) {
-            
-            $Test=$null
-            $Test = [bool](Test-WSMan -ComputerName $Computer -Port $Port -ErrorAction SilentlyContinue)
-
-            If (!$Test){
-
-                Write-Information -InformationAction Continue -MessageData ("Could not reach WinRM at {0} on port {1}" -f $Computer, $Port)
-                break
-            }
-            else{
-
-                Write-Information -InformationAction Continue -MessageData ("Successfully reached WinRM at {0} on port {1}" -f $Computer, $Port)
-            }
-        }
     }
 
     process{
-   
+
+        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
         if (!(Test-Path $Output)){
             mkdir $Output
         }
 
-        $FilePath = $Output + "\"
+        $Output = $Output + "\"
         
         foreach ($Module in $Modules){
 
-            if ($Ingest){
-                
-                $FilePath = $Output + "\" + $Module + "\"                
-                
-                if (!(Test-Path $FilePath)){ mkdir $FilePath }
-            }
-
-            & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + $Computer + "_$Module.csv") -NoTypeInformation -Append
+            # & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + $Computer + "_$Module.csv") -NoTypeInformation -Append
+            Invoke-Command -ComputerName $Computer -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
+                Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+                Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $Module + ".csv")
         }
-        
+    
         $total++
     }
 
