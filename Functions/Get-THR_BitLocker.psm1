@@ -16,7 +16,7 @@ function Get-THR_BitLocker {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_BitLocker
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2018-12-31
 
         Contributing Authors:
             Jeremy Arnold
@@ -40,9 +40,8 @@ function Get-THR_BitLocker {
        https://github.com/TonyPhipps/THRecon
     #>
 
+    [CmdletBinding()]
     param(
-        [Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -52,93 +51,28 @@ function Get-THR_BitLocker {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
-
-        class BitLocker {
-            [String] $Computer
-            [string] $DateScanned
-
-            [String] $ComputerName
-            [String] $MountPoint
-            [String] $EncryptionMethod
-            [String] $AutoUnlockEnabled
-            [DateTime] $MetadataVersion
-            [String] $VolumeStatus
-            [String] $ProtectionStatus
-            [String] $LockStatus
-            [String] $EncryptionPercentage
-            [String] $WipePercentage
-            [String] $VolumeType
-            [String] $CapacityGB
-            [String] $KeyProtector
-        }
-
-        $Command = { Get-BitLockerVolume }
-	}
+    }
 
     process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
-        
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
+        $ResultsArray = Get-BitLockerVolume
 
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
-        
-        if ($ResultsArray) {
 
-            $OutputArray = ForEach ($Volume in $ResultsArray) {
-                
-                $output = $null
-                $output = [BitLocker]::new()
-        
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-                
-                $output.ComputerName = $Volume.ComputerName
-                $output.MountPoint = $Volume.MountPoint
-                $output.EncryptionMethod = $Volume.EncryptionMethod
-                $output.AutoUnlockEnabled = $Volume.AutoUnlockEnabled
-                $output.MetadataVersion = $Volume.MetadataVersion
-                $output.VolumeStatus = $Volume.VolumeStatus
-                $output.ProtectionStatus = $Volume.ProtectionStatus
-                $output.LockStatus = $Volume.LockStatus
-                $output.EncryptionPercentage = $Volume.EncryptionPercentage
-                $output.WipePercentage = $Volume.WipePercentage
-                $output.VolumeType = $Volume.VolumeType
-                $output.CapacityGB = $Volume.CapacityGB
-                $output.KeyProtector = $Volume.KeyProtector
+        return $ResultsArray | Select-Object Host, DateScanned, MountPoint, EncryptionMethod, AutoUnlockEnabled, 
+        MetadataVersion, VolumeStatus, ProtectionStatus, LockStatus, EncryptionPercentage, WipePercentage, VolumeType, CapacityGB, KeyProtector
 
-                $output
-            }
-        
-            $total++
-            return $OutputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [BitLocker]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Started at {0}" -f $DateScanned)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

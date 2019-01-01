@@ -13,11 +13,12 @@
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_ARP} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
             Export-Csv -NoTypeInformation "c:\temp\$Target_ARP.csv"
         }
 
     .NOTES 
-        Updated: 2018-12-30
+        Updated: 2018-12-31
 
         Contributing Authors:
             Anthony Phipps
@@ -47,7 +48,7 @@
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Verbose ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
@@ -64,18 +65,17 @@
         
         
         foreach ($ARPEntry in $ARPEntryArray) {
-            $ARPEntry | Add-Member -MemberType NoteProperty -Name "Host" -Value $Hostname
+            $ARPEntry | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $ARPEntry | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
         
-        return $ARPEntryArray | Select-Object IfIndex, InterfaceAlias, IPAdress, LinkLayerAddress, State, PolicyStore
+        return $ARPEntryArray | Select-Object Host, DateScanned, IfIndex, InterfaceAlias, IPAdress, LinkLayerAddress, State, PolicyStore
     }
 
     end{
         
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }

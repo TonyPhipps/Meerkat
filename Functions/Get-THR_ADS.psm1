@@ -25,7 +25,7 @@ function Get-THR_ADS {
         }
 
     .NOTES 
-        Updated: 2018-12-30
+        Updated: 2018-12-31
 
         Contributing Authors:
             Anthony Phipps
@@ -56,16 +56,13 @@ function Get-THR_ADS {
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Verbose ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
     }
 
     process{
-
-        $Hostname = $ENV:COMPUTERNAME
-        $DateScanned = Get-Date -Format u
 
         $Streams = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
         ForEach-Object { Get-Item $_.FullName -Stream * } | # Doesn't work without foreach
@@ -77,7 +74,7 @@ function Get-THR_ADS {
             $StreamContent = Get-Content -Path $Stream.FileName -Stream $Stream.Stream
             $Attributes = Get-ItemProperty -Path $Stream.FileName
 
-            $Stream | Add-Member -MemberType NoteProperty -Name "Host" -Value $Hostname
+            $Stream | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Stream | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             $Stream | Add-Member -MemberType NoteProperty -Name "CreationTimeUtc" -Value $File.CreationTimeUtc
             $Stream | Add-Member -MemberType NoteProperty -Name "LastAccessTimeUtc" -Value $File.LastAccessTimeUtc
@@ -93,7 +90,6 @@ function Get-THR_ADS {
         
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }

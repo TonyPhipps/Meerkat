@@ -18,7 +18,7 @@ function Get-THR_Processes {
         }
 
     .NOTES 
-        Updated: 2018-12-30
+        Updated: 2018-12-31
 
         Contributing Authors:
             Anthony Phipps
@@ -49,16 +49,13 @@ function Get-THR_Processes {
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Verbose ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
     }
 
     process{
-
-        $Hostname = $ENV:COMPUTERNAME
-        $DateScanned = Get-Date -Format u
 
         $ProcessArray = Get-Process -IncludeUserName
         $CIMProcesses = Get-CimInstance -class win32_Process
@@ -75,7 +72,7 @@ function Get-THR_Processes {
             $MemoryMB = $PerfProcArray | Where-Object IDProcess -eq $Process.ID | Select-Object -ExpandProperty workingSetPrivate
             $MemoryMB = try {[Math]::Round(($MemoryMB / 1mb),2)} Catch{}
 
-            $Process | Add-Member -MemberType NoteProperty -Name "Host" -Value $Hostname
+            $Process | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Process | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             $Process | Add-Member -MemberType NoteProperty -Name "CommandLine" -Value $CommandLine
             $Process | Add-Member -MemberType NoteProperty -Name "Services" -Value $Services
