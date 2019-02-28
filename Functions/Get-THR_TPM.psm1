@@ -155,7 +155,7 @@ function Get-THR_TPM {
             # Convert ManufacturerId to ManufacturerName
             foreach ($Key in $Manufacturers.Keys) {
 
-                if ($Key -eq $TPMInfo.ManufacturerId) {
+                if ($Key -eq $output.ManufacturerId) {
                     
                     $output.ManufacturerName = $Manufacturers[$Key]
                 }
