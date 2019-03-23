@@ -18,12 +18,12 @@
         }
 
     .NOTES 
-        Updated: 2018-12-31
+        Updated: 2019-03-23
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or

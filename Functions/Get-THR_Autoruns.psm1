@@ -6,24 +6,23 @@
     .DESCRIPTION 
         Gets a list of programs that auto start for the given computer(s).
 
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+    .EXAMPLE 
+        Get-THR_Autoruns
 
     .EXAMPLE 
-        Get-THR_Autoruns 
         Get-THR_Autoruns SomeHostName.domain.com
         Get-Content C:\hosts.csv | Get-THR_Autoruns
         Get-THR_Autoruns -Computer $env:computername
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Autoruns
 
     .NOTES
-        Updated: 2018-12-31
+        Updated: 2019-03-23
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
