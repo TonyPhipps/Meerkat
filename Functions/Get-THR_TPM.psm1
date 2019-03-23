@@ -17,7 +17,7 @@ function Get-THR_TPM {
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TPM
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-02-28
 
         Contributing Authors:
             Anthony Phipps
@@ -155,7 +155,7 @@ function Get-THR_TPM {
             # Convert ManufacturerId to ManufacturerName
             foreach ($Key in $Manufacturers.Keys) {
 
-                if ($Key -eq $TPMInfo.ManufacturerId) {
+                if ($Key -eq $output.ManufacturerId) {
                     
                     $output.ManufacturerName = $Manufacturers[$Key]
                 }
