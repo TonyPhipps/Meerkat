@@ -11,18 +11,23 @@ function Get-THR_BitLocker {
 
     .EXAMPLE 
         Get-THR_BitLocker
-        Get-THR_BitLocker SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_BitLocker
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_BitLocker
+
+    .EXAMPLE
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_BitLocker} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_BitLocker.csv"
+        }
 
     .NOTES 
-        Updated: 2018-12-31
+        Updated: 2019-03-23
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
