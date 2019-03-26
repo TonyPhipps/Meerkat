@@ -64,11 +64,11 @@ function Get-THR_ADS {
 
     process{
 
-        $Streams = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
+        $ResultsArray = Get-ChildItem -Path $Path -Recurse -PipelineVariable FullName | 
         ForEach-Object { Get-Item $_.FullName -Stream * } | # Doesn't work without foreach
         Where-Object {($_.Stream -notlike "*DATA") -AND ($_.Stream -ne "Zone.Identifier")}
 
-        ForEach ($Stream in $Streams) {
+        ForEach ($Stream in $ResultsArray) {
 
             $File = Get-Item $Stream.FileName
             $StreamContent = Get-Content -Path $Stream.FileName -Stream $Stream.Stream
@@ -83,7 +83,7 @@ function Get-THR_ADS {
             $Stream | Add-Member -MemberType NoteProperty -Name "Attributes" -Value $Attributes.Mode
         }
 
-        return $Streams | Select-Object Host, DateScanned, FileName, Stream, Length, Attributes, StreamContent, CreationTimeUtc, LastAccessTimeUtc, LastWriteTimeUtc
+        return $ResultsArray | Select-Object Host, DateScanned, FileName, Stream, Length, Attributes, StreamContent, CreationTimeUtc, LastAccessTimeUtc, LastWriteTimeUtc
     }
 
     end{

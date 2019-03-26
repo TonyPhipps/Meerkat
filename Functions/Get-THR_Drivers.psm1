@@ -42,8 +42,6 @@ function Get-THR_Drivers {
     #>
 
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -53,81 +51,92 @@ function Get-THR_Drivers {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
 
-        class Driver
-        {
-            [string] $Computer
-            [string] $DateScanned
+        # class Driver
+        # {
+        #     [string] $Computer
+        #     [string] $DateScanned
             
-            [string] $Provider
-            [string] $Driver
-            [String] $Version
-            [datetime] $Date
-            [String] $Class
-            [string] $DriverSigned
-            [string] $OrginalFileName
-        }
+        #     [string] $Provider
+        #     [string] $Driver
+        #     [String] $Version
+        #     [datetime] $Date
+        #     [String] $Class
+        #     [string] $DriverSigned
+        #     [string] $OrginalFileName
+        # }
 
-        $Command = { Get-WindowsDriver -Online -ErrorAction SilentlyContinue }
+        # $Command = { 
+            
+        # }
     }
 
     process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
+        Get-WindowsDriver -Online -ErrorAction SilentlyContinue
 
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
+
+        return $ResultsArray | Select-Object Host, DateScanned, ProviderName, Driver, Version, Date, ClassDescription, DriverSignature, OriginalFileName
+            
+        # $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        
+        # Write-Verbose ("{0}: Querying remote system" -f $Computer)
+
+        # if ($Computer -eq $env:COMPUTERNAME){
+            
+        #     $ResultsArray = & $Command 
+        # } 
+        # else {
+
+        #     $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        # }
        
-        if ($ResultsArray) { 
+        # if ($ResultsArray) { 
           
-            $OutputArray = foreach ($driver in $ResultsArray) {
+        #     $OutputArray = foreach ($driver in $ResultsArray) {
              
-                $output = $null
-                $output = [Driver]::new()
+        #         $output = $null
+        #         $output = [Driver]::new()
                 
-                $output.DateScanned = Get-Date -Format o
-                $output.Computer = $Computer
-                $output.Provider = $driver.ProviderName
-                $output.Driver = $driver.Driver
-                $output.Version = $driver.Version
-                $output.date = $driver.Date
-                $output.Class = $driver.ClassDescription
-                $output.DriverSigned = $driver.DriverSignature
-                $output.OrginalFileName = $driver.OriginalFileName
+        #         $output.DateScanned = Get-Date -Format o
+        #         $output.Computer = $Computer
+        #         $output.Provider = $driver.ProviderName
+        #         $output.Driver = $driver.Driver
+        #         $output.Version = $driver.Version
+        #         $output.date = $driver.Date
+        #         $output.Class = $driver.ClassDescription
+        #         $output.DriverSigned = $driver.DriverSignature
+        #         $output.OrginalFileName = $driver.OriginalFileName
 
-                $output
-            }
+        #         $output
+        #     }
 
-            $total++
-            Return $OutputArray
+        #     $total++
+        #     Return $OutputArray
         
-        }
-        else {
+        # }
+        # else {
                 
-            $output = $null
-            $output = [Driver]::new()
+        #     $output = $null
+        #     $output = [Driver]::new()
 
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
+        #     $output.Computer = $Computer
+        #     $output.DateScanned = Get-Date -Format o
             
-            $total++
-            return $output
-        }
+        #     $total++
+        #     return $output
+        # }
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

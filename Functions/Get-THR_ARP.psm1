@@ -56,7 +56,7 @@
 
     process{
             
-        $ARPEntryArray = Get-NetNeighbor | 
+        $ResultsArray = Get-NetNeighbor | 
             Where-Object {($_.LINKLayerAddress -ne "") -and
                 ($_.LINKLayerAddress -ne "FF-FF-FF-FF-FF-FF") -and # Broadcast. Filtered by LinkLayerAddress rather than "$_.State -ne "permanent" to maintain manual entries
                 ($_.LINKLayerAddress -notlike "01-00-5E-*") -and   # IPv4 multicast
@@ -64,12 +64,12 @@
             }
         
         
-        foreach ($ARPEntry in $ARPEntryArray) {
-            $ARPEntry | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $ARPEntry | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
         
-        return $ARPEntryArray | Select-Object Host, DateScanned, IfIndex, InterfaceAlias, IPAdress, LinkLayerAddress, State, PolicyStore
+        return $ResultsArray | Select-Object Host, DateScanned, IfIndex, InterfaceAlias, IPAdress, LinkLayerAddress, State, PolicyStore
     }
 
     end{

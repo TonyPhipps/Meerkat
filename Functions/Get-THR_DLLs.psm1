@@ -10,14 +10,18 @@
         Computer can be a single hostname, FQDN, or IP address.        
 
     .EXAMPLE 
-        Get-THR_DLLs 
-        Get-THR_DLLs SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_DLLs
-        Get-THR_DLLs $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DLLs
+        Get-THR_DLLs
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_DLLs} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_DLLs.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-03-25
 
         Contributing Authors:
             Anthony Phipps
@@ -43,8 +47,6 @@
     #>
 
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -54,85 +56,25 @@
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
-
-        class DLL
-        {
-            [String] $Computer
-            [string] $DateScanned
-
-            [string] $ProcessID
-            [string] $Process
-            [String] $DLLName
-            [String] $DLLCompany
-            [String] $DLLProduct
-        }
-
-        $Command = { 
-            
-            $Processes = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules 
-            return $Processes
-        }
 	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        $ResultsArray = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
-
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
-            
-        if ($ResultsArray) {
-            
-            $outputArray = Foreach ($Process in $ResultsArray) {
-                
-                Foreach ($Module in $Process.modules){
-                    
-                    $output = $null
-                    $output = [DLL]::new()
-    
-                    $output.Computer = $Computer
-                    $output.DateScanned = Get-Date -Format o
-    
-                    $output.ProcessID = $Process.Id
-                    $output.Process = $Process.ProcessName
-                    $output.DLLCompany = $Module.Company
-                    $output.DLLProduct = $Module.Product
-                    $output.DLLName = $Module.ModuleName
-                    
-                    $output
-                }
-            }
 
-            $total++
-            return $outputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [DLL]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
+        return $ResultsArray | Select-Object Host, DateScanned, Id, ProcessName, Company, Product, Modules
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
