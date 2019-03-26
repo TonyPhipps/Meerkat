@@ -6,6 +6,11 @@ function Get-THR_GroupMembers {
     .DESCRIPTION 
         Gets a list of the members of each local group on a given system.
 
+        Alternative: net.exe user
+        Alternative: net.exe localgroup
+        Alternative: net.exe localgroup administrators
+        
+
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 

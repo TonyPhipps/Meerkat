@@ -6,6 +6,8 @@ function Get-THR_ScheduledTasks {
     .DESCRIPTION 
         Gets the scheduled tasks on a given system.
 
+        Alternative: schtasks.exe
+
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.  
 

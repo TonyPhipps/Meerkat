@@ -6,6 +6,9 @@ function Get-THR_Processes {
     .DESCRIPTION 
         Gets the processes applied to a given system, including usernames.
 
+        Alternative: tasklist.exe -v
+        Alternative: wmic.exe process list full
+
     .EXAMPLE
         Get-THR_Processes
         

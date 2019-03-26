@@ -6,6 +6,9 @@
     .DESCRIPTION
         Gets the active TCP connections for the given computer(s).
 
+        Alternative: nbtstat.exe -S
+        Alternative: netstat.exe -naob
+
     .PARAMETER Computer
         Computer can be a single hostname, FQDN, or IP address.
 

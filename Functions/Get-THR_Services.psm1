@@ -6,6 +6,10 @@ function Get-THR_Services {
     .DESCRIPTION 
         Queries the services on a given hostname, FQDN, or IP address.
 
+        Alternative: net.exe start
+        Alternative: sc.exe query
+        Alternative: tasklist.exe /svc
+
     .PARAMETER Computer  
         Queries the services on a given hostname, FQDN, or IP address.
 

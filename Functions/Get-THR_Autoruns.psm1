@@ -6,6 +6,9 @@
     .DESCRIPTION 
         Gets a list of programs that auto start for the given computer(s).
 
+        Alternative: Sysinternals autoruns.exe
+        Alternative: wmic.exe startup list full
+
     .EXAMPLE 
         Get-THR_Autoruns
 
