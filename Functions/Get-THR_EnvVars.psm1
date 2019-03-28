@@ -1,19 +1,24 @@
 Function Get-THR_EnvVars {
     <#
     .SYNOPSIS 
-        Retreives the values of all environment variables from one or more systems.
+        Retreives the values of all environment variables from the system.
     
     .DESCRIPTION
-        Retreives the values of all environment variables from one or more systems.
-    
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+        Retreives the values of all environment variables from the system.
     
     .EXAMPLE 
-        get-content .\hosts.txt | Get-THR_EnvVars $env:computername | export-csv envVars.csv -NoTypeInformation
+        Get-THR_EnvVars
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_EnvVars} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_EnvVars.csv"
+        }
     
      .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-03-27
 
         Contributing Authors:
             Anthony Phipps
@@ -41,8 +46,6 @@ Function Get-THR_EnvVars {
 
 
     param(
-        [Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
     begin{
@@ -53,38 +56,27 @@ Function Get-THR_EnvVars {
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
 
-        $total = 0
-
-        class EnvVariable {
-            [String] $Computer
-            [string] $DateScanned
+        # class EnvVariable {
+        #     [String] $Computer
+        #     [string] $DateScanned
             
-            [String] $Name         
-            [String] $UserName
-            [String] $VariableValue
-        }
+        #     [String] $Name         
+        #     [String] $UserName
+        #     [String] $VariableValue
+        # }
 
-        $Command = { Get-CimInstance -Class Win32_Environment }
+            
+
     }
 
 
     process{
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+
+        $Win32_Environment = Get-CimInstance -Class Win32_Environment 
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        if ($Win32_Environment) {
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        }
-        
-        if ($ResultsArray) {
-
-            $OutputArray = ForEach ($Variable in $ResultsArray) {
+            $ResultsArray = ForEach ($Variable in $Win32_Environment) {
 
                 $VariableValues = $Variable.VariableValue.Split("") | Where-Object {$_ -ne ""}
             
@@ -93,39 +85,30 @@ Function Get-THR_EnvVars {
                     $VariableValueSplit.VariableValue = $VariableValue
                 
                     $output = $null
-                    $output = [EnvVariable]::new()
-   
-                    $output.Computer = $Computer
-                    $output.DateScanned = Get-Date -Format o
-
-                    $output.Name = $VariableValueSplit.Name
-                    $output.UserName = $VariableValueSplit.UserName
-                    $output.VariableValue = $VariableValueSplit.VariableValue         
+                    $output = [PSCustomObject]@{
+                        UserName = $VariableValueSplit.UserName
+                        VariableName = $VariableValueSplit.Name
+                        VariableValue = $VariableValueSplit.VariableValue  
+                    }
 
                     $output
                 }
             }
-
-            $total++
-            return $OutputArray
         }
-        else {
-                
-            $output = $null
-            $output = [EnvVariable]::new()
 
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
+
+        return $ResultsArray | Select-Object Host, DateScanned, UserName, VariableName, VariableValue
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

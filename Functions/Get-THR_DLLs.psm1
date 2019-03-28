@@ -1,13 +1,10 @@
 ﻿function Get-THR_DLLs {
     <#
     .SYNOPSIS 
-        Gets a list of DLLs loaded by all process on a given system.
+        Gets a list of DLLs loaded by all processes.
 
     .DESCRIPTION 
-        Gets a list of DLLs loaded by all process on a given system.
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.        
+        Gets a list of DLLs loaded by all processes.  
 
     .EXAMPLE 
         Get-THR_DLLs

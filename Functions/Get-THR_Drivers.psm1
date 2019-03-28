@@ -1,20 +1,24 @@
 function Get-THR_Drivers {
     <#
     .SYNOPSIS 
-        Gets a list of drivers for the given computer(s).
+        Gets a list of drivers.
 
     .DESCRIPTION 
-        Gets a list of drivers for the given computer(s).
+        Gets a list of drivers.
 
     .EXAMPLE 
-        Get-THR_Drivers 
-        Get-THR_Drivers SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Drivers
-        Get-THR_Drivers -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Drivers
+        Get-THR_Drivers
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Drivers} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Drivers.csv"
+        }
 
     .NOTES
-        Updated: 2019-03-26
+        Updated: 2019-03-27
 
         Contributing Authors:
             Jeremy Arnold

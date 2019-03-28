@@ -1,10 +1,10 @@
 ﻿function Get-THR_Autoruns {
     <#
     .SYNOPSIS 
-        Gets a list of programs that auto start for the given computer(s).
+        Gets a list of programs that auto start.
 
     .DESCRIPTION 
-        Gets a list of programs that auto start for the given computer(s).
+        Gets a list of programs that auto start.
 
         Alternative: Sysinternals autoruns.exe
         Alternative: wmic.exe startup list full
@@ -19,7 +19,7 @@
         Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Autoruns
 
     .NOTES
-        Updated: 2019-03-23
+        Updated: 2019-03-27
 
         Contributing Authors:
             Jeremy Arnold

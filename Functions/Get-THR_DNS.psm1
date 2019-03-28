@@ -1,10 +1,10 @@
 ﻿function Get-THR_DNS {
     <#
     .SYNOPSIS 
-        Gets the DNS cache for the given computer(s).
+        Gets the DNS cache from all connected interfaces.
 
     .DESCRIPTION 
-        Gets the DNS cache from all connected interfaces for the given computer(s).
+        Gets the DNS cache from all connected interfaces.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
@@ -21,7 +21,7 @@
         }
 
     .NOTES 
-        Updated: 2019-03-25
+        Updated: 2019-03-27
 
         Contributing Authors:
             Jeremy Arnold

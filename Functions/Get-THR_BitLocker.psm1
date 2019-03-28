@@ -1,13 +1,11 @@
 function Get-THR_BitLocker {
     <#
     .SYNOPSIS 
-        Gets BitLocker details on a given system.
+        Gets BitLocker details.
 
     .DESCRIPTION 
-        Gets BitLocker details on a given system.
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.  
+        Gets BitLocker details.
+  
 
     .EXAMPLE 
         Get-THR_BitLocker
@@ -21,7 +19,7 @@ function Get-THR_BitLocker {
         }
 
     .NOTES 
-        Updated: 2019-03-23
+        Updated: 2019-03-27
 
         Contributing Authors:
             Jeremy Arnold

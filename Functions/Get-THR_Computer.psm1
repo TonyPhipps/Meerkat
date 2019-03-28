@@ -1,24 +1,25 @@
 Function Get-THR_Computer {
     <#
     .SYNOPSIS
-        Gets general system information on a given system.
+        Gets general system information.
 
     .DESCRIPTION
-        Gets general system information on a given system. Includes data from 
+        Gets general system information. Includes data from 
         Win32_ComputerSystem, Win32_OperatingSystem, and win32_BIOS.
 
-    .PARAMETER Computer
-        Computer can be a single hostname, FQDN, or IP address.
+    .EXAMPLE 
+        Get-THR_Computer
 
-    .EXAMPLE
-        Get-THR_Computer 
-        Get-THR_Computer SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Computer
-        Get-THR_Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Computer
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Computer} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Computer.csv"
+        }
 
     .NOTES
-        Updated: 2019-03-25
+        Updated: 2019-03-27
 
         Contributing Authors:
             Anthony Phipps
