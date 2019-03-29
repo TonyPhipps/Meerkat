@@ -1,23 +1,24 @@
 ﻿ function Get-THR_Hardware {
     <#
     .SYNOPSIS 
-        Gets a list of installed devices for the given computer(s).
+        Gets a list of installed devices.
 
     .DESCRIPTION 
-        Gets a list of installed devices for the given computer(s).
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+        Gets a list of installed devices.
 
     .EXAMPLE 
-        Get-THR_Hardware 
-        Get-THR_Hardware SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Hardware
-        Get-THR_Hardware -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hardware
+        Get-THR_Hardware
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Hardware} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Hardware.csv"
+        }
 
     .NOTES
-        Updated: 2018-08-05
+        Updated: 2019-03-28
 
         Contributing Authors:
             Jeremy Arnold
@@ -42,8 +43,6 @@
     #>
 
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -53,76 +52,26 @@
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
-
-        class Device
-        {
-            [string] $Computer
-            [string] $DateScanned
-            
-            [String] $Class
-            [string] $Caption
-            [string] $Description
-            [String] $DeviceID
-
-        }
-
-        $Command = { Get-CimInstance Win32_PnPEntity }
-
     }
 
     process{
             
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        $ResultsArray = Get-CimInstance Win32_PnPEntity
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
-       
-        if ($ResultsArray) { 
-            
-            $OutputArray = ForEach ($device in $ResultsArray) {
-             
-                $output = $null
-                $output = [Device]::new()
-                
-                $output.DateScanned = Get-Date -Format o
-                $output.Computer = $Computer
-                $output.Class = $device.pnpclass
-                $output.caption = $device.caption
-                $output.description = $device.description
-                $output.deviceID = $device.deviceID
 
-                $output
-            }
+        return $ResultsArray | Select-Object Host, DateScanned, PnPClass, Caption, Description, DeviceID
 
-            $total++
-            Return $OutputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [Device]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
