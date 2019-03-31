@@ -23,7 +23,7 @@ Function Get-THR_EnvVars {
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -54,21 +54,8 @@ Function Get-THR_EnvVars {
         Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
-        $stopwatch.Start()
-
-        # class EnvVariable {
-        #     [String] $Computer
-        #     [string] $DateScanned
-            
-        #     [String] $Name         
-        #     [String] $UserName
-        #     [String] $VariableValue
-        # }
-
-            
-
+        $stopwatch.Start()          
     }
-
 
     process{
 

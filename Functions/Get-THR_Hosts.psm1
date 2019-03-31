@@ -1,28 +1,29 @@
 function Get-THR_Hosts {
     <#
     .SYNOPSIS 
-        Gets the arp cache for the given computer(s).
+        Gets the host file entries.
 
     .DESCRIPTION 
-        Gets the arp cache from all connected interfaces for the given computer(s).
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+        Gets the host file entries.
 
     .EXAMPLE 
-        Get-THR_Hosts 
-        Get-THR_Hosts  SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Hosts
-        Get-THR_Hosts -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hosts
+        Get-THR_Hosts
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Hosts} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Hosts.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-03-30
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -41,8 +42,6 @@ function Get-THR_Hosts {
     #>
 
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -52,88 +51,42 @@ function Get-THR_Hosts {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
-
-        class Entry
-        {
-            [string] $Computer
-            [string] $DateScanned
-
-            [String] $HostsIP
-            [string] $HostsName
-            [String] $HostsComment
-        }
-
-        $Command = {
-            $Hosts = Join-Path -Path $($env:windir) -ChildPath "system32\drivers\etc\hosts"
-
-            [regex]$nonwhitespace = "\S"
-
-            Get-Content $Hosts | Where-Object {
-                (($nonwhitespace.Match($_)).value -ne "#") -and ($_ -notmatch "^\s+$") -and ($_.Length -gt 0) # exlcude full-line comments and blank lines
-            }
-        }
 	}
 
     process{
             
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        $Hosts = Join-Path -Path $($env:windir) -ChildPath "system32\drivers\etc\hosts"
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        [regex]$nonwhitespace = "\S"
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
+        $HostsArray = Get-Content $Hosts | 
+            Where-Object { (($nonwhitespace.Match($_)).value -ne "#") -and ($_ -notmatch "^\s+$") -and ($_.Length -gt 0) } # exlcude full-line comments and blank lines
 
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        }
+        if ($HostsArray){
 
-        if ($ResultsArray){
-
-            $OutputArray = foreach($Entry in $ResultsArray) {
-
-                $ip = $null
-                $hostname = $null
-                $comment = $null
+            $ResultsArray = foreach($Entry in $HostsArray) {
 
                 $Entry -match "(?<IP>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s+(?<HOSTNAME>\S+)" | Out-Null
 
-                $ip = $matches.ip
-                $hostname = $matches.hostname
+                $IP = $matches.IP
+                $HostName = $matches.HostName
 
                 if ($Entry.contains("#")) {
                     
-                    $comment = $Entry.substring($Entry.indexof("#")+1)
+                    $Comment = $Entry.substring($Entry.indexof("#")+1)
                 }
 
-                $output = $null
-                $output = [Entry]::new()
-        
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-                
-                $output.HostsIP = $ip
-                $output.HostsName = $hostname
-                $output.HostsComment = $comment
+                $ParsedEntry = $null
+                    $ParsedEntry = [PSCustomObject] @{
+                        IP = $IP
+                        HostName = $HostName
+                        Comment = $Comment 
+                    }
 
-                $output
+                    $ParsedEntry
             }
 
-            $total++
-            return $OutputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [Entry]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
+            return $ResultsArray
         }
     }
 
@@ -141,6 +94,7 @@ function Get-THR_Hosts {
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
