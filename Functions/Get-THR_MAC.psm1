@@ -7,9 +7,6 @@ function Get-THR_MAC {
         Records Modified, Accessed, and Created (MAC) times on files. Use the -Path command to 
         provide a directory to recursively record MAC times.
 
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
-
     .PARAMETER Path  
         Specify a path to begin recursive recording of MAC times (Defaults to "$ENV:SystemDrive\Users")
 
@@ -18,18 +15,22 @@ function Get-THR_MAC {
 
     .EXAMPLE 
         Get-THR_MAC
-        Get-THR_MAC SomeHostName.domain.com -Path "C:\"
-        Get-Content C:\hosts.csv | Get-THR_MAC
-        Get-THR_MAC $env:computername -Path "C:\Windows" -Hash
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_MAC
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_MAC} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_MAC.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-04-02
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -50,10 +51,7 @@ function Get-THR_MAC {
     [CmdletBinding()]
     param(
         [Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
-        $Computer = $env:COMPUTERNAME,
-
-        [Parameter()]
-        $Path, # Will default to "$ENV:SystemDrive\Users" on endpoint.
+        $Path, # Will default to "$ENV:SystemDrive\Users"
 
         [Parameter()]
         [switch] $Hash
@@ -66,110 +64,42 @@ function Get-THR_MAC {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
-
-        class FileMAC {
-            [String] $Computer
-            [string] $DateScanned
-
-            [String] $FileName
-            [String] $Mode
-            [String] $Bytes
-            [String] $Hash
-            [String] $LastWriteTimeUTC
-            [DateTime] $LastAccessTimeUTC
-            [DateTime] $CreationTimeUTC
-        }
-
-        $Command = {
-            
-            if ($args) {
-                $Path = $args[0]
-                $Hash = $args[1]
-            }
-            
-            if (!$Path) {
-                $Path = "$ENV:SystemDrive\Users"
-            } else {
-                $Path = $Path
-            }
-
-            $FileMACArray = Get-ChildItem -Path $Path -File -Recurse | 
-                Select-Object FullName, Mode, Length, Hash, LastWriteTimeUtc, LastAccessTimeUtc, CreationTimeUtc
-
-            if ($Hash){
-                
-                foreach ($File in $FileMACArray){
-
-                    $File.Hash = (Get-FileHash -Path $File.FullName -ErrorAction SilentlyContinue).Hash
-                }
-            }
-
-            return $FileMACArray
-        }
     }
 
     process{
-
-        $Computer = $Computer.Replace('"', '')
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        if (!$Path) {
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
+            $Path = "$ENV:SystemDrive\Users"
 
-            $ResultsArray = Invoke-Command -ArgumentList $Path, $Hash -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        } else {
+
+            $Path = $Path
         }
-        
-        if ($ResultsArray) {
 
-            $OutputArray = ForEach ($FileMAC in $ResultsArray) {
+        $ResultsArray = Get-ChildItem -Path $Path -File -Recurse | 
+            Select-Object FullName, Mode, Length, Hash, LastWriteTimeUtc, LastAccessTimeUtc, CreationTimeUtc
 
-                $output = $null
-                $output = [FileMAC]::new()
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
 
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
+            if ($Hash){
 
-                $output.FileName = $FileMAC.FullName
-                $output.Mode = $FileMAC.Mode
-                $output.Bytes = $FileMAC.Length
-                $output.Hash = $FileMAC.Hash
-                $output.LastWriteTimeUTC = $FileMAC.LastWriteTimeUtc
-                $output.LastAccessTimeUTC = $FileMAC.LastAccessTimeUtc
-                $output.CreationTimeUTC = $FileMAC.creationTimeUtc
-                
-                $output
+                Write-Verbose ("Hashing: {0}" -f $Result.FullName)
+                $Result.Hash = (Get-FileHash -Path $Result.FullName -ErrorAction SilentlyContinue).Hash
             }
-
-            $total++
-            return $OutputArray
         }
-        else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            
-            $Result = $null
-            $Result = [FileMAC]::new()
 
-            $Result.Computer = $Computer
-            $Result.DateScanned = Get-Date -Format u
-            
-            $total++
-            return $Result
-        }
+        return $ResultsArray | Select-Object Host, DateScanned, FullName, Mode, Length, Hash, LastWriteTimeUTC, LastAccessTimeUTC, creationTimeUtc
+        
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
