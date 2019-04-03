@@ -6,9 +6,6 @@ function Get-THR_Hotfixes {
     .DESCRIPTION 
         Returns all applied hotfixes. Get-Hotfix returns only OS-level hotfixes, this one grabs em all.
 
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
-
     .EXAMPLE 
         Get-THR_Hotfixes
 
