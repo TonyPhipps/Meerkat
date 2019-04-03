@@ -1,28 +1,32 @@
 function Get-THR_Hotfixes {
     <#
     .SYNOPSIS 
-        Gets the hotfixes applied to a given system.
+        Returns all applied hotfixes.
 
     .DESCRIPTION 
-        Gets the hotfixes applied to a given system. Get-Hotfix returns only OS-level hotfixes, this one grabs em all.
+        Returns all applied hotfixes. Get-Hotfix returns only OS-level hotfixes, this one grabs em all.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
     .EXAMPLE 
-        Get-THR_Hotfixes 
-        Get-THR_Hotfixes SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Hotfixes
-        Get-THR_Hotfixes $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Hotfixes
+        Get-THR_Hotfixes
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Hotfixes} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Hotfixes.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-03-02
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -41,8 +45,6 @@ function Get-THR_Hotfixes {
     #>
 
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -52,95 +54,30 @@ function Get-THR_Hotfixes {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
-
-        class Hotfix
-        {
-            [string] $Computer
-            [string] $DateScanned
-
-            [String] $Operation
-            [string] $ResultCode
-            [String] $HResult
-            [String] $Date
-            [String] $Title
-            [String] $Description
-            [String] $UnmappedResultCode
-            [String] $ClientApplicationID
-            [String] $ServerSelection
-            [String] $ServiceID
-            [String] $UninstallationNotes
-            [String] $SupportUrl
-        }
-
-        $Command = {
-
-            $Session = New-Object -ComObject "Microsoft.Update.Session"
-            $Searcher = $Session.CreateUpdateSearcher()
-            $historyCount = $Searcher.GetTotalHistoryCount()
-            $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null
-        }
 	}
 
     process{
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        $Session = New-Object -ComObject "Microsoft.Update.Session"
+        $Searcher = $Session.CreateUpdateSearcher()
+        $historyCount = $Searcher.GetTotalHistoryCount()
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        $ResultsArray = $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null
+        
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
+        
+        return $ResultsArray | Select-Object Host, DateScanned, Operation, ResultCode, HResult, Date, Title, Description, UnmappedResultCode, ClientApplicationID, ServerSelection, ServiceID, UninstallationNotes, SupportUrl
 
-        if ($ResultsArray){
-            
-            $OutputArray = foreach ($Hotfix in $ResultsArray) {
-
-                $output = $null
-                $output = [Hotfix]::new()
-
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-
-                $output.Operation = $Hotfix.Operation
-                $output.ResultCode = $Hotfix.ResultCode
-                $output.HResult = $Hotfix.HResult
-                $output.Date = $Hotfix.Date
-                $output.Title = $Hotfix.Title
-                $output.DESCRIPTION = $Hotfix.DESCRIPTION
-                $output.UnmappedResultCode = $Hotfix.UnmappedResultCode
-                $output.ClientApplicationID = $Hotfix.ClientApplicationID
-                $output.ServerSelection = $Hotfix.ServerSelection
-                $output.ServiceID = $Hotfix.ServiceID
-                $output.UninstallationNotes = $Hotfix.UninstallationNotes
-                $output.SupportUrl = $Hotfix.SupportUrl
-
-                $output
-            }
-
-            $total++
-            return $OutputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [Hotfix]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
