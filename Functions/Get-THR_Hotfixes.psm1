@@ -21,7 +21,7 @@ function Get-THR_Hotfixes {
         }
 
     .NOTES 
-        Updated: 2019-03-02
+        Updated: 2019-04-02
 
         Contributing Authors:
             Anthony Phipps
