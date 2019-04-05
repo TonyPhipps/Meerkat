@@ -1,10 +1,10 @@
 function Get-THR_Processes {
     <#
     .SYNOPSIS 
-        Gets the processes applied to a given system.
+        Gets process information relevant to an investigation or hunt.
 
     .DESCRIPTION 
-        Gets the processes applied to a given system, including usernames.
+        Gets process information relevant to an investigation or hunt.
 
         Alternative: tasklist.exe -v
         Alternative: wmic.exe process list full
@@ -21,12 +21,12 @@ function Get-THR_Processes {
         }
 
     .NOTES 
-        Updated: 2018-12-31
+        Updated: 2019-04-03
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -92,7 +92,6 @@ function Get-THR_Processes {
         
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
