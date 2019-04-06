@@ -1,10 +1,10 @@
 function Get-THR_ScheduledTasks {
     <#
     .SYNOPSIS 
-        Gets the scheduled tasks.
+        Gets scheduled tasks.
 
     .DESCRIPTION 
-        Gets the scheduled tasks.
+        Gets scheduled tasks.
 
         Alternative: schtasks.exe
 
