@@ -1,28 +1,29 @@
 function Get-THR_TPM {
     <#
     .SYNOPSIS 
-        Gets the TPM info on a given system.
+        Gets TPM info.
 
     .DESCRIPTION 
-        Gets the TPM info on a given system. Converts ManufacturerId if the ID is in the list of built-in names.
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address. 
+        Gets TPM info. Converts ManufacturerId if the ID is in the list of built-in names.
 
     .EXAMPLE 
-        Get-THR_TPM 
-        Get-THR_TPM SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_TPM
-        Get-THR_TPM $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TPM
+        Get-THR_TPM
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_TPM} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_TPM.csv"
+        }
 
     .NOTES 
-        Updated: 2019-02-28
+        Updated: 2019-04-07
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -43,8 +44,6 @@ function Get-THR_TPM {
     #>
 
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
@@ -54,8 +53,6 @@ function Get-THR_TPM {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
 
         $Manufacturers = @{
             0x414D4400 = "AMD"
@@ -80,110 +77,40 @@ function Get-THR_TPM {
             0x54584E00 = "Texas Instruments"
             0x57454300 = "Winbond"
         }
-
-        class TPM
-        {
-            [String] $Computer
-            [string] $DateScanned
-            
-            [bool] $TpmPresent
-            [bool] $TpmReady
-            [uint32] $ManufacturerId
-            [String] $ManufacturerIdHex
-            [String] $ManufacturerName
-            [String] $ManufacturerVersion
-            [String] $ManagedAuthLevel
-            [String] $OwnerAuth
-            [bool] $OwnerClearDisabled
-            [String] $AutoProvisioning
-            [bool] $LockedOut
-            [String] $LockoutCount
-            [String] $LockoutMax
-            [String] $SelfTest
-            [String] $FirmwareVersionAtLastProvision
-        }
-
-        $Command = {
-
-            $TPM = Get-Tpm  -ErrorAction SilentlyContinue
-            $FirmwareVersionAtLastProvision = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\TPM\WMI" -Name "FirmwareVersionAtLastProvision" -ErrorAction SilentlyContinue).FirmwareVersionAtLastProvision
-            
-            $TPM | Add-Member -MemberType NoteProperty -Name "FirmwareVersionAtLastProvision" -Value $FirmwareVersionAtLastProvision
-
-            return $TPM
-        }
 	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        $ResultsArray =  Get-Tpm -ErrorAction SilentlyContinue
+        
+        foreach ($Result in $ResultsArray) {
+           
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME            
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+            $Result | Add-Member -MemberType NoteProperty -Name "FirmwareVersionAtLastProvision" -Value (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\TPM\WMI" -Name "FirmwareVersionAtLastProvision" -ErrorAction SilentlyContinue).FirmwareVersionAtLastProvision
+            $Result | Add-Member -MemberType NoteProperty -Name "ManufacturerName" -Value ""
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $Results = & $Command 
-        } 
-        else {
-
-            $Results = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        } 
-
-        if ($Results) {
-                        
-            $output = $null
-            $output = [TPM]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-
-            $output.TpmPresent = $Results.TpmPresent
-            $output.TpmReady = $Results.TpmReady
-            $output.ManufacturerId = $Results.ManufacturerId
-            $output.ManufacturerVersion = $Results.ManufacturerVersion
-            $output.ManagedAuthLevel = $Results.ManagedAuthLevel
-            $output.OwnerAuth = $Results.OwnerAuth
-            $output.OwnerClearDisabled = $Results.OwnerClearDisabled
-            $output.AutoProvisioning = $Results.AutoProvisioning
-            $output.LockedOut = $Results.LockedOut
-            $output.LockoutCount = $Results.LockoutCount
-            $output.LockoutMax = $Results.LockoutMax
-            $output.SelfTest = $Results.SelfTest
-            $output.ManufacturerIdHex = "0x{0:x}" -f $Results.ManufacturerId
-            $output.FirmwareVersionAtLastProvision = $Results.FirmwareVersionAtLastProvision
-
-            # Convert ManufacturerId to ManufacturerName
             foreach ($Key in $Manufacturers.Keys) {
 
                 if ($Key -eq $output.ManufacturerId) {
+
+                    $Result.ManufacturerName = "0x{0:x}" -f $Result.ManufacturerId
                     
-                    $output.ManufacturerName = $Manufacturers[$Key]
+                    $Result.ManufacturerName = $Manufacturers[$Key]
                 }
             }
-
-            return $output
         }
-        else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            
-            $Result = $null
-            $Result = [TPM]::new()
 
-            $Result.Computer = $Computer
-            $Result.DateScanned = Get-Date -Format u
-            
-            $total++
-            return $Result
-        }
+        return $ResultsArray | Select-Object Host, DateScanned, TpmPresent, TpmReady, ManufacturerId, ManufacturerName, ManufacturerVersion,
+        ManagedAuthLevel, OwnerAuth, OwnerClearDisabled, AutoProvisioning, LockedOut, LockoutCount, LockoutMax, SelfTest, FirmwareVersionAtLastProvision
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
