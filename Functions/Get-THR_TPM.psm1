@@ -43,13 +43,14 @@ function Get-THR_TPM {
         https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/ADV170012
     #>
 
+    [CmdletBinding()]
     param(
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_TPM at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()

@@ -44,13 +44,14 @@ function Get-THR_ScheduledTasks {
        https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks
     #>
 
+    [CmdletBinding()]
     param(
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_ScheduledTasks at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()

@@ -48,7 +48,7 @@
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_ARP at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
@@ -69,7 +69,7 @@
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
         
-        return $ResultsArray | Select-Object Host, DateScanned, IfIndex, InterfaceAlias, IPAdress, LinkLayerAddress, State, PolicyStore
+        return $ResultsArray | Select-Object Host, DateScanned, IfIndex, InterfaceAlias, IPAddress, LinkLayerAddress, State, PolicyStore
     }
 
     end{
