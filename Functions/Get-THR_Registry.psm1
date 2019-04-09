@@ -227,8 +227,16 @@ function Get-THR_Registry {
                 }
             }
             
+            
             $ResultsArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
-            return $ResultsArray
+
+            foreach ($Result in $ResultsArray) {
+            
+                $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            }  
+
+            return $ResultsArray | Select-Object Host, DateScanned, Key, Value, Data
     }
 
     end{
