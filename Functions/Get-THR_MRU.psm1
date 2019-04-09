@@ -181,6 +181,7 @@ function Get-THR_MRU {
         $ResultsArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
 
         foreach ($Result in $ResultsArray) {
+            
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }        

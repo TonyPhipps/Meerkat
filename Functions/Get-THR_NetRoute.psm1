@@ -6,9 +6,6 @@
     .DESCRIPTION 
         Gets a list of IPv4 Routes on a given system.
 
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
-
     .EXAMPLE 
         Get-THR_NetRoute 
         Get-THR_NetRoute SomeHostName.domain.com
@@ -42,8 +39,6 @@
 
     [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
