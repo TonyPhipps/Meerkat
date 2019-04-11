@@ -1,25 +1,30 @@
 ﻿function Get-THR_NetRoute {
     <#
     .SYNOPSIS 
-        Gets a list of IPv4 Routes on a given system.
+        Gets a list of IPv4 Routes.
 
     .DESCRIPTION 
-        Gets a list of IPv4 Routes on a given system.
+        Gets a list of IPv4 Routes.
 
     .EXAMPLE 
-        Get-THR_NetRoute 
-        Get-THR_NetRoute SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_NetRoute
-        Hunt-Get-THR_NetRoute $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Hunt-Get-THR_NetRoute
+        Get-THR_NetRoute
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_MRU} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$THR_NetRoute.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-04-10
 
         Contributing Authors:
             Jeremy Arnold
+            Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -49,108 +54,39 @@
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
 
-        $total = 0
-
         Enum RouteType {
             AdminDefinedRoute = 2
             ComputedRoute = 3
             ActualRoute = 4        
         }
-
-        class Route
-        {
-            [String] $Computer
-            [string] $DateScanned
-
-            [String] $InterfaceIndex
-            [String] $InterfaceName
-            [String] $DestinationPrefix
-            [String] $NextHop
-            [String] $Metric
-            [String] $Protocol
-            [String] $Store
-            [String] $PublishedRoute
-            [RouteType] $TypeOfRoute
-        }
-
-        $Command = {
-
-            Enum RouteType {
-                AdminDefinedRoute = 2
-                ComputedRoute = 3
-                ActualRoute = 4        
-            }
-            
-            $InterfaceArray = $null
-            $InterfaceArray = Get-NetAdapter | Where-Object {$_.MediaConnectionState -eq "Connected"}
-            
-            $RouteArray = foreach ($Interface in $InterfaceArray) {
-                                
-                Get-NetRoute -AddressFamily IPv4 -InterfaceIndex $Interface.ifIndex -IncludeAllCompartments
-            }
-
-            return $RouteArray        
-        }
 	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
-
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        } 
-            
-        if ($ResultsArray) {
-            
-            $OutputArray = foreach ($route in $ResultsArray) {
-                
-                $output = $null
-                $output = [Route]::new()
-    
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-    
-                $output.InterfaceIndex = $route.ifIndex
-                $output.InterfaceName= $route.interfaceAlias
-                $output.DestinationPrefix = $route.DestinationPrefix
-                $output.NextHop = $route.NextHop
-                $output.Metric = $route.RouteMetric
-                $output.Protocol = $route.Protocol
-                $output.Store = $route.Store
-                $output.PublishedRoute = $route.Publish
-                $output.TypeOfRoute = $route.TypeOfRoute
-
-                $output
-            }
-
-            $total++
-            return $OutputArray
+        $InterfaceArray = $null
+        $InterfaceArray = Get-NetAdapter | Where-Object {$_.MediaConnectionState -eq "Connected"}
+        
+        $ResultsArray = foreach ($Interface in $InterfaceArray) {
+            Get-NetRoute -AddressFamily IPv4 -InterfaceIndex $Interface.ifIndex -IncludeAllCompartments -ErrorAction SilentlyContinue
         }
-        else {
-                
-            $output = $null
-            $output = [Route]::new()
 
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
+        foreach ($Result in $ResultsArray) {
             
-            $total++
-            return $output
-        }
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+
+
+        } 
+
+        return $ResultsArray | Select-Object Host, DateScanned, ifIndex, InterfaceAlias, DestinationPrefix, 
+        NextHop, RouteMetric, Protocol, Store, Publish, TypeOfRoute
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
