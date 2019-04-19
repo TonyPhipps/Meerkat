@@ -174,7 +174,7 @@ function Invoke-THR {
         foreach ($Module in $Modules){
 
             # & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + $Computer + "_$Module.csv") -NoTypeInformation -Append
-            Invoke-Command -ComputerName $Computer -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
+            Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
                 Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
                 Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $Module + ".csv")
         }
