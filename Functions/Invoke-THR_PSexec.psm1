@@ -23,10 +23,10 @@ function Invoke-THR_PSExec {
         Local folder containing the psexec.exe file. Default is "C:\Program Files\Sysinternals"
         
     .PARAMETER RemoteModulePath
-        Remote path to store deployed module. Default is "C:\Windows\Toolkit\"
+        Remote path to store deployed module. Default is "C:\Windows\THRecon\"
 
     .PARAMETER RemoteOutputPath
-        Remote path to store scan results. Default is "C:\Windows\Toolkit\Results\"
+        Remote path to store scan results. Default is "C:\Windows\THRecon\Results\"
 
     .PARAMETER Command
         Command to execute on remote system. Default is "Invoke-THR". 
@@ -34,16 +34,17 @@ function Invoke-THR_PSExec {
 
     .EXAMPLE
         Invoke-THR-PSExec -Computer WorkComputer
-        Invoke-thr_psexec -Computer WorkComputer -Command 'Get-THR_MAC -Hash | export-csv c:\windows\toolkit\results\computer.csv -notypeinformation'
+        Invoke-THR-PSExec -Computer WorkComputer -Command "Invoke-THR -Module MAC"
+        Invoke-thr_psexec -Computer WorkComputer -Command 'Get-THR_MAC -Hash | export-csv c:\windows\THRecon\results\MAC.csv -notypeinformation'
 
     .NOTES 
-        Updated: 2018-06-01
+        Updated: 2019-04-18
 
         Contributing Authors:
             Anthony Phipps
             Jeremy Arnold
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -67,8 +68,8 @@ function Invoke-THR_PSExec {
         #Remote Parameters
         [Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
         [string]$Computer = "127.0.0.1",
-        [string]$RemoteModulePath = "c:\Windows\Toolkit\",
-        [string]$RemoteOutputPath = "c:\Windows\Toolkit\Results\",
+        [string]$RemoteModulePath = "c:\Windows\THRecon\",
+        [string]$RemoteOutputPath = "c:\Windows\THRecon\Results\",
         [string]$Command = "Invoke-THR",
         
         #Local Parameters
@@ -134,7 +135,7 @@ function Invoke-THR_PSExec {
         Copy-WithProgress -Source "$ModulePath" -Destination "\\$Computer\$ModuleShare"
 
         # Import modules and execute command as system. -s was added due to access denied errors on only some modules.
-        & $PSExec\PsExec.exe -s \\$Computer -accepteula powershell -ExecutionPolicy ByPass -nologo -command "& {import-module $ModuleNTFS\$ModuleName; & $Command}"
+        & $PSExec\PsExec.exe -s \\$Computer -accepteula powershell -ExecutionPolicy ByPass -nologo -noprofile -command "& {import-module $ModuleNTFS\$ModuleName; & $Command}"
     }
 
     end{
