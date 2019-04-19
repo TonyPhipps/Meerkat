@@ -18,7 +18,7 @@
         }
 
     .NOTES 
-        Updated: 2019-04-10
+        Updated: 2019-04-18
 
         Contributing Authors:
             Jeremy Arnold
@@ -74,12 +74,11 @@
             
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-
-
+            $Result | Add-Member -MemberType NoteProperty -Name "RouteType" -Value ([RouteType]$Result.TypeOfRoute).ToString()
         } 
 
         return $ResultsArray | Select-Object Host, DateScanned, ifIndex, InterfaceAlias, DestinationPrefix, 
-        NextHop, RouteMetric, Protocol, Store, Publish, TypeOfRoute
+        NextHop, RouteMetric, Protocol, Store, Publish, TypeOfRoute, RouteType
     }
 
     end{

@@ -21,7 +21,7 @@
         }
 
     .NOTES 
-        Updated: 2019-03-27
+        Updated: 2019-04-18
 
         Contributing Authors:
             Jeremy Arnold
@@ -94,9 +94,12 @@
         foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name "RecordType" -Value ([recordType]$Result.Type).ToString()
+            $Result | Add-Member -MemberType NoteProperty -Name "RecordStatus" -Value ([recordStatus]$Result.Status).ToString()
+            $Result | Add-Member -MemberType NoteProperty -Name "RecordResponse" -Value ([recordResponse]$Result.Section).ToString()
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, Status, DataLength, Section, TimeToLive, Type, Data, Entry, Name
+        return $ResultsArray | Select-Object Host, DateScanned, Status, RecordStatus, DataLength, Section, RecordResponse, TimeToLive, Type, RecordType, Data, Entry, Name
     }
 
     end{
