@@ -95,8 +95,6 @@ function Get-THR_TPM {
             foreach ($Key in $Manufacturers.Keys) {
 
                 if ($Key -eq $output.ManufacturerId) {
-
-                    $Result.ManufacturerName = "0x{0:x}" -f $Result.ManufacturerId
                     
                     $Result.ManufacturerName = $Manufacturers[$Key]
                 }
