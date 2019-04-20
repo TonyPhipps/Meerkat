@@ -1,29 +1,33 @@
 ﻿function Get-THR_DNS {
     <#
     .SYNOPSIS 
-        Gets the DNS cache for the given computer(s).
+        Gets the DNS cache from all connected interfaces.
 
     .DESCRIPTION 
-        Gets the DNS cache from all connected interfaces for the given computer(s).
+        Gets the DNS cache from all connected interfaces.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
     .EXAMPLE 
-        Get-THR_DNS 
-        Get-THR_DNS SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_DNS
-        Get-THR_DNS -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_DNS
+        Get-THR_DNS
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_DNS} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_DNS.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-04-18
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -41,19 +45,17 @@
        https://github.com/TonyPhipps/THRecon
     #>
 
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_DNS at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
 
         enum recordType {
             A = 1
@@ -83,81 +85,28 @@
             Authority = 2
             Additional = 3
         }
-
-        class DNSCache {
-            [string] $Computer
-            [string] $DateScanned
-
-            [recordStatus] $Status
-            [String] $DataLength
-            [recordresponse] $RecordResponse
-            [String] $TTL
-            [RecordType] $RecordType
-            [String] $Record
-            [string] $Entry
-            [string] $RecordName
-        }
-
-        $Command = { Get-DnsClientCache }
     }
 
     process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
+        $ResultsArray = Get-DnsClientCache
 
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name "RecordType" -Value ([recordType]$Result.Type).ToString()
+            $Result | Add-Member -MemberType NoteProperty -Name "RecordStatus" -Value ([recordStatus]$Result.Status).ToString()
+            $Result | Add-Member -MemberType NoteProperty -Name "RecordResponse" -Value ([recordResponse]$Result.Section).ToString()
         }
-       
-        if ($ResultsArray) { 
-            
-            $OutputArray = foreach ($dnsRecord in $ResultsArray) {
-             
-                $output = $null
-                $output = [DNSCache]::new()
-                
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
 
-                $output.Status = $dnsRecord.status
-                $output.DataLength = $dnsRecord.dataLength
-                $output.RecordResponse = $dnsRecord.section
-                $output.TTL = $dnsRecord.TimeToLive
-                $output.RecordType = $dnsRecord.Type
-                $output.Record = $dnsRecord.data
-                $output.Entry = $dnsRecord.entry
-                $output.RecordName = $dnsRecord.Name                 
-
-                $output
-            }
-
-            $total++
-            return $OutputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [DNSCache]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
+        return $ResultsArray | Select-Object Host, DateScanned, Status, RecordStatus, DataLength, Section, RecordResponse, TimeToLive, Type, RecordType, Data, Entry, Name
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

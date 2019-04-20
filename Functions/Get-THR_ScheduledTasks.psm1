@@ -1,27 +1,31 @@
 function Get-THR_ScheduledTasks {
     <#
     .SYNOPSIS 
-        Gets the scheduled tasks on a given system.
+        Gets scheduled tasks.
 
     .DESCRIPTION 
-        Gets the scheduled tasks on a given system.
+        Gets scheduled tasks.
 
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.  
+        Alternative: schtasks.exe
 
     .EXAMPLE 
-        Get-THR_ScheduledTasks 
-        Get-THR_ScheduledTasks SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_ScheduledTasks
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_ScheduledTasks
+        Get-THR_ScheduledTasks
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_ScheduledTasks} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_ScheduledTasks.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-04-04
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -40,117 +44,69 @@ function Get-THR_ScheduledTasks {
        https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks
     #>
 
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_ScheduledTasks at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
-
-        class Task {
-            [String] $Computer
-            [string] $DateScanned
-
-            [String] $ActionsArguments
-            [String] $ActionsExecute
-            [String] $ActionsId
-            [String] $ActionsWorkingDirectory
-            [String] $Author
-            [String] $Description
-            [String] $SecurityDescriptor
-            [String] $Source
-            [String] $State
-            [String] $TaskName
-            [String] $TaskPath
-            [String] $TriggersDelay
-            [String] $TriggersEnabled
-            [String] $TriggersEndBoundary
-            [String] $TriggersExecutionTimeLimit
-            [String] $TriggersPSComputerName
-            [String] $TriggersRepetition
-            [String] $TriggersStartBoundary
-            [String] $URI
-        }
-
-        $Command = { Get-ScheduledTask }
 	}
 
     process{
+        
+        $ScheduledTaskArray = Get-ScheduledTask
+       
+        $ResultsArray = foreach($ScheduledTask in $ScheduledTaskArray) {
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+            $output = $null
+            $output = [PSCustomObject]@{
+                
+                Host = $env:COMPUTERNAME
+                DateScanned = $DateScanned
+                
+                Author = $ScheduledTask.Author
+                Description = $ScheduledTask.Description
+                SecurityDescriptor = $ScheduledTask.SecurityDescriptor
+                Source = $ScheduledTask.Source
+                State = $ScheduledTask.State
+                TaskName = $ScheduledTask.TaskName
+                TaskPath = $ScheduledTask.TaskPath
+                URI = $ScheduledTask.URI
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
-
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        }
-            
-        if ($ResultsArray) {
-
-            $OutputArray = foreach($Entry in $ResultsArray) {
-
-                $output = $null
-                $output = [Task]::new()
-
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-
-                $output.ActionsArguments = ($Entry.Actions.Arguments -join " ")
-                $output.ActionsExecute = ($Entry.Actions.Execute -join " ")
-                $output.ActionsId = ($Entry.Actions.Id -join " ")
-                $output.ActionsWorkingDirectory = ($Entry.Actions.WorkingDirectory -join " ")
-                $output.Author = $Entry.Author
-                $output.DESCRIPTION = $Entry.DESCRIPTION
-                $output.SecurityDescriptor = $Entry.SecurityDescriptor
-                $output.Source = $Entry.Source
-                $output.State = $Entry.State
-                $output.TaskName = $Entry.TaskName
-                $output.TaskPath = $Entry.TaskPath
-                $output.TriggersDelay = ($Entry.Triggers.Delay -join " ")
-                $output.TriggersEnabled = ($Entry.Triggers.Enabled -join " ")
-                $output.TriggersEndBoundary = ($Entry.Triggers.EndBoundary -join " ")
-                $output.TriggersExecutionTimeLimit = ($Entry.Triggers.ExecutionTimeLimit -join " ")
-                $output.TriggersPSComputerName = ($Entry.Triggers.PSComputerName -join " ")
-                $output.TriggersRepetition = ($Entry.Triggers.Repetition -join " ")
-                $output.TriggersStartBoundary = ($Entry.Triggers.StartBoundary -join " ")
-                $output.URI = $Entry.URI
-
-                $output
+                ActionsArguments = ($ScheduledTask.Actions.Arguments -join " ")
+                ActionsExecute = ($ScheduledTask.Actions.Execute -join " ")
+                ActionsId = ($ScheduledTask.Actions.Id -join " ")
+                ActionsWorkingDirectory = ($ScheduledTask.Actions.WorkingDirectory -join " ")
+                
+                TriggersId = ($ScheduledTask.Triggers.Id -join " ")
+                TriggersDelay = ($ScheduledTask.Triggers.Delay -join " ")
+                TriggersEnabled = ($ScheduledTask.Triggers.Enabled -join " ")
+                TriggersEndBoundary = ($ScheduledTask.Triggers.EndBoundary -join " ")
+                TriggersExecutionTimeLimit = ($ScheduledTask.Triggers.ExecutionTimeLimit -join " ")
+                TriggersRepetitionDuration = ($ScheduledTask.Triggers.Repetition.Duration -join " ")
+                TriggersRepetitionInterval = ($ScheduledTask.Triggers.Repetition.Interval -join " ")
+                TriggersStartBoundary = ($ScheduledTask.Triggers.StartBoundary -join " ")
             }
 
-            $total++
-            return $OutputArray
+            $output
         }
-        else {
-                
-            $output = $null
-            $output = [Task]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
+        
+        return $ResultsArray | Select-Object Host, DateScanned, Author, Description, SecurityDescriptor, Source, State, TaskName, TaskPath, URI, 
+        ActionsArguments, ActionsExecute, ActionsId, ActionsWorkingDirectory, 
+        TriggersId, TriggersDelay, TriggersEnabled, TriggersEndBoundary, TriggersExecutionTimeLimit, TriggersRepetitionDuration, 
+        TriggersRepetitionInterval, TriggersStartBoundary
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

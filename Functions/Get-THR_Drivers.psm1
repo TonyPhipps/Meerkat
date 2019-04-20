@@ -1,29 +1,30 @@
 function Get-THR_Drivers {
     <#
     .SYNOPSIS 
-        Gets a list of drivers for the given computer(s).
+        Gets a list of drivers.
 
     .DESCRIPTION 
-        Gets a list of drivers for the given computer(s).
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+        Gets a list of drivers.
 
     .EXAMPLE 
-        Get-THR_Drivers 
-        Get-THR_Drivers SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Drivers
-        Get-THR_Drivers -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Drivers
+        Get-THR_Drivers
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Drivers} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Drivers.csv"
+        }
 
     .NOTES
-        Updated: 2018-08-05
+        Updated: 2019-03-27
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -41,93 +42,37 @@ function Get-THR_Drivers {
        https://github.com/TonyPhipps/THRecon
     #>
 
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_Drivers at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
-
-        class Driver
-        {
-            [string] $Computer
-            [string] $DateScanned
-            
-            [string] $Provider
-            [string] $Driver
-            [String] $Version
-            [datetime] $Date
-            [String] $Class
-            [string] $DriverSigned
-            [string] $OrginalFileName
-        }
-
-        $Command = { Get-WindowsDriver -Online -ErrorAction SilentlyContinue }
     }
 
     process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
+        $ResultsArray = Get-WindowsDriver -Online -ErrorAction SilentlyContinue
 
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
-       
-        if ($ResultsArray) { 
-          
-            $OutputArray = foreach ($driver in $ResultsArray) {
-             
-                $output = $null
-                $output = [Driver]::new()
-                
-                $output.DateScanned = Get-Date -Format o
-                $output.Computer = $Computer
-                $output.Provider = $driver.ProviderName
-                $output.Driver = $driver.Driver
-                $output.Version = $driver.Version
-                $output.date = $driver.Date
-                $output.Class = $driver.ClassDescription
-                $output.DriverSigned = $driver.DriverSignature
-                $output.OrginalFileName = $driver.OriginalFileName
 
-                $output
-            }
-
-            $total++
-            Return $OutputArray
-        
-        }
-        else {
-                
-            $output = $null
-            $output = [Driver]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
+        return $ResultsArray | Select-Object Host, DateScanned, ProviderName, Driver, Version, Date, ClassDescription, DriverSignature, OriginalFileName
             
-            $total++
-            return $output
-        }
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

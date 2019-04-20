@@ -1,28 +1,29 @@
 ﻿function Get-THR_Certificates {
     <#
     .SYNOPSIS 
-        Gets a list of programs that auto start for the given computer(s).
+        Gets a list of trusted certificates at the system level.
 
     .DESCRIPTION 
-        Gets a list of programs that auto start for the given computer(s).
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+        Gets a list of trusted certificates at the system level.
 
     .EXAMPLE 
-        Get-THR_Certificates 
-        Get-THR_Certificates SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Certificates
-        Get-THR_Certificates -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Certificates
+        Get-THR_Certificates
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Certificates} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Certificates.csv"
+        }
 
     .NOTES
-        Updated: 2018-08-05
+        Updated: 2019-03-23
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -39,104 +40,39 @@
     .LINK
        https://github.com/TonyPhipps/THRecon
     #>
-
+    
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_Certificates at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
-
-        class Certificate
-        {
-            [string] $Computer
-            [string] $DateScanned
-            
-            [String] $Path
-            [String] $Thumbprint
-            [String] $SendAsTrustedIssuer
-            [String] $DnsNameList
-            [String] $FriendlyName
-            [String] $Issuer
-            [String] $Subject
-            [String] $NotAfter
-            [String] $NotBefore
-            [String] $Algorithm
-        }
-
-        $Command = {
-            Get-ChildItem Cert:\LocalMachine\ -Recurse | 
-                Select-Object @{Name="Path"; Expression = {$_.PSParentPath.Split("::")[2]}}, Thumbprint, SendAsTrustedIssuer, DnsNameList, FriendlyName, Issuer, Subject, NotAfter, NotBefore, PSIsContainer, @{Name="Algorithm"; Expression = {$_.SignatureAlgorithm.FriendlyName}} | 
-                Where-Object {$_.PSIsContainer -ne $True}
-        }
     }
 
     process{
-            
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        $ResultsArray = Get-ChildItem Cert:\LocalMachine\ -Recurse | 
+            Select-Object @{Name="Path"; Expression = {$_.PSParentPath.Split("::")[2]}}, DnsNameList, SendAsTrustedIssuer, FriendlyName, Issuer, Subject, NotAfter, NotBefore, Thumbprint, @{Name="Algorithm"; Expression = {$_.SignatureAlgorithm.FriendlyName}} | 
+            Where-Object {$_.PSIsContainer -ne $True}
         
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
-       
-        if ($ResultsArray) { 
-            
-            $outputArray = foreach ($Certificate in $ResultsArray) {
-             
-                $output = $null
-                $output = [Certificate]::new()
-                
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-                
-                $output.Path = $Certificate.Path
-                $output.DnsNameList = $Certificate.DnsNameList
-                $output.SendAsTrustedIssuer = $Certificate.SendAsTrustedIssuer
-                $output.FriendlyName = $Certificate.FriendlyName
-                $output.Issuer = $Certificate.Issuer
-                $output.Subject = $Certificate.Subject
-                $output.NotAfter = $Certificate.NotAfter
-                $output.NotBefore = $Certificate.NotBefore
-                $output.Thumbprint = $Certificate.Thumbprint
-                $output.Algorithm = $Certificate.Algorithm
 
-                $output
-            }
-
-            $total++
-            return $OutputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [Certificate]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $output
-        }
+        return $ResultsArray | Select-Object Host, DateScanned, Path, DnsNameList, SendAsTrustedIssuer, FriendlyName, Issuer, Subject, NotAfter, NotBefore, Thumbprint, Algorithm
     }
 
     end{
-
+        
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

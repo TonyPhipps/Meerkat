@@ -1,29 +1,27 @@
 ﻿function Get-THR_TCPConnections {
     <#
     .SYNOPSIS
-        Gets the active TCP connections for the given computer(s).
+        Gets the active TCP connections.
 
-    .DESCRIPTION
-        Gets the active TCP connections for the given computer(s).
+    .EXAMPLE 
+        Get-THR_TCPConnections
 
-    .PARAMETER Computer
-        Computer can be a single hostname, FQDN, or IP address.
-
-    .EXAMPLE
-        Get-THR_TCPConnections 
-        Get-THR_TCPConnections SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_TCPConnections
-        Get-THR_TCPConnections -Computer $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_TCPConnections
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_TCPConnections} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_TCPConnections.csv"
+        }
 
     .NOTES
-        Updated: 2018-08-05
+        Updated: 2019-04-05
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -41,107 +39,39 @@
         https://github.com/TonyPhipps/THRecon/wiki/TCPConnections
     #>
 
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_TCPConnections at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-        $total = 0
-
-        class TCPConnection
-        {
-            [String] $Computer
-            [string] $DateScanned
-
-            [String] $LocalAddress
-            [String] $LocalPort
-            [String] $RemoteAddress
-            [String] $RemotePort
-            [String] $State
-            [String] $AppliedSetting
-            [String] $OwningProcessID
-            [String] $OwningProcessPath
-        }
-
-        $Command = {
-            $TCPConnectionArray = Get-NetTCPConnection -State Listen, Established
-        
-            foreach ($TCPConnection in $TCPConnectionArray){
-                $TCPConnection | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $TCPConnection.OwningProcess).Path)
-            }
-
-            return $TCPConnectionArray
-        }
 	}
 
     process{
             
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        $ResultsArray = Get-NetTCPConnection
         
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+        foreach ($Result in $ResultsArray){
 
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $Result.OwningProcess).Path)
         }
-        
-        if ($ResultsArray) {
 
-            $OutputArray = foreach ($TCPConnection in $ResultsArray) {
-
-                $output = $null
-                $output = [TCPConnection]::new()
-
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
-                
-                $output.LocalAddress = $TCPConnection.LocalAddress
-                $output.LocalPort = $TCPConnection.LocalPort
-                $output.RemoteAddress = $TCPConnection.RemoteAddress
-                $output.RemotePort = $TCPConnection.RemotePort
-                $output.State = $TCPConnection.State
-                $output.AppliedSetting = $TCPConnection.AppliedSetting
-                $output.OwningProcessID = $TCPConnection.OwningProcess
-                $output.OwningProcessPath = $TCPConnection.Path
-                
-                $output
-            }
-        
-            $total++
-            return $OutputArray
-        }        
-        else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            
-            $Result = $null
-            $Result = [TCPConnection]::new()
-
-            $Result.Computer = $Computer
-            $Result.DateScanned = Get-Date -Format u
-            
-            $total++
-            return $Result
-        }
+        return $ResultsArray | Select-Object Host, DateScanned, LocalAddress, LocalPort, 
+        RemoteAddress, RemotePort, State, AppliedSetting, OwningProcess, Path
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

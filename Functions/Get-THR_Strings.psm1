@@ -1,13 +1,10 @@
 ﻿function Get-THR_Strings {
     <#
     .SYNOPSIS 
-        Gets a list of strings from the process image on disk on a given system.
+        Gets a list of strings from the executables tied to each process.
 
     .DESCRIPTION 
-        Gets a list of strings from the process image on disk on a given system.
-
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
+        Gets a list of strings from the executables tied to each process.
 
     .PARAMETER PathContains
         If specified, limits the strings collection via -like.
@@ -16,18 +13,24 @@
         7 by default. Specifies the minimum string length to return. 
 
     .EXAMPLE 
-        Get-THR_Strings $env:computername
-        Get-Content C:\hosts.csv | Get-THR_Strings -PathContains "*calc*"
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Strings -MinimumLength
+        Get-THR_Strings
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Strings} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Strings.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-04-05
 
         Contributing Authors:
             Anthony Phipps    
             Jeremy Arnold
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -46,10 +49,8 @@
        https://www.zerrouki.com/powershell-cheatsheet-regular-expressions/
     #>
 
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME,
-
         [Parameter()]
         $PathContains,
 
@@ -60,137 +61,73 @@
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_Strings at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
-
-        class StringMatch
-        {
-            [String] $Computer
-            [string] $DateScanned
-            
-            [string] $ProcessLocation
-            [string] $String
-        }
-
-        $Command = {
-
-            if ($args) { 
-                $MinimumLength = $args[0] 
-                $PathContains = $args[1] 
-            }
-
-            $ProcessArray = Get-Process | Where-Object {$_.Path -ne $null} | Select-Object -Unique path
-
-            if ($PathContains){
-                $ProcessArray = $ProcessArray | Where-Object {$_.Path -like $PathContains} | Select-Object -Unique path    
-            }
-
-            $ProcessStringsArray = foreach ($ProcessFile in $ProcessArray) {
-                
-                $ProcessLocation = $ProcessFile.Path
-
-                $UnicodeFileContents = Get-Content -Encoding "Unicode" -Path $ProcessLocation
-                $UnicodeRegex = [Regex] "[\u0020-\u007E]{$MinimumLength,}"
-                $StringArray = $UnicodeRegex.Matches($UnicodeFileContents).Value
-                
-                $Process = [pscustomobject] @{
-                    ProcessLocation = $ProcessLocation 
-                    StringArray = $StringArray
-                }
-
-                $Process
-                    
-                $AsciiFileContents = Get-Content -Encoding "UTF7" -Path $ProcessLocation
-                $AsciiRegex = [Regex] "[\x20-\x7E]{$MinimumLength,}"
-                $StringArray = $AsciiRegex.Matches($AsciiFileContents).Value
-                
-                $Process = [pscustomobject] @{
-                    ProcessLocation = $ProcessLocation 
-                    StringArray = $StringArray
-                }
-
-                $Process
-            }
-
-            if ($ProcessStringsArray) {
-
-                [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$'
-                [regex]$regexIP = '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$'
-                [regex]$regexURL = '^https?:\/\/'
-                
-                $outputArray = foreach ($Process in $ProcessStringsArray) {
-                    
-                    foreach ($StringItem in $Process.StringArray){
-    
-                        if (($StringItem -match $regexEmail) -or ($StringItem -match $regexIP) -or ($StringItem -match $regexURL)){
-                                            
-                            $output = $null
-                            $output = New-Object -TypeName PSObject
-                            
-                            $output | Add-Member -MemberType NoteProperty -Name ProcessLocation -Value $Process.ProcessLocation -ErrorAction SilentlyContinue
-                            $output | Add-Member -MemberType NoteProperty -Name String -Value $StringItem -ErrorAction SilentlyContinue
-                                            
-                            $output
-                        }
-                    }
-                }
-                
-                return $outputArray
-            }
-        }
 	}
 
     process{
 
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
+        $ProcessArray = Get-Process | Where-Object {$null -ne $_.Path} | Select-Object -Unique path
 
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
-
-        if ($Computer -eq $env:COMPUTERNAME){
-            
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ArgumentList $MinimumLength, $PathContains -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
+        if ($PathContains){
+            $ProcessArray = $ProcessArray | Where-Object {$_.Path -like $PathContains} | Select-Object -Unique path    
         }
 
-                    
-        if ($ResultsArray) {
+        $ProcessStringsArray = foreach ($ProcessFile in $ProcessArray) {
+            
+            $ProcessLocation = $ProcessFile.Path
 
-            $OutputArray = foreach($Entry in $ResultsArray) {
+            $UnicodeFileContents = Get-Content -Encoding "Unicode" -Path $ProcessLocation
+            $UnicodeRegex = [Regex] "[\u0020-\u007E]{$MinimumLength,}"
+            $StringArray = $UnicodeRegex.Matches($UnicodeFileContents).Value
+            
+            $Process = [pscustomobject] @{
 
-                $output = $null
-                $output = [StringMatch]::new()
-        
-                $output.Computer = $Computer
-                $output.DateScanned = Get-Date -Format o
+                ProcessLocation = $ProcessLocation 
+                StringArray = $StringArray
+            }
                 
-                $output.ProcessLocation = $Entry.ProcessLocation
-                $output.String = $Entry.String
+            $AsciiFileContents = Get-Content -Encoding "UTF7" -Path $ProcessLocation
+            $AsciiRegex = [Regex] "[\x20-\x7E]{$MinimumLength,}"
+            $StringArray = $AsciiRegex.Matches($AsciiFileContents).Value
+            
+            $Process = [pscustomobject] @{
+                ProcessLocation = $ProcessLocation 
+                StringArray = $StringArray
+            }
 
-                $output
+            $Process
+        }
+
+        if ($ProcessStringsArray) {
+
+            [regex]$regexEmail = '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$'
+            [regex]$regexIP = '^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$'
+            [regex]$regexURL = '^https?:\/\/'
+            
+            $ResultsArray = foreach ($Process in $ProcessStringsArray) {
+                
+                foreach ($StringItem in $Process.StringArray){
+
+                    if (($StringItem -match $regexEmail) -or ($StringItem -match $regexIP) -or ($StringItem -match $regexURL)){
+                                        
+                        $output = $null
+                        $output = New-Object -TypeName PSObject
+
+                        $output | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+                        $output | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+                        
+                        $output | Add-Member -MemberType NoteProperty -Name ProcessLocation -Value $Process.ProcessLocation -ErrorAction SilentlyContinue
+                        $output | Add-Member -MemberType NoteProperty -Name String -Value $StringItem -ErrorAction SilentlyContinue
+                                        
+                        $output
+                    }
+                }
             }
             
-            $total++
-            return $outputArray
-        }
-        else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            
-            $Result = $null
-            $Result = [StringMatch]::new()
-
-            $Result.Computer = $Computer
-            $Result.DateScanned = Get-Date -Format u
-            
-            $total++
-            return $Result
+            return $ResultsArray | Select-Object Host, DateScanned, ProcessLocation, String
         }
     }
 
@@ -198,8 +135,7 @@
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

@@ -6,23 +6,28 @@ function Get-THR_Services {
     .DESCRIPTION 
         Queries the services on a given hostname, FQDN, or IP address.
 
-    .PARAMETER Computer  
-        Queries the services on a given hostname, FQDN, or IP address.
+        Alternative: net.exe start
+        Alternative: sc.exe query
+        Alternative: tasklist.exe /svc
 
     .EXAMPLE 
-        Get-THR_Services 
-        Get-THR_Services SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Services
-        Get-THR_Services $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Services
+        Get-THR_Services
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Services} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Services.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-04-05
 
             Contributing Authors:
                 Anthony Phipps
                 
-            LEGAL: Copyright (C) 2018
+            LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -41,135 +46,41 @@ function Get-THR_Services {
         https://github.com/TonyPhipps/THRecon/wiki/Services
     #>
 
+    [CmdletBinding()]
     param(
-    	[Parameter(ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True)]
-        $Computer = $env:COMPUTERNAME
     )
 
 	begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_Services at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-
-        $total = 0
-
-        class Service {
-			[String] $Computer
-            [string] $DateScanned
-            
-            [bool] $AcceptPause
-            [bool] $AcceptStop
-            [string] $Caption
-            [uint32] $CheckPoint
-            [bool] $DelayedAutoStart
-            [string] $Description
-            [bool] $DesktopInteract
-            [uint32] $DisconnectedSessions
-            [string] $DisplayName
-            [string] $ErrorControl
-            [uint32] $ExitCode
-            [datetime] $InstallDate
-            [string] $Name
-            [string] $PathName
-            [uint32] $ProcessId
-            [uint32] $ServiceSpecificExitCode
-            [string] $ServiceType
-            [bool] $Started
-            [string] $StartMode
-            [string] $StartName
-            [string] $State
-            [string] $SystemName
-            [uint32] $TagId
-            [uint32] $TotalSessions
-            [uint32] $WaitHint
-        }
-        
-        $Command = {
-            Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'"
-            # Odd filter explanation: http://itknowledgeexchange.techtarget.com/powershell/cim-session-oddity/
-        }
 	}
 
     process{        
-                
-        $Computer = $Computer.Replace('"', '')
-
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
-
-        if ($Computer -eq $env:COMPUTERNAME){
             
-            $ResultsArray = & $Command 
-        } 
-        else {
-
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        }
-        
-
-        if ($ResultsArray){
-                
-            $OutputArray = foreach($Entry in $ResultsArray) {
-                
-				$output = $null
-				$output = [Service]::new()
-				
-				$output.Computer = $Computer
-				$output.DateScanned = Get-Date -Format o
-                
-				$output.AcceptPause = $Entry.AcceptPause
-                $output.AcceptStop = $Entry.AcceptStop
-                $output.Caption = $Entry.Caption
-                $output.CheckPoint = $Entry.CheckPoint
-                $output.DelayedAutoStart = $Entry.DelayedAutoStart
-                $output.DESCRIPTION = $Entry.DESCRIPTION
-                $output.DesktopInteract = $Entry.DesktopInteract
-                $output.DisconnectedSessions = $Entry.DisconnectedSessions
-                $output.DisplayName = $Entry.DisplayName
-                $output.ErrorControl = $Entry.ErrorControl
-                $output.ExitCode = $Entry.ExitCode
-                if ($Entry.InstallDate) {
-                    $output.InstallDate = $Entry.InstallDate
-                }
-                $output.Name = $Entry.Name
-                $output.PathName = $Entry.PathName
-                $output.ProcessId = $Entry.ProcessId
-                $output.ServiceSpecificExitCode = $Entry.ServiceSpecificExitCode
-                $output.ServiceType = $Entry.ServiceType
-                $output.Started = $Entry.Started
-                $output.StartMode = $Entry.StartMode
-                $output.StartName = $Entry.StartName
-                $output.State = $Entry.State
-                $output.SystemName = $Entry.SystemName
-                $output.TagId = $Entry.TagId
-                $output.TotalSessions = $Entry.TotalSessions
-                $output.WaitHint = $Entry.WaitHint
-                    
-                $output 
-            }
-
-            $total++
-            return $OutputArray
-        }
-        else {
-                
-            $output = $null
-            $output = [Service]::new()
-
-            $output.Computer = $Computer
-            $output.DateScanned = Get-Date -Format o
+        $ResultsArray = Get-CIMinstance -class Win32_Service -Filter "Caption LIKE '%'"
+        # Odd filter explanation: http://itknowledgeexchange.techtarget.com/powershell/cim-session-oddity/
+         
+        foreach($Result in $ResultsArray) {
             
-            $total++
-            return $output
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
+                
+        return $ResultsArray | Select-Object Host, DateScanned, AcceptPause, AcceptStop, Caption, 
+        CheckPoint, DelayedAutoStart, Description, DesktopInteract, DisconnectedSessions, DisplayName, 
+        ErrorControl, ExitCode, InstallDate, Name, PathName, ProcessId, ServiceSpecificExitCode, 
+        ServiceType, Started, StartMode, StartName, State, TagId, TotalSessions, WaitHint
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
+        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }

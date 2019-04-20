@@ -6,23 +6,24 @@ function Get-THR_Registry {
     .DESCRIPTION 
         Gets a list of registry keys that may be used to achieve persistence or clear tracks.
 
-    .PARAMETER Computer  
-        Computer can be a single hostname, FQDN, or IP address.
-
     .EXAMPLE 
         Get-THR_Registry
-        Get-THR_Registry SomeHostName.domain.com
-        Get-Content C:\hosts.csv | Get-THR_Registry
-        Get-THR_Registry $env:computername
-        Get-ADComputer -filter * | Select -ExpandProperty Name | Get-THR_Registry
+
+    .EXAMPLE 
+        $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
+        ForEach ($Target in $Targets) {
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-THR_Registry} | 
+            Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+            Export-Csv -NoTypeInformation "c:\temp\$Target_Registry.csv"
+        }
 
     .NOTES 
-        Updated: 2018-08-05
+        Updated: 2019-04-08
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2019
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -47,33 +48,20 @@ function Get-THR_Registry {
 
     [CmdletBinding()]
     param(
-        [Parameter(ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
-        $Computer = $env:COMPUTERNAME
     )
 
     begin{
 
-        $DateScanned = Get-Date -Format o
-        Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
+        $DateScanned = Get-Date -Format u
+        Write-Information -InformationAction Continue -MessageData ("Started Get-THR_Registry at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
-        $stopwatch.Start()
+        $stopwatch.Start()        
+    }
 
-        $total = 0
-
-        class RegistryKey
-        {
-            [string] $Computer
-            [string] $DateScanned
-            
-            [String] $Key
-            [string] $Value
-            [string] $Data
-        }
-
-        $Command = {
-            
-            $MachineKeys = 
+    process{
+    
+        $MachineKeys = 
             "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
@@ -239,66 +227,23 @@ function Get-THR_Registry {
                 }
             }
             
-            $OutputArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
-            return $OutputArray
-        }
-
-        
-    }
-
-    process{
             
-        $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
-        
-        Write-Verbose ("{0}: Querying remote system" -f $Computer)
+            $ResultsArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
 
-        if ($Computer -eq $env:COMPUTERNAME){
+            foreach ($Result in $ResultsArray) {
             
-            $ResultsArray = & $Command 
-        } 
-        else {
+                $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            }  
 
-            $ResultsArray = Invoke-Command -ComputerName $Computer -ErrorAction SilentlyContinue -ScriptBlock $Command
-        }
-
-        if ($ResultsArray){
-            
-            $OutputArray = foreach ($Result in $ResultsArray){
-                $Output = [RegistryKey]::new()
-                $Output.Computer = $Computer
-                $Output.DateScanned = $DateScanned
-
-                $Output.Key = $Result.Key
-                $Output.Value = $Result.Value
-                $Output.Data = $Result.Data
-
-                $Output
-            }
-
-            $OutputArray = $OutputArray | Where-Object {$_.Data -ne ""}
-            return $OutputArray
-        }
-        else {
-            
-            Write-Verbose ("{0}: System failed." -f $Computer)
-            
-            $Result = $null
-            $Result = [RegistryKey]::new()
-
-            $Result.Computer = $Computer
-            $Result.DateScanned = Get-Date -Format o
-            
-            $total++
-            return $Result
-        }
+            return $ResultsArray | Select-Object Host, DateScanned, Key, Value, Data
     }
 
     end{
 
         $elapsed = $stopwatch.Elapsed
 
-        Write-Verbose ("Started at {0}" -f $DateScanned)
-        Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
+        Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
         Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
     }
 }
