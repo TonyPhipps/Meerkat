@@ -7,6 +7,20 @@ function Invoke-THR_PSExec {
         Deploys Invoke-THR using psexec. Some environments block ports 5985, 5986, or otherwise prohibit WinRM. 
         This uses psexec to bypass those restrictions.
 
+        Invoke-THR_PSExec is provided as a wrapper to simplify working with PSExec, since typical psexec use does not include deploying a module, importing it, running it, storing results, retrieving results, and removing the module and results from the target. 
+
+        1. The basic syntax for Invoke-THR_PSExec is `Invoke-THR-PSExec -Computer WorkComputer`, which runs a default collection. Customization of the collection requires adjusting the -Command parameter: `Invoke-thr_psexec -Computer "systemname" -Command 'Invoke-THR -Mod Computer, MAC'`
+
+        2. The syntax for a single function where you must specificy parameters (e.g. when you need to run MAC with -Path 'c:\') is 
+        
+        ```
+        $ModulePath = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\THRecon\Functions"
+        $ModuleName = "Get-THR_MAC.psm1"
+        $Command = "Get-THR_MAC -Path 'c:\' | export-csv 'c:\Windows\Toolkit\Results\mac.csv' -notypeinformation"
+
+        Invoke-THR_PSExec -Computer "systemname" -ModulePath $ModulePath -ModuleName $ModuleName -Command $Command
+        ```
+
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 

@@ -6,6 +6,10 @@ function Invoke-THR {
     .DESCRIPTION 
         Performs threat hunting reconnaissance on one or more target systems.
 
+        Invoke-THR takes advantage of the `export-csv` cmdlet in this way by exporting ALL enabled modules to csv. The basic syntax is `Invoke-THR -Computer [Computername] -Modules [Module1, Module2, etc.]` (details via `get-help Invoke-THR -Full`).
+
+        When running a single function against a single endpoint, the typical sytnax is `Get-THR_[ModuleName] -Computer [ComputerName]`, which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, `Get-THR_[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -notypeinformation` will utilize PowerShell's built-in csv export function (details via `get-help get-thr_[function] -Full`).
+
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
