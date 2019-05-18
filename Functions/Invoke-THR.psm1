@@ -48,7 +48,7 @@ function Invoke-THR {
         Invoke-THR -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2018-12-30
+        Updated: 2019-05-17
 
         Contributing Authors:
             Anthony Phipps
@@ -77,7 +77,7 @@ function Invoke-THR {
         $Computer = $env:COMPUTERNAME,
 
         [Parameter()]
-        [String] $Output = "C:\temp",
+        [String] $Output = "C:\users\$env:USERNAME\THRecon",
 
         [Parameter()]
         [switch] $All,
@@ -157,6 +157,7 @@ function Invoke-THR {
         }   
 
         $DateScanned = Get-Date -Format u
+        $DateScannedFolder = ((Get-Date).ToUniversalTime()).ToString("yyyyMMdd-hhmmssZ")
         Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
@@ -180,7 +181,7 @@ function Invoke-THR {
             # & ("Get-THR_" + $Module) -Computer $Computer | Export-Csv ($FilePath + $Computer + "_$Module.csv") -NoTypeInformation -Append
             Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
                 Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
-                Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $Module + ".csv")
+                Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
         }
     
         $total++
