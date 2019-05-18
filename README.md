@@ -2,33 +2,25 @@
 
 -Threat Hunting Reconnaissance Toolkit-
 
-Collect endpoint information for use in incident response, threat hunting, live forensics, baseline monitoring, etc.
+A collection of PowerShell modules designed for artifact gathering and reconnaisance of Windows-based endpoints. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
 
-| [Host Info](https://github.com/TonyPhipps/THRecon/wiki/Computer) | [Processes](https://github.com/TonyPhipps/THRecon/wiki/Processes)* | [Services](https://github.com/TonyPhipps/THRecon/wiki/Services) | [Autoruns](https://github.com/TonyPhipps/THRecon/wiki/Autoruns) | [Drivers](https://github.com/TonyPhipps/THRecon/wiki/Drivers) |
-| :---: | :---: | :---: | :---: | :---: |
-| ARP | [DLLs](https://github.com/TonyPhipps/THRecon/wiki/DLLs)* | EnvVars | Hosts File | ADS |
-| [DNS](https://github.com/TonyPhipps/THRecon/wiki/DNS) | Strings* | [Users & Groups](https://github.com/TonyPhipps/THRecon/wiki/GroupMembers) | [Ports](https://github.com/TonyPhipps/THRecon/wiki/Ports) | [Select Registry](https://github.com/TonyPhipps/THRecon/wiki/Registry) |
-| Hotfixes | Handles* | Sofware | Hardware | [Event Logs](https://github.com/TonyPhipps/THRecon/wiki/EventLogs) |
-| Net Adapters | Net Routes | Sessions | Shares | [Certificates](https://github.com/TonyPhipps/THRecon/wiki/Certificates) | 
-| [Scheduled Tasks](https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks) | TPM | Bitlocker | Recycle Bin | User Files |
+|       [Host Info](https://github.com/TonyPhipps/THRecon/wiki/Computer)       | [Processes](https://github.com/TonyPhipps/THRecon/wiki/Processes)* |      [Services](https://github.com/TonyPhipps/THRecon/wiki/Services)      | [Autoruns](https://github.com/TonyPhipps/THRecon/wiki/Autoruns) |      [Drivers](https://github.com/TonyPhipps/THRecon/wiki/Drivers)      |
+| :--------------------------------------------------------------------------: | :----------------------------------------------------------------: | :-----------------------------------------------------------------------: | :-------------------------------------------------------------: | :---------------------------------------------------------------------: |
+|                                     ARP                                      |      [DLLs](https://github.com/TonyPhipps/THRecon/wiki/DLLs)*      |                                  EnvVars                                  |                           Hosts File                            |                                   ADS                                   |
+|            [DNS](https://github.com/TonyPhipps/THRecon/wiki/DNS)             |                              Strings*                              | [Users & Groups](https://github.com/TonyPhipps/THRecon/wiki/GroupMembers) |    [Ports](https://github.com/TonyPhipps/THRecon/wiki/Ports)    | [Select Registry](https://github.com/TonyPhipps/THRecon/wiki/Registry)  |
+|                                   Hotfixes                                   |                              Handles*                              |                                  Sofware                                  |                            Hardware                             |   [Event Logs](https://github.com/TonyPhipps/THRecon/wiki/EventLogs)    |
+|                                 Net Adapters                                 |                             Net Routes                             |                                 Sessions                                  |                             Shares                              | [Certificates](https://github.com/TonyPhipps/THRecon/wiki/Certificates) |
+| [Scheduled Tasks](https://github.com/TonyPhipps/THRecon/wiki/ScheduledTasks) |                                TPM                                 |                                 Bitlocker                                 |                           Recycle Bin                           |                               User Files                                |
 
-\* Info pulled from current running processes or their executables on disk.
 
-Use one of the methods below to analyze for potential compromise/adversary activity leveraging the [Mitre Attack Framework](https://attack.mitre.org/wiki/Main_Page) or other threat hunting methods:
-* Pull a snapshot from a single system into a list of easy-to-analyze csv files
 * Ingest using your SIEM of choice (_Check out [THRecon-Elasticstack](https://github.com/TonyPhipps/THRecon-Elasticstack) and [SIEM Tactics](https://github.com/TonyPhipps/SIEM)_)
-* Pull directly into Powershell objects for further enrichment
-
 ______________________________________________________
 
 ## Index
 
   * [Quick Start](#quick-start)
   * [Usage](#usage)
-    * [Requirements](#requirements)
-    * [Installation](#installation)
-    * [General Syntax](#general-syntax)
-    * [Analysis](#analysis)
+  * [Analysis](#analysis)
   * [Troubleshooting](#troubleshooting)
   * [Screenshots](#screenshots)
   
@@ -39,18 +31,18 @@ ______________________________________________________
 ### Requirements
 
 * Requires Powershell 5.0 or above on the "scanning" device.
-* Requires Powershell 3.0 or higher on target systems (2.0 may be adequate in some cases).
+* Requires Powershell 3.0 or higher on target systems. You can make this further backward compatible to PowerShell 2.0 by replacing instances of "Get-CIMinstance" with "Get-WMIObject"
 * When scanning a remote machine without the psexec wrapper (Invoke-THR_PSExec), requires WinRM service on remote machine.
 
-After install, a new Powershell window will provide access to the functions.
-
 ### Install with [Git](https://gitforwindows.org/)
+
+In a Command or PowerShell console, type the following...
 
 ```
 git clone https://github.com/TonyPhipps/THRecon C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\THRecon
 ```
 
-To update, use
+To update...
 
 ```
 cd $ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\THRecon
@@ -58,6 +50,9 @@ git pull
 ```
 
 ### Install with PowerShell
+
+Copy/paste this into a PowerShell console
+
 ```
 $Modules = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\"
 New-Item -ItemType Directory $Modules\THRecon\ -force
@@ -66,9 +61,12 @@ Expand-Archive $Modules\master.zip -DestinationPath $Modules
 Copy-Item $Modules\THRecon-master\* $Modules\THRecon\ -Force -Recurse
 Remove-Item  $Modules\THRecon-master -Recurse -Force
 ```
+
+Functions can also be used by opening the .psm1 file and copy-pasting its entire contents into a PowerSell console.
+
 To update, simply run the same block of commands again.
 
-### Run Invoke-THR
+## Run THRecon!
 
 This command will output results of a scan against localhost to c:\temp\
 
@@ -76,49 +74,7 @@ This command will output results of a scan against localhost to c:\temp\
 Invoke-THR -Quick -Output c:\temp\
 ```
 
-## Usage
-
-All functions take full advantage of the built in comment-based help system. Use Get-Help cmdlet to review detailed syntax and documentation on each individual function included, e.g. `get-help get-thr_computer -full`.
-
-### Requirements
-
-By default, all modules will run against remote systems utilizing PowerShell's Invoke-Command cmdlet, which in turn requires the WinRM service to be enabled on the target system AND administrative rights (WinRM, by default, uses ports 5985 for http or 5986 for https). Utilizing Run-As with a privileged domain account to open powershell.exe or powershell_ise.exe is typically the method used. In the absence of a domain, a local administrator on the target system would be required.
-
-Running modules locally does not require WinRM, as Invoke-Command is skipped. The Invoke-THR_PSexec function combined with this fact provides a workaround when WinRM is not an option. Invoke-THR_PSexec requires [Sysinternals psexec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) and a slightly different syntax (details via `get-help Invoke-THR_PSexec -Full`).
-
-
-### Installation
-
-This toolkit consists of multiple functions deployed within a module. The installation of the entire module is recommended, but other options are available. The [Quick Start](#quick-start) provides multiple install methods. The per-user installation method was purposefully used in the Quick-Install scripts, rather than installing for all users. Non-privileged use of the scripts will provide abnormal or no results.
-
-Optionally, functions can be installed as modules via `Import-Module Get-THR_FunctionName.psm1 -Force`. This can be useful if a small modification is required, such as adding a data field or other easily-adjusted code.
-
-Lastly, functions can be installed by opening the .psm1 file and copy-pasting its entire contents into a PowerSell prompt.
-
-### General Syntax
-
-#### Invoke-THR
-Invoke-THR takes advantage of the `export-csv` cmdlet in this way by exporting ALL enabled modules to csv. The basic syntax is `Invoke-THR -Computer [Computername] -Modules [Module1, Module2, etc.]` (details via `get-help Invoke-THR -Full`).
-
-#### Get-Commands
-When running a single function against a single endpoint, the typical sytnax is `Get-THR_[ModuleName] -Computer [ComputerName]`, which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, `Get-THR_[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -notypeinformation` will utilize PowerShell's built-in csv export function (details via `get-help get-thr_[function] -Full`).
-
-#### Invoke-THR_PSExec
-Invoke-THR_PSExec is provided as a wrapper to simplify working with PSExec, since typical psexec use does not include deploying a module, importing it, running it, storing results, retrieving results, and removing the module and results from the target. 
-
-1. The basic syntax for Invoke-THR_PSExec is `Invoke-THR-PSExec -Computer WorkComputer`, which runs a default collection. Customization of the collection requires adjusting the -Command parameter: `Invoke-thr_psexec -Computer "systemname" -Command 'Invoke-THR -Mod Computer, MAC'`
-
-2. The syntax for a single function where you must specificy parameters (e.g. when you need to run MAC with -Path 'c:\') is 
-```
-$ModulePath = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\THRecon\Functions"
-$ModuleName = "Get-THR_MAC.psm1"
-$Command = "Get-THR_MAC -Path 'c:\' | export-csv 'c:\Windows\Toolkit\Results\mac.csv' -notypeinformation"
-
-Invoke-THR_PSExec -Computer "systemname" -ModulePath $ModulePath -ModuleName $ModuleName -Command $Command
-```
-3. More details via `get-help Invoke-THR_PSExec -Full`
-
-### Analysis
+## Analysis
 
 Analysis methodologies and techniques are provided in the [Wiki pages](https://github.com/TonyPhipps/THRecon/wiki).
 
@@ -141,3 +97,32 @@ Output of Command "Invoke-THR"
 Output Files
 
 ![Output Files](https://i.imgur.com/D3kpjun.png)
+
+
+## Similar Projects
+
+- https://github.com/Invoke-IR/PowerForensics
+- https://github.com/PowerShellMafia/CimSweep
+- https://www.crowdstrike.com/resources/community-tools/crowdresponse/
+- https://github.com/gfoss/PSRecon/
+- https://github.com/n3l5/irCRpull
+- https://github.com/davehull/Kansa/
+- https://github.com/WiredPulse/PoSh-R2
+- https://github.com/google/grr
+- https://github.com/diogo-fernan/ir-rescue
+- https://github.com/SekoiaLab/Fastir_Collector
+- https://github.com/AlmCo/Panorama
+- https://github.com/certsocietegenerale/FIR
+- https://github.com/securycore/Get-Baseline
+- https://github.com/Infocyte/PSHunt
+- https://github.com/giMini/NOAH
+- https://github.com/A-mIn3/WINspect
+- https://learn.duffandphelps.com/kape
+- https://www.brimorlabs.com/tools/
+
+What makes THRecon stand out:
+- Lightweight. Fits on a floppy disk!
+- Very little footprint/impact on targets.
+- Leverages Powershell & WMI.
+- Coding style encourages proper code review, learning, and "borrowing."
+- No DLLs or compiled components.
