@@ -87,7 +87,12 @@ function Get-THR_Hosts {
                     $ParsedEntry
             }
 
-            return $ResultsArray
+            foreach ($Result in $ResultsArray) {
+                $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            }
+
+            return $ResultsArray | Select-Object Host, DateScanned, IP, HostName, Comment
         }
     }
 
