@@ -1,4 +1,4 @@
-function Invoke-PoshRSJob-Wrapper {
+function Invoke-PoshRSJobWrapper {
 
     $Module = "Get-THR_Computer"
     $InputList = "C:\Temp\Scope.csv"
