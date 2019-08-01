@@ -1,6 +1,6 @@
 # HAMER
 
--Hunter's Artifact, Metadata, and Events Ripper-
+-Hunter's Artifact, Metadata, and Events Recon-
 
 A collection of PowerShell modules designed for artifact gathering and reconnaisance of Windows-based endpoints. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
 
