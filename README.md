@@ -13,7 +13,7 @@ A collection of PowerShell modules designed for artifact gathering and reconnais
 | [Scheduled Tasks](https://github.com/TonyPhipps/HAMER/wiki/ScheduledTasks) |                                TPM                                 |                                 Bitlocker                                 |                           Recycle Bin                           |                               User Files                                |
 
 
-* Ingest using your SIEM of choice (_Check out [HAMER-Elasticstack](https://github.com/TonyPhipps/HAMER-Elasticstack) and [SIEM Tactics](https://github.com/TonyPhipps/SIEM)_)
+* Ingest using your SIEM of choice (_Check out the [SIEM](https://github.com/TonyPhipps/SIEM) Repository!_)
 ______________________________________________________
 
 ## Index
