@@ -18,11 +18,12 @@ ______________________________________________________
 
 ## Index
 
-  * [Quick Start](#quick-start)
-  * [Usage](#usage)
-  * [Analysis](#analysis)
-  * [Troubleshooting](#troubleshooting)
-  * [Screenshots](#screenshots)
+  * [Quick Start](#Quick-Start)
+  * [Usage](#Usage)
+  * [Analysis](#Analysis)
+  * [Troubleshooting](#Troubleshooting)
+  * [Screenshots](#Screenshots)
+  * [Similar Projects](#Similar-Projects)
   
 ______________________________________________________
 
@@ -32,20 +33,20 @@ ______________________________________________________
 
 * Requires Powershell 5.0 or above on the "scanning" device.
 * Requires Powershell 3.0 or higher on target systems. You can make this further backward compatible to PowerShell 2.0 by replacing instances of "Get-CIMinstance" with "Get-WMIObject"
-* When scanning a remote machine without the psexec wrapper (Invoke-HAMER_PSExec), requires WinRM service on remote machine.
+* Requires [WinRM access](https://github.com/TonyPhipps/Powershell/blob/master/Enable-WinRM.ps1).
 
 ### Install with [Git](https://gitforwindows.org/)
 
 In a Command or PowerShell console, type the following...
 
 ```
-git clone https://github.com/TonyPhipps/HAMER C:\Users\$env:UserName\Documents\WindowsPowerShell\Modules\HAMER
+git clone https://github.com/TonyPhipps/HAMER C:\Program Files\WindowsPowerShell\Modules\HAMER
 ```
 
 To update...
 
 ```
-cd $ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\HAMER
+cd C:\Program Files\WindowsPowerShell\Modules\HAMER
 git pull
 ```
 
@@ -54,7 +55,7 @@ git pull
 Copy/paste this into a PowerShell console
 
 ```
-$Modules = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\"
+$Modules = "C:\Program Files\WindowsPowerShell\Modules\"
 New-Item -ItemType Directory $Modules\HAMER\ -force
 Invoke-WebRequest https://github.com/TonyPhipps/HAMER/archive/master.zip -OutFile $Modules\master.zip
 Expand-Archive $Modules\master.zip -DestinationPath $Modules
@@ -62,16 +63,16 @@ Copy-Item $Modules\HAMER-master\* $Modules\HAMER\ -Force -Recurse
 Remove-Item  $Modules\HAMER-master -Recurse -Force
 ```
 
-Functions can also be used by opening the .psm1 file and copy-pasting its entire contents into a PowerSell console.
-
 To update, simply run the same block of commands again.
+
+Functions can also be used by opening the .psm1 file and copy-pasting its entire contents into a PowerSell console.
 
 ## Run HAMER
 
-This command will output results of a scan against localhost to c:\temp\
+This command will output results to C:\Users\YourName\HAMER\
 
 ```
-Invoke-HAMER -Quick -Output c:\temp\
+Invoke-HAMER
 ```
 
 ## Analysis
@@ -84,18 +85,18 @@ Analysis methodologies and techniques are provided in the [Wiki pages](https://g
 If your system does not automatically load modules in your user [profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6), you may need to [import the module manually](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx).
 
 ```
-Import-Module $ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\HAMER\HAMER.psm1
+Import-Module C:\Program Files\WindowsPowerShell\Modules\HAMER\HAMER.psm1
 ```
 
 ## Screenshots
 
 Output of Command "Invoke-HAMER"
 
-![Output of Command "invoke-HAMER -verbose"](https://i.imgur.com/zcmra0v.png)
+![Output of Command "Invoke-HAMER"](https://i.imgur.com/gcM2y17.png)
 
 Output Files
 
-![Output Files](https://i.imgur.com/D3kpjun.png)
+![Output Files](https://i.imgur.com/3B4HtXb.png)
 
 
 ## Similar Projects
@@ -119,9 +120,10 @@ Output Files
 - https://learn.duffandphelps.com/kape
 - https://www.brimorlabs.com/tools/
 
-What makes HAMER stand out:
+What makes HAMER stand out?
 - Lightweight. Fits on a floppy disk!
 - Very little footprint/impact on targets.
 - Leverages Powershell & WMI/CIM.
 - Coding style encourages proper code review, learning, and "borrowing."
 - No DLLs or compiled components.
+- Standardized output - defaults to .csv, and can easily support json, xml, etc.
