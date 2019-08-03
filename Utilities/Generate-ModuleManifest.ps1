@@ -1,4 +1,4 @@
-$FileList = @('HAMER.psd1', 'HAMER.psm1')
+$FileList = @('Meerkat.psd1', 'Meerkat.psm1')
 $FunctionsToExport = @()
 
 Get-ChildItem "..\Modules" -Filter *.psm1 | Select-Object -ExpandProperty FullName | ForEach-Object {
@@ -9,8 +9,8 @@ Get-ChildItem "..\Modules" -Filter *.psm1 | Select-Object -ExpandProperty FullNa
 }
 
 $manifest = @{
-    RootModule = 'HAMER.psm1'
-    Path = '..\HAMER.psd1'
+    RootModule = 'Meerkat.psm1'
+    Path = '..\Meerkat.psd1'
     CompatiblePSEditions = @('Desktop','Core')
     Author = 'Anthony Phipps, Jeremy Arnold'
     CompanyName = 'See Authors'

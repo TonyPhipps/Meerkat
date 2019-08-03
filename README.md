@@ -1,16 +1,14 @@
-# HAMER
+# Meerkat
 
--Hunter's Artifact, Metadata, and Events Recon-
+Meerkat is collection of PowerShell modules designed for artifact gathering and reconnaisance of Windows-based endpoints. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
 
-A collection of PowerShell modules designed for artifact gathering and reconnaisance of Windows-based endpoints. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
-
-|       [Host Info](https://github.com/TonyPhipps/HAMER/wiki/Computer)       | [Processes](https://github.com/TonyPhipps/HAMER/wiki/Processes)* |      [Services](https://github.com/TonyPhipps/HAMER/wiki/Services)      | [Autoruns](https://github.com/TonyPhipps/HAMER/wiki/Autoruns) |      [Drivers](https://github.com/TonyPhipps/HAMER/wiki/Drivers)      |
+|       [Host Info](https://github.com/TonyPhipps/Meerkat/wiki/Computer)       | [Processes](https://github.com/TonyPhipps/Meerkat/wiki/Processes)* |      [Services](https://github.com/TonyPhipps/Meerkat/wiki/Services)      | [Autoruns](https://github.com/TonyPhipps/Meerkat/wiki/Autoruns) |      [Drivers](https://github.com/TonyPhipps/Meerkat/wiki/Drivers)      |
 | :--------------------------------------------------------------------------: | :----------------------------------------------------------------: | :-----------------------------------------------------------------------: | :-------------------------------------------------------------: | :---------------------------------------------------------------------: |
-|                                     ARP                                      |      [DLLs](https://github.com/TonyPhipps/HAMER/wiki/DLLs)*      |                                  EnvVars                                  |                           Hosts File                            |                                   ADS                                   |
-|            [DNS](https://github.com/TonyPhipps/HAMER/wiki/DNS)             |                              Strings*                              | [Users & Groups](https://github.com/TonyPhipps/HAMER/wiki/GroupMembers) |    [Ports](https://github.com/TonyPhipps/HAMER/wiki/Ports)    | [Select Registry](https://github.com/TonyPhipps/HAMER/wiki/Registry)  |
-|                                   Hotfixes                                   |                              Handles*                              |                                  Sofware                                  |                            Hardware                             |   [Event Logs](https://github.com/TonyPhipps/HAMER/wiki/EventLogs)    |
-|                                 Net Adapters                                 |                             Net Routes                             |                                 Sessions                                  |                             Shares                              | [Certificates](https://github.com/TonyPhipps/HAMER/wiki/Certificates) |
-| [Scheduled Tasks](https://github.com/TonyPhipps/HAMER/wiki/ScheduledTasks) |                                TPM                                 |                                 Bitlocker                                 |                           Recycle Bin                           |                               User Files                                |
+|                                     ARP                                      |      [DLLs](https://github.com/TonyPhipps/Meerkat/wiki/DLLs)*      |                                  EnvVars                                  |                           Hosts File                            |                                   ADS                                   |
+|            [DNS](https://github.com/TonyPhipps/Meerkat/wiki/DNS)             |                              Strings*                              | [Users & Groups](https://github.com/TonyPhipps/Meerkat/wiki/GroupMembers) |    [Ports](https://github.com/TonyPhipps/Meerkat/wiki/Ports)    | [Select Registry](https://github.com/TonyPhipps/Meerkat/wiki/Registry)  |
+|                                   Hotfixes                                   |                              Handles*                              |                                  Sofware                                  |                            Hardware                             |   [Event Logs](https://github.com/TonyPhipps/Meerkat/wiki/EventLogs)    |
+|                                 Net Adapters                                 |                             Net Routes                             |                                 Sessions                                  |                             Shares                              | [Certificates](https://github.com/TonyPhipps/Meerkat/wiki/Certificates) |
+| [Scheduled Tasks](https://github.com/TonyPhipps/Meerkat/wiki/ScheduledTasks) |                                TPM                                 |                                 Bitlocker                                 |                           Recycle Bin                           |                               User Files                                |
 
 
 * Ingest using your SIEM of choice (_Check out the [SIEM](https://github.com/TonyPhipps/SIEM) Repository!_)
@@ -40,13 +38,13 @@ ______________________________________________________
 In a Command or PowerShell console, type the following...
 
 ```
-git clone https://github.com/TonyPhipps/HAMER C:\Program Files\WindowsPowerShell\Modules\HAMER
+git clone https://github.com/TonyPhipps/Meerkat C:\Program Files\WindowsPowerShell\Modules\Meerkat
 ```
 
 To update...
 
 ```
-cd C:\Program Files\WindowsPowerShell\Modules\HAMER
+cd C:\Program Files\WindowsPowerShell\Modules\Meerkat
 git pull
 ```
 
@@ -56,28 +54,28 @@ Copy/paste this into a PowerShell console
 
 ```
 $Modules = "C:\Program Files\WindowsPowerShell\Modules\"
-New-Item -ItemType Directory $Modules\HAMER\ -force
-Invoke-WebRequest https://github.com/TonyPhipps/HAMER/archive/master.zip -OutFile $Modules\master.zip
+New-Item -ItemType Directory $Modules\Meerkat\ -force
+Invoke-WebRequest https://github.com/TonyPhipps/Meerkat/archive/master.zip -OutFile $Modules\master.zip
 Expand-Archive $Modules\master.zip -DestinationPath $Modules
-Copy-Item $Modules\HAMER-master\* $Modules\HAMER\ -Force -Recurse
-Remove-Item  $Modules\HAMER-master -Recurse -Force
+Copy-Item $Modules\Meerkat-master\* $Modules\Meerkat\ -Force -Recurse
+Remove-Item  $Modules\Meerkat-master -Recurse -Force
 ```
 
 To update, simply run the same block of commands again.
 
 Functions can also be used by opening the .psm1 file and copy-pasting its entire contents into a PowerSell console.
 
-## Run HAMER
+## Run Meerkat
 
-This command will output results to C:\Users\YourName\HAMER\
+This command will output results to C:\Users\YourName\Meerkat\
 
 ```
-Invoke-HAMER
+Invoke-Meerkat
 ```
 
 ## Analysis
 
-Analysis methodologies and techniques are provided in the [Wiki pages](https://github.com/TonyPhipps/HAMER/wiki).
+Analysis methodologies and techniques are provided in the [Wiki pages](https://github.com/TonyPhipps/Meerkat/wiki).
 
 ## Troubleshooting
 [Installing a Powershell Module](https://msdn.microsoft.com/en-us/library/dd878350(v=vs.85).aspx)
@@ -85,18 +83,18 @@ Analysis methodologies and techniques are provided in the [Wiki pages](https://g
 If your system does not automatically load modules in your user [profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6), you may need to [import the module manually](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx).
 
 ```
-Import-Module C:\Program Files\WindowsPowerShell\Modules\HAMER\HAMER.psm1
+Import-Module C:\Program Files\WindowsPowerShell\Modules\Meerkat\Meerkat.psm1
 ```
 
 ## Screenshots
 
-Output of Command "Invoke-HAMER"
+Output of Command "Invoke-Meerkat"
 
-![Output of Command "Invoke-HAMER"](https://i.imgur.com/gcM2y17.png)
+![Output of Command "Invoke-Meerkat"](https://i.imgur.com/C5eKInZ.png)
 
 Output Files
 
-![Output Files](https://i.imgur.com/3B4HtXb.png)
+![Output Files](https://i.imgur.com/dy3f1Id.png)
 
 
 ## Similar Projects
@@ -120,7 +118,7 @@ Output Files
 - https://learn.duffandphelps.com/kape
 - https://www.brimorlabs.com/tools/
 
-What makes HAMER stand out?
+What makes Meerkat stand out?
 - Lightweight. Fits on a floppy disk!
 - Very little footprint/impact on targets.
 - Leverages Powershell & WMI/CIM.

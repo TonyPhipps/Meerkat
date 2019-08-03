@@ -1,4 +1,4 @@
-$Module = "Get-hComputer"
+$Module = "Get-ComputerDetails"
 $InputList = "C:\Temp\Scope.csv"
 $OutputPath = "C:\Temp\{0}_{1}.csv" -f $Module, (Get-Date -Format 'yyyy-MM-dd')
 
