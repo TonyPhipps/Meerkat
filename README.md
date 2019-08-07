@@ -1,4 +1,6 @@
 # Meerkat
+![Output Files](https://i.imgur.com/7gHUYBh.png)
+
 
 Meerkat is collection of PowerShell modules designed for artifact gathering and reconnaisance of Windows-based endpoints. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
 
