@@ -15,12 +15,17 @@
     .EXAMPLE 
         Get-Strings
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Strings} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\Strings.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-Strings} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_Strings.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_Strings.csv")
         }
 
     .NOTES 

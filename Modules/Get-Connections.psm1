@@ -6,12 +6,17 @@
     .EXAMPLE 
         Get-Connections
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Connections} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\Connections.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-Connections} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_TCPConnections.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_Connections.csv")
         }
 
     .NOTES

@@ -11,13 +11,18 @@ function Get-Processes {
 
     .EXAMPLE
         Get-Processes
+
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Processes} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\Processes.csv")
         
     .EXAMPLE
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-Processes} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\results\$Target_processes.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_processes.csv")
         }
 
     .NOTES 

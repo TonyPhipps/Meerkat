@@ -9,12 +9,17 @@ function Get-TPMDetails{
     .EXAMPLE 
         Get-TPMDetails
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-TPMDetails} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\TPM.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-TPMDetails} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_TPM.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_TPM.csv")
         }
 
     .NOTES 

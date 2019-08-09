@@ -9,12 +9,17 @@
     .EXAMPLE 
         Get-NetRoutes
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-NetRoutes} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\NetRoutes.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-MRU} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$THR_NetRoute.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_NetRoute.csv")
         }
 
     .NOTES 

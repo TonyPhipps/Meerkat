@@ -16,12 +16,17 @@ function Get-MAC {
     .EXAMPLE 
         Get-MAC
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-MAC} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\MAC.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-MAC} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_MAC.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_MAC.csv")
         }
 
     .NOTES 

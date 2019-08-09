@@ -9,12 +9,17 @@ function Get-Hosts {
     .EXAMPLE 
         Get-Hosts
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Hosts} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\Hosts.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-Hosts} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_Hosts.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_Hosts.csv")
         }
 
     .NOTES 

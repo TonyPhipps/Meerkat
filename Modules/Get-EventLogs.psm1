@@ -15,12 +15,17 @@ function Get-EventLogs {
     .EXAMPLE 
         Get-EventLogs
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventLogs} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\EventLogs.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-EventLogs} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_EventLogs.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EventLogs.csv")
         }
 
     .NOTES

@@ -9,12 +9,17 @@ function Get-Hotfixes {
     .EXAMPLE 
         Get-Hotfixes
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Hotfixes} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\Hotfixes.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-Hotfixes} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_Hotfixes.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_Hotfixes.csv")
         }
 
     .NOTES 

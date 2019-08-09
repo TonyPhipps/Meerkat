@@ -9,12 +9,17 @@ function Get-NetAdapters {
     .EXAMPLE 
         Get-NetAdapters
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-NetAdapters} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\NetAdapters.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-NetAdapters} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_NetAdapters.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_NetAdapters.csv")
         }
 
     .NOTES 

@@ -11,12 +11,17 @@ function Get-ScheduledTasks {
     .EXAMPLE 
         Get-ScheduledTasks
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-ScheduledTasks} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\ScheduledTasks.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-ScheduledTasks} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_ScheduledTasks.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_ScheduledTasks.csv")
         }
 
     .NOTES 

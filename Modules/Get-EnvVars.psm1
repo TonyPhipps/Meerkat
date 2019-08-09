@@ -9,12 +9,17 @@ Function Get-EnvVars {
     .EXAMPLE 
         Get-EnvVars
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EnvVars} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\EnvVars.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-EnvVars} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_EnvVars.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EnvVars.csv")
         }
     
      .NOTES 

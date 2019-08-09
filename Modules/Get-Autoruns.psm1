@@ -12,6 +12,11 @@
     .EXAMPLE 
         Get-Autoruns
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Autoruns} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\Autoruns.csv")
+
     .EXAMPLE 
         Get-Autoruns SomeHostName.domain.com
         Get-Content C:\hosts.csv | Get-Autoruns

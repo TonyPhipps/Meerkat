@@ -13,12 +13,17 @@ function Get-GroupMembers {
     .EXAMPLE 
         Get-GroupMembers
 
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-GroupMembers} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\GroupMembers.csv")
+
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-GroupMembers} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_GroupMembers.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_GroupMembers.csv")
         }
 
     .NOTES 

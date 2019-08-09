@@ -15,13 +15,18 @@ function Get-ADS {
 
     .EXAMPLE 
         Get-ADS -Path "C:\Temp"
+
+	.EXAMPLE 
+		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-ADS} | 
+		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+		Export-Csv -NoTypeInformation ("c:\temp\ADS.csv")
         
     .EXAMPLE
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-ADS} -ArgumentList "C:\Temp" | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation "c:\temp\$Target_ADS.csv"
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_ADS.csv")
         }
 
     .NOTES 
