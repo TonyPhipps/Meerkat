@@ -89,11 +89,11 @@ function Invoke-Meerkat {
         [Parameter()]
         [alias("M", "Mod")]
         [ValidateSet( "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoutes", "TCPConnections", 
+            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoutes", "Connections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "MAC" )]
         [array]$Modules = ("ARP", "Autoruns", "BitLocker", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
-            "MRU", "NetAdapters", "NetRoutes", "TCPConnections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
+            "MRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")
     )
 
@@ -136,7 +136,7 @@ function Invoke-Meerkat {
 
             [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers",
             "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "ScheduledTasks",
-            "Services", "Sessions", "Shares", "Software", "Strings", "TPMDetails", "MAC", "Processes", "RecycleBin", "DLLs",
+            "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs",
             "EventLogs")
         }
 
