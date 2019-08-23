@@ -99,7 +99,7 @@ function Get-TPMDetails{
 
             foreach ($Key in $Manufacturers.Keys) {
 
-                if ($Key -eq $output.ManufacturerId) {
+                if ($Key -eq $Result.ManufacturerId) {
                     
                     $Result.ManufacturerName = $Manufacturers[$Key]
                 }

@@ -68,7 +68,7 @@ Function Get-EnvVars {
 
             $ResultsArray = ForEach ($Variable in $Win32_Environment) {
 
-                $VariableValues = $Variable.VariableValue.Split("") | Where-Object {$_ -ne ""}
+                $VariableValues = $Variable.VariableValue.Split(";") | Where-Object {$_ -ne ""}
             
                 Foreach ($VariableValue in $VariableValues) {
                     $VariableValueSplit = $Variable
