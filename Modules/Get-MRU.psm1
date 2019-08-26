@@ -9,10 +9,10 @@ function Get-MRU {
     .EXAMPLE 
         Get-MRU
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-MRU} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\MRU.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-MRU} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\MRU.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name

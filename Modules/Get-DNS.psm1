@@ -12,10 +12,10 @@
     .EXAMPLE 
         Get-DNS
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-DNS} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\DNS.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-DNS} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\DNS.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -54,7 +54,7 @@
     param(
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-DNS at {0}" -f $DateScanned)

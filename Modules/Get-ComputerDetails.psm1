@@ -10,10 +10,10 @@ Function Get-ComputerDetails {
     .EXAMPLE 
         Get-ComputerDetails
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Computer} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\Computer.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Computer} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Computer.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name

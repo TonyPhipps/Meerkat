@@ -9,10 +9,10 @@ function Get-Hotfixes {
     .EXAMPLE 
         Get-Hotfixes
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Hotfixes} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\Hotfixes.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Hotfixes} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Hotfixes.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -50,14 +50,14 @@ function Get-Hotfixes {
     param(
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-Hotfixes at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-	}
+    }
 
     process{
 

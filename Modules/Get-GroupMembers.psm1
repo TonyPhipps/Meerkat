@@ -13,10 +13,10 @@ function Get-GroupMembers {
     .EXAMPLE 
         Get-GroupMembers
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-GroupMembers} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\GroupMembers.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-GroupMembers} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\GroupMembers.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -55,14 +55,14 @@ function Get-GroupMembers {
     param(
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-GroupMembers at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-	}
+    }
 
     process{
 

@@ -9,10 +9,10 @@
     .EXAMPLE 
         Get-NetRoutes
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-NetRoutes} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\NetRoutes.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-NetRoutes} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\NetRoutes.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -51,7 +51,7 @@
     param(
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-NetRoutes at {0}" -f $DateScanned)
@@ -64,7 +64,7 @@
             ComputedRoute = 3
             ActualRoute = 4        
         }
-	}
+    }
 
     process{
 

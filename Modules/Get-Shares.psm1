@@ -9,10 +9,10 @@ function Get-Shares {
     .EXAMPLE 
         Get-Shares
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Shares} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\Shares.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Shares} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Shares.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -50,21 +50,21 @@ function Get-Shares {
     param(
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-Shares at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
-	}
+    }
 
     process{
 
         $PermissionFlags = @{
             0x1     =     "Read-List"
             0x2     =     "Write-Create"
-            0x4     =     "Append-Create Subdirectory"                  	
+            0x4     =     "Append-Create Subdirectory"                      
             0x20    =     "Execute file-Traverse directory"
             0x40    =     "Delete child"
             0x10000 =     "Delete"                     

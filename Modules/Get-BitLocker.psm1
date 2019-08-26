@@ -10,10 +10,10 @@ function Get-BitLocker {
     .EXAMPLE 
         Get-BitLocker
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-BitLocker} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\BitLocker.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-BitLocker} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\BitLocker.csv")
 
     .EXAMPLE
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -52,7 +52,7 @@ function Get-BitLocker {
     param(
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-BitLocker at {0}" -f $DateScanned)

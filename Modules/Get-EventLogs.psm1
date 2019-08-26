@@ -15,10 +15,10 @@ function Get-EventLogs {
     .EXAMPLE 
         Get-EventLogs
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventLogs} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\EventLogs.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventLogs} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\EventLogs.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -62,7 +62,7 @@ function Get-EventLogs {
         [datetime] $EndTime
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-EventLogs at {0}" -f $DateScanned)
@@ -77,7 +77,7 @@ function Get-EventLogs {
         if(!($EndTime)){
             $EndTime = (Get-Date)
         }
-	}
+    }
 
     process{
 

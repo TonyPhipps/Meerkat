@@ -9,10 +9,10 @@ function Get-TPMDetails{
     .EXAMPLE 
         Get-TPMDetails
 
-	.EXAMPLE 
-		Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-TPMDetails} | 
-		Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-		Export-Csv -NoTypeInformation ("c:\temp\TPM.csv")
+    .EXAMPLE 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-TPMDetails} | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\TPM.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
@@ -52,7 +52,7 @@ function Get-TPMDetails{
     param(
     )
 
-	begin{
+    begin{
 
         $DateScanned = Get-Date -Format u
         Write-Information -InformationAction Continue -MessageData ("Started Get-TPMDetails at {0}" -f $DateScanned)
@@ -83,7 +83,7 @@ function Get-TPMDetails{
             0x54584E00 = "Texas Instruments"
             0x57454300 = "Winbond"
         }
-	}
+    }
 
     process{
 
