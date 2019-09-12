@@ -52,7 +52,7 @@ function Invoke-Meerkat_PSExec {
         Invoke-Meerkat_psexec -Computer WorkComputer -Command 'Get-MAC -Hash | export-csv c:\windows\Meerkat\results\MAC.csv -notypeinformation'
 
     .NOTES 
-        Updated: 2019-04-18
+        Updated: 2019-09-11
 
         Contributing Authors:
             Anthony Phipps
@@ -87,8 +87,8 @@ function Invoke-Meerkat_PSExec {
         [string]$Command = "Invoke-Meerkat",
         
         #Local Parameters
-        [string]$ModulePath = "$ENV:USERPROFILE\Documents\WindowsPowerShell\Modules\Meerkat\",
-        [string]$Output = "C:\Temp\Results\",
+        [string]$ModulePath = "C:\Program Files\WindowsPowerShell\Modules\Meerkat\Modules",
+        [string]$Output = "$ENV:USERPROFILE\Meerkat\",
         [string]$ModuleName = "Meerkat.psm1",
         [string]$PSExec = "C:\Program Files\Sysinternals"
     )
