@@ -61,12 +61,12 @@ function Get-Registry {
         Write-Information -InformationAction Continue -MessageData ("Started Get-Registry at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
-        $stopwatch.Start()        
+        $stopwatch.Start()
     }
 
     process{
     
-        $MachineKeys = 
+        $KeysValues = 
             "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
@@ -88,9 +88,22 @@ function Get-Registry {
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad",
             "HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor"
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\UserInit",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\boot\Shell",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\osk.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\sethc.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\utilman.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\magnify.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\narrator.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\DisplaySwitch.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AtBroker.exe\Debugger",
+            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\ClearPagefileAtShutdown"
 
-            $UserKeys =
+        $UserKeysValues =
             "\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
             "\Software\Microsoft\Windows\CurrentVersion\RunServices",
@@ -105,143 +118,139 @@ function Get-Registry {
             "\Software\Microsoft\Windows NT\CurrentVersion\Windows\load",
             "\Software\Microsoft\Command Processor"
 
-            $MachineValues = 
-            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\UserInit",
-            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell",
-            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs",
-            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify",
-            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\boot\Shell",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\osk.exe\Debugger",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\sethc.exe\Debugger",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\utilman.exe\Debugger",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\magnify.exe\Debugger",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\narrator.exe\Debugger",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\DisplaySwitch.exe\Debugger",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AtBroker.exe\Debugger",
-            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\ClearPagefileAtShutdown"
+        $DataArray = foreach ($KeyValue in $KeysValues){
             
-            $MachineKeysArray = foreach ($Key in $MachineKeys){
-                
-                $Key = "Registry::" + $Key
+            $Key = "Registry::" + $KeyValue
+        
+            if (Test-Path $Key){ # A Key was given
+                $keyObject = Get-Item $Key               
+                $Properties = $keyObject.Property
 
-                if (Test-Path $Key){
-            
-                    $keyObject = Get-Item $Key
-            
-                    $Properties = $keyObject.Property
-            
-                    if ($Properties) {
-            
-                        foreach ($Property in $Properties){
-            
-                            $output = [pscustomobject] @{
-                                Key = $Key.Split(":")[2]
-                                Value = $Property 
-                                Data = $keyObject.GetValue($Property)
-                            }
+                foreach ($Property in $Properties){
+    
+                    $output = [pscustomobject] @{
+                        Key = $Key.Split(":")[2]
+                        Value = $Property 
+                        Data = $keyObject.GetValue($Property)
+                    }
 
-                            $output
+                    if ($output.data -is [array]){
+                        if ($output.data[0] -is [byte]){
+                            $output.Data = (($output.Data | ForEach-Object{[char]$_}) -join "")
+                        }
+                        else{
+                            $output.Data = [string]$output.Data
+                        }
+                    }
+
+                    $output
+                }
+            }
+
+            else{ # A key and value was given
+                $Key = Split-Path -Path $Key
+                $hasData = (Get-Item $Key -ErrorAction SilentlyContinue)
+                    
+                    if ($hasData) {
+
+                    $output = [pscustomobject] @{
+                        Key = $Key.Split(":")[2]
+                        Value = $value 
+                        Data = (Get-Item $Key).GetValue($value)
+                    }
+
+                    if ($output.data -is [array]){
+                        if ($output.data[0] -is [byte]){
+                            $output.Data = (($output.Data | ForEach-Object{[char]$_}) -join "")
+                        }
+                        else{
+                            $output.Data = [string]$output.Data
                         }
                     }
                     
+                    $output
                 }
             }
+        }
 
-            $MachineValuesArray = foreach ($Key in $MachineValues){
-                
-                $Key = "Registry::" + $Key
+
+        # Regex pattern for SIDs
+        $PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
+        
+        # Get all users' Username, SID, and location of ntuser.dat
+        $UserArray = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' | 
+            Where-Object {$_.PSChildName -match $PatternSID} | 
+            Select-Object  @{name="SID";expression={$_.PSChildName}}, 
+                @{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}}, 
+                @{name="Username";expression={$_.ProfileImagePath -replace '^(.*[\\\/])', ''}}
+        
+        $LoadedHives = Get-ChildItem Registry::HKEY_USERS | 
+            Where-Object {$_.PSChildname -match $PatternSID} | 
+            Select-Object @{name="SID";expression={$_.PSChildName}}
+        
+        $UnloadedHives = Compare-Object $UserArray.SID $LoadedHives.SID | 
+            Select-Object @{name="SID";expression={$_.InputObject}}, UserHive, Username
+
+        $UserDataArray = foreach ($User in $UserArray) {
             
-                $Value = Split-Path -Path $Key -Leaf
-                $Key = Split-Path -Path $Key
-            
+            If ($User.SID -in $UnloadedHives.SID) {
+
+                reg load HKU\$($User.SID) $($User.UserHive) | Out-Null
+            }
+
+            foreach ($Key in $UserKeysValues){
+
+                $Key = "Registry::HKEY_USERS\$($User.SID)" + $Key
+
                 if (Test-Path $Key){
-                        
-                    if (Get-Item $Key){
-                        
-                        $Data = (Get-Item $Key).GetValue($Value)
-                        
-                        if ($Data) {
-            
+
+                    $KeyObject = Get-Item $Key
+                            
+                    $Properties = $KeyObject.Property
+                            
+                    if ($Properties) { 
+                            
+                        foreach ($Property in $Properties){
+                            
                             $output = [pscustomobject] @{
                                 Key = $Key.Split(":")[2]
-                                Value = $Value 
-                                Data = $Data
+                                Value = $Property 
+                                Data = $KeyObject.GetValue($Property)
                             }
-                            
-                            $output
-                        }
-                    }
-                }
-            }
 
-            # Regex pattern for SIDs
-            $PatternSID = 'S-1-5-21-\d+-\d+\-\d+\-\d+$'
-            
-            # Get all users' Username, SID, and location of ntuser.dat
-            $UserArray = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\*' | 
-                Where-Object {$_.PSChildName -match $PatternSID} | 
-                Select-Object  @{name="SID";expression={$_.PSChildName}}, 
-                    @{name="UserHive";expression={"$($_.ProfileImagePath)\ntuser.dat"}}, 
-                    @{name="Username";expression={$_.ProfileImagePath -replace '^(.*[\\\/])', ''}}
-            
-            $LoadedHives = Get-ChildItem Registry::HKEY_USERS | 
-                Where-Object {$_.PSChildname -match $PatternSID} | 
-                Select-Object @{name="SID";expression={$_.PSChildName}}
-            
-            $UnloadedHives = Compare-Object $UserArray.SID $LoadedHives.SID | 
-                Select-Object @{name="SID";expression={$_.InputObject}}, UserHive, Username
-
-            $UserKeysArray = foreach ($User in $UserArray) {
-                
-                If ($User.SID -in $UnloadedHives.SID) {
-
-                    reg load HKU\$($User.SID) $($User.UserHive) | Out-Null
-                }
-
-                foreach ($Key in $UserKeys){
-
-                    $Key = "Registry::HKEY_USERS\$($User.SID)" + $Key
-
-                    if (Test-Path $Key){
-
-                        $KeyObject = Get-Item $Key
-                                
-                        $Properties = $KeyObject.Property
-                                
-                        if ($Properties) { 
-                                
-                            foreach ($Property in $Properties){
-                                
-                                $output = [pscustomobject] @{
-                                    Key = $Key.Split(":")[2]
-                                    Value = $Property 
-                                    Data = $KeyObject.GetValue($Property)
+                            if ($output.data -is [array]){
+                                if ($output.data[0] -is [byte]){
+                                    $output.Data = (($output.Data | ForEach-Object{[char]$_}) -join "")
                                 }
+                                else{
+                                    $output.Data = [string]$output.Data
+                                }
+                            }
 
-                                $output
-                            }  
-                        }
+                            $output
+                        }  
                     }
-                }
-                
-                If ($User.SID -in $UnloadedHives.SID) {
-                    ### Garbage collection and closing of ntuser.dat ###
-
-                    [gc]::Collect()
-                    reg unload HKU\$($User.SID) | Out-Null
                 }
             }
             
-            
-            $ResultsArray = $MachineKeysArray + $MachineValuesArray + $UserKeysArray
+            If ($User.SID -in $UnloadedHives.SID) {
+                ### Garbage collection and closing of ntuser.dat ###
 
-            foreach ($Result in $ResultsArray) {
-            
-                $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-            }  
+                [gc]::Collect()
+                reg unload HKU\$($User.SID) | Out-Null
+            }
+        }
+        
+        
+        $ResultsArray = $DataArray + $UserDataArray
 
-            return $ResultsArray | Select-Object Host, DateScanned, Key, Value, Data
+        foreach ($Result in $ResultsArray) {
+        
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+        }  
+
+        return $ResultsArray | Select-Object Host, DateScanned, Key, Value, Data
     }
 
     end{
