@@ -40,7 +40,7 @@ ______________________________________________________
 In a Command or PowerShell console, type the following...
 
 ```
-git clone https://github.com/TonyPhipps/Meerkat C:\Program Files\WindowsPowerShell\Modules\Meerkat
+git clone "https://github.com/TonyPhipps/Meerkat" "C:\Program Files\WindowsPowerShell\Modules\Meerkat"
 ```
 
 To update...
