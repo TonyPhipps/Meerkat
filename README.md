@@ -101,6 +101,7 @@ Output Files
 
 ## Similar Projects
 
+- https://github.com/travisfoley/dfirtriage
 - https://github.com/Invoke-IR/PowerForensics
 - https://github.com/PowerShellMafia/CimSweep
 - https://www.crowdstrike.com/resources/community-tools/crowdresponse/
