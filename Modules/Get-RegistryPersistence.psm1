@@ -1,4 +1,4 @@
-function Get-Registry {
+function Get-RegistryPersistence {
     <#
     .SYNOPSIS 
         Gets a list of registry keys that may be used to achieve persistence or clear tracks.
@@ -7,19 +7,19 @@ function Get-Registry {
         Gets a list of registry keys that may be used to achieve persistence or clear tracks.
 
     .EXAMPLE 
-        Get-Registry
+        Get-RegistryPersistence
 
     .EXAMPLE 
-        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Registry} | 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-RegistryPersistence} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-        Export-Csv -NoTypeInformation ("c:\temp\Registry.csv")
+        Export-Csv -NoTypeInformation ("c:\temp\RegistryPersistence.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
-            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-Registry} | 
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-RegistryPersistence} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_Registry.csv")
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_RegistryPersistence.csv")
         }
 
     .NOTES 
@@ -44,7 +44,7 @@ function Get-Registry {
 
     .LINK
        https://github.com/TonyPhipps/Meerkat
-       https://github.com/TonyPhipps/Meerkat/wiki/Registry
+       https://github.com/TonyPhipps/Meerkat/wiki/RegistryPersistence
        https://blog.cylance.com/windows-registry-persistence-part-2-the-run-keys-and-search-order
        http://resources.infosecinstitute.com/common-malware-persistence-mechanisms
        https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis
@@ -58,7 +58,7 @@ function Get-Registry {
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started Get-Registry at {0}" -f $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-RegistryPersistence at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
@@ -67,22 +67,56 @@ function Get-Registry {
     process{
     
         $KeysValues = 
-            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\ClearPagefileAtShutdown",
-            "HKEY_LOCAL_MACHINE\SYSTEM\MountedDevices",
-            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters",
-            "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\Transcription",
-            "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\EventLog\EventForwarding\SubscriptionManager",
-            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Notify"
-            
+            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\BootExecute",
+            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs",
+            "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\SafeDllSearchMode",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServices",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnceEx",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SharedTaskScheduler",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",            
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Winlogon",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs",
+            "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\boot\Shell",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\osk.exe",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\sethc.exe",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\utilman.exe",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\magnify.exe",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\narrator.exe",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\DisplaySwitch.exe",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AtBroker.exe"
 
         $UserKeysValues =
-            "\Software\Microsoft\Windows\CurrentVersion\Policies\System",
-            "\Software\Classes\ms-settings\shell\open",
-            "\Software\Microsoft\Windows\CurrentVersion\Applets\RegEdit",
-            "\Software\Microsoft\Windows\System",
-            "\Environment",
-            "\Software\Microsoft\Windows\CurrentVersion\Explorer\Map Network Drive MRU"
-
+            "\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\RunServicesOnce",
+            "\Software\Microsoft\Windows\CurrentVersion\RunServices",
+            "\Software\Microsoft\Windows\CurrentVersion\Run",
+            "\Software\Microsoft\Windows\CurrentVersion\RunOnce",
+            "\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run32",            
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\StartupFolder",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
+            "\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders",
+            "\Software\Microsoft\Windows NT\CurrentVersion\Windows",
+            "\Software\Microsoft\Command Processor",
+            "\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Control Panel\CPLs",
+            "\Software\Microsoft\Windows\CurrentVersion\Control Panel\CPLs"
 
         $DataArray = foreach ($KeyValue in $KeysValues){
             

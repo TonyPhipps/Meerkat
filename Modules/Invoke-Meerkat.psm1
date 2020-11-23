@@ -88,12 +88,12 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoutes", "Connections", 
+        [ValidateSet( "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "RegistryPersistence", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
+            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "MAC" )]
-        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
-            "MRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
+        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "RegistryPersistence", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
+            "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")
     )
 
@@ -105,6 +105,7 @@ function Invoke-Meerkat {
             Autoruns = ${Function:Get-Autoruns}
             BitLocker = ${Function:Get-BitLocker}
             Certificates = ${Function:Get-Certificates}
+            RegistryPersistence = ${Function:Get-RegistryPersistence}
             ComputerDetails = ${Function:Get-ComputerDetails}
             DNS = ${Function:Get-DNS}
             Drivers = ${Function:Get-Drivers}
@@ -113,7 +114,7 @@ function Invoke-Meerkat {
             Hardware = ${Function:Get-Hardware}
             Hosts = ${Function:Get-Hosts}
             Hotfixes = ${Function:Get-Hotfixes}
-            MRU = ${Function:Get-MRU}
+            RegistryMRU = ${Function:Get-RegistryMRU}
             NetAdapters = ${Function:Get-NetAdapters}
             NetRoutes = ${Function:Get-NetRoutes}
             Connections = ${Function:Get-Connections}
@@ -135,7 +136,7 @@ function Invoke-Meerkat {
         if ($All) {
 
             [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers",
-            "Hardware", "Hosts", "Hotfixes", "MRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "ScheduledTasks",
+            "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", "ScheduledTasks",
             "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs",
             "EventLogs")
         }
@@ -143,7 +144,7 @@ function Invoke-Meerkat {
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "MAC", "MRU", "RecycleBin", "Sessions", "Strings" }
+            Where-Object { $_ -notin "ADS", "DLLs", "Drivers", "EventLogs", "MAC", "RegistryMRU", "RecycleBin", "Sessions", "Strings" }
         }  
 
         $DateScanned = Get-Date -Format u

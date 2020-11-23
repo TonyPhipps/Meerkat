@@ -1,4 +1,4 @@
-function Get-MRU {
+function Get-RegistryMRU {
     <#
     .SYNOPSIS 
         Gets a Most Recently Used information from various locations.
@@ -7,19 +7,19 @@ function Get-MRU {
         Gets a Most Recently Used information from various locations.
 
     .EXAMPLE 
-        Get-MRU
+        Get-RegistryMRU
 
     .EXAMPLE 
-        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-MRU} | 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-RegistryMRU} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-        Export-Csv -NoTypeInformation ("c:\temp\MRU.csv")
+        Export-Csv -NoTypeInformation ("c:\temp\RegistryMRU.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
-            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-MRU} | 
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-RegistryMRU} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_MRU.csv")
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_RegistryMRU.csv")
         }
 
     .NOTES 
@@ -56,7 +56,7 @@ function Get-MRU {
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started Get-MRU at {0}" -f $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-RegistryMRU at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
