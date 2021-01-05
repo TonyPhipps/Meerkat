@@ -9,4 +9,4 @@
   - c:\swapfile.sys
   - c:\windows\memory.dmp
   - c:\Windows\LiveKernelReports\*.dmp
-   
+  - c:\windows\system32\LogFiles\Firewall\pfirewall.log
