@@ -1,3 +1,5 @@
+NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, not copy/paste while displaying as markdown!
+
 - c:\windows\prefetch file listing
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
 - Pull recent RDP Client activity from registry
