@@ -8,6 +8,7 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
   - logs
     - c:\Windows\System32\winevt\Logs\*.evtx
     - c:\windows\system32\LogFiles\Firewall\pfirewall.log
+    - c:\Users\*\Documents\*\PowerShell_trascript*.txt
   - memory
     - c:\hiberfil.sys
     - c:\pagefile.sys
