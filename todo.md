@@ -2,7 +2,7 @@
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
 - Pull recent RDP Client activity from registry
   - "HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Servers"
-- Build module to pull files files
+- Build module(s) to pull files files
   - c:\Windows\System32\winevt\Logs\*.evtx
   - c:\hiberfil.sys
   - c:\pagefile.sys
@@ -10,3 +10,33 @@
   - c:\windows\memory.dmp
   - c:\Windows\LiveKernelReports\*.dmp
   - c:\windows\system32\LogFiles\Firewall\pfirewall.log
+  - c:\users\*\ntuser.dat
+  - c:\windows\tasks\*.job
+  - Browser history artifacts.
+    - c:\Users\*\AppData\Local\Microsoft\Windows\History\History.IE5\index.dat
+    - c:\Users\*\AppData\Local\Microsoft\Windows\History\History.IE5\MSHist*\index.dat
+    - c:\Users\*\AppData\Local\Microsoft\Windows\History\Low\History.IE5\index.dat
+    - c:\Users\*\AppData\Local\Microsoft\Windows\History\Low\History.IE5\MSHist*\index.dat
+    - c:\Users\*\AppData\Local\Microsoft\Windows\Temporary Internet Files\Content.IE5\index.dat
+    - c:\Users\*\AppData\Local\Microsoft\Windows\Temporary Internet Files\Low\Content.IE5\index.dat
+    - c:\Users\*\AppData\Roaming\Microsoft\Windows\Cookies\index.dat
+    - c:\Users\*\AppData\Roaming\Microsoft\Windows\Cookies\Low\index.dat
+    - c:\Users\*\AppData\Local\Microsoft\Internet Explorer\Recovery\*\*.dat
+    - c:\Users\*\AppData\Local\Microsoft\Internet Explorer\Recovery\Immersive\*\*.dat
+    - c:\Users\*\AppData\Roaming\Mozilla\Firefox\Profiles\*\*.sqlite
+    - c:\Users\*\AppData\Local\Microsoft\Windows\WebCache\*.dat
+    - c:\Users\*\AppData\Local\Google\Chrome\User Data\*\History
+    - c:\Users\*\AppData\Local\Google\Chrome\User Data\*\Current Session
+    - c:\Users\*\AppData\Local\Google\Chrome\User Data\*\Last Session
+    - c:\Users\*\AppData\Local\Google\Chrome\User Data\*\Current Tabs
+    - c:\Users\*\AppData\Local\Google\Chrome\User Data\*\Last Tabs
+    - c:\Users\*\AppData\Roaming\Macromedia\FlashPlayer\#SharedObjects\*\*\*.sol
+    - c:\Documents And Settings\*\Local Settings\History\History.IE5\index.dat
+    - c:\Documents And Settings\*\Local Settings\History\History.IE5\MSHist*\index.dat
+    - c:\Documents And Settings\*\Local Settings\Temporary Internet Files\Content.IE5\index.dat
+    - c:\Documents And Settings\*\Cookies\index.dat
+    - c:\Documents And Settings\*\Application Data\Mozilla\Firefox\Profiles\*\*.sqlite
+    - c:\Documents And Settings\*\Local Settings\Application Data\Google\Chrome\User Data\*\History
+    - c:\Documents And Settings\*\Local Settings\Application Data\Google\Chrome\*
+- Index prefetch
+  - c:\Windows\Prefetch\*.pf
