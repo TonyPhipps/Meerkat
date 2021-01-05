@@ -5,15 +5,19 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 - Pull recent RDP Client activity from registry
   - "HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Servers"
 - Build module(s) to pull files files
-  - c:\Windows\System32\winevt\Logs\*.evtx
-  - c:\hiberfil.sys
-  - c:\pagefile.sys
-  - c:\swapfile.sys
-  - c:\windows\memory.dmp
-  - c:\Windows\LiveKernelReports\*.dmp
-  - c:\windows\system32\LogFiles\Firewall\pfirewall.log
-  - c:\users\*\ntuser.dat
-  - c:\windows\tasks\*.job
+  - logs
+    - c:\Windows\System32\winevt\Logs\*.evtx
+    - c:\windows\system32\LogFiles\Firewall\pfirewall.log
+  - memory
+    - c:\hiberfil.sys
+    - c:\pagefile.sys
+    - c:\swapfile.sys
+    - c:\windows\memory.dmp
+    - c:\Windows\LiveKernelReports\*.dmp
+  - Registry
+    - c:\users\*\ntuser.dat
+  - Scheduled Tasks
+    - c:\windows\tasks\*.job
   - Browser history artifacts.
     - c:\Users\*\AppData\Local\Microsoft\Windows\History\History.IE5\index.dat
     - c:\Users\*\AppData\Local\Microsoft\Windows\History\History.IE5\MSHist*\index.dat
@@ -40,5 +44,5 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
     - c:\Documents And Settings\*\Application Data\Mozilla\Firefox\Profiles\*\*.sqlite
     - c:\Documents And Settings\*\Local Settings\Application Data\Google\Chrome\User Data\*\History
     - c:\Documents And Settings\*\Local Settings\Application Data\Google\Chrome\*
-- Index prefetch
+- Build module for prefetch file info
   - c:\Windows\Prefetch\*.pf
