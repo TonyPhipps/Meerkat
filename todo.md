@@ -1,3 +1,4 @@
 - c:\windows\prefetch file listing
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
-- 
+- Pull recent RDP Client activity from registry
+  - "HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Servers"
