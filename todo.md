@@ -2,3 +2,11 @@
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
 - Pull recent RDP Client activity from registry
   - "HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Servers"
+- Build module to pull files files
+  - c:\Windows\System32\winevt\Logs\*.evtx
+  - c:\hiberfil.sys
+  - c:\pagefile.sys
+  - c:\swapfile.sys
+  - c:\windows\memory.dmp
+  - c:\Windows\LiveKernelReports\*.dmp
+   
