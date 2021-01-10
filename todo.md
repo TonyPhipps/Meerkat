@@ -1,3 +1,8 @@
 - c:\windows\prefetch file listing
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
-- 
+- File Puller
+  - \%SystemRoot%\AppCompat\Programs\Amcache.hve
+- ShimCache entries
+  - HKLM\SYSTEM\CurrentControlSet\Control\SessionManager\AppCompatCache\AppCompatCache
+  - ref https://github.com/mandiant/ShimCacheParser
+  - 
