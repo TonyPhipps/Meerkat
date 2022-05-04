@@ -48,12 +48,12 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2019-05-17
+        Updated: 2022-05-04
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2018
+        LEGAL: Copyright (C) 2022
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -88,11 +88,11 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "RegistryPersistence", "Computer", "DLLs", "DNS", "Drivers", "EnvVars", 
+        [ValidateSet( "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "RegistryPersistence", "ComputerDetails", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "MAC" )]
-        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "RegistryPersistence", "Computer", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
+        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "RegistryPersistence", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")
     )
@@ -171,10 +171,15 @@ function Invoke-Meerkat {
         foreach ($Module in $Modules){
 
             try{
-                # & ("Get-" + $Module) -Computer $Computer | Export-Csv ($FilePath + $Computer + "_$Module.csv") -NoTypeInformation -Append
-                Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
-                    Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
-                    Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                if ($Computer -eq $env:COMPUTERNAME){
+                    & ("Get-" + $Module) |
+                        Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                    }
+                else {
+                    Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
+                        Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
+                        Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                }
 
             } catch{}
         }
