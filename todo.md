@@ -1,15 +1,19 @@
 NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, not copy/paste while displaying as markdown!
 
+Higher priority
+- System Policies
+  - dumpsec.exe /rpt=policy
+
 - c:\windows\prefetch file listing
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
-- File Puller
-  - \%SystemRoot%\AppCompat\Programs\Amcache.hve
 - ShimCache entries
   - HKLM\SYSTEM\CurrentControlSet\Control\SessionManager\AppCompatCache\AppCompatCache
   - ref https://github.com/mandiant/ShimCacheParser
 - Pull recent RDP Client activity from registry
   - "HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Servers"
-- Build module(s) to pull files files
+- Build module(s) to pull files
+  - C:\Users\username\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
+  - \%SystemRoot%\AppCompat\Programs\Amcache.hve
   - logs
     - c:\Windows\System32\winevt\Logs\*.evtx
     - c:\windows\system32\LogFiles\Firewall\pfirewall.log
