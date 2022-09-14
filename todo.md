@@ -1,8 +1,89 @@
 NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, not copy/paste while displaying as markdown!
 
-Higher priority
-- System Policies
+# Higher Priority
+
+- Update Get-ComputerDetails
+  - Add "System Role"
+  - Add "License Status"
+  - Add "Up Time"
+  - - Add "USB Storage Lock"
+  - reg query HKLM\SYSTEM\CurrentControlSet\Services\USBStor /V Start
+
+- Update Get-GroupMembers
+  - Last Login DateTime
+  - Account Disabled
+  - Password Required
+  - Password Expired
+  - User Can Change Password
+  - Last Password Change
+
+- Update AuditPolicy
   - dumpsec.exe /rpt=policy
+    - Minimum Password Length
+
+- Update Get-NetAdapters
+  - Sniffing NICs
+    - wmic /namespace:\\root\wmi PATH MSNdis_CurrentPacketFilter GET
+      - With NdisCurrentPacketFilter >= 32
+
+- Add Get-WindowsDefender
+  - Product
+  - Version
+  - RealTime Scan Enabled
+  - Virus Signature Version/Date
+  - IPS SIgnature Version/Date
+  - Last Scan Datetime
+
+
+- Add Get-EventLogs
+  - Log Name
+  - Earliest Log Date
+
+- Add Get-LoginFailures
+  - (last 60 days)
+  - Account Name
+  - Total Failed Logins
+
+- Add Get-UserGroupPermissionChanges
+  - (Filtered on Event IDs 4720, 4726, 4732, 4733, 4781)
+  - Timestamp
+  - User Name
+  - User SID
+  - Domain/Group
+  - Message
+  - Event Code
+  - Record Number
+
+- Add Get-WindowsFirewall
+  - Rule Name
+  - Enabled
+  - Direction
+  - Profiles
+  - Grouping
+  - Local IP
+  - Remote IP
+  - Protocol
+  - Local Port
+  - Remote Port
+  - Action
+
+- Add Get-USBHistory
+  - reg query HKLM\SYSTEM\CurrentControlSet\Enum\USBStor
+  - (replace & and _ with space)
+
+- Add Get-Disks
+  - Get-WmiObject -Class Win32_LogicalDisk -Namespace "root\cimv2"
+  - Disk Description
+  - Device ID
+  - File System
+  - Disk Size
+  - Free Space
+  - Percent Used
+
+
+
+
+# Lower Priority
 
 - c:\windows\prefetch file listing
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
