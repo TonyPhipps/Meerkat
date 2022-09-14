@@ -88,11 +88,11 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "RegistryPersistence", "ComputerDetails", "DLLs", "DNS", "Drivers", "EnvVars", 
+        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "RegistryPersistence", "ComputerDetails", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "MAC" )]
-        [array]$Modules = ("ARP", "Autoruns", "BitLocker", "RegistryPersistence", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
+        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")
     )
@@ -102,6 +102,7 @@ function Invoke-Meerkat {
         $ModuleCommandArray = @{
             ADS = (${Function:Get-ADS}, "C:\Temp")
             ARP = (${Function:Get-ARP}, $null)
+            AuditPolicy = ${Function:Get-AuditPolicy}
             Autoruns = ${Function:Get-Autoruns}
             BitLocker = ${Function:Get-BitLocker}
             Certificates = ${Function:Get-Certificates}
@@ -135,7 +136,7 @@ function Invoke-Meerkat {
 
         if ($All) {
 
-            [array]$Modules = ("ADS", "ARP", "Autoruns", "BitLocker", "Certificates", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers",
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers",
             "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", "ScheduledTasks",
             "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs",
             "EventLogs")
