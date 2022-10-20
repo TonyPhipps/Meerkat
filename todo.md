@@ -71,17 +71,6 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
   - reg query HKLM\SYSTEM\CurrentControlSet\Enum\USBStor
   - (replace & and _ with space)
 
-- Add Get-Disks
-  - Get-WmiObject -Class Win32_LogicalDisk -Namespace "root\cimv2"
-  - Disk Description
-  - Device ID
-  - File System
-  - Disk Size
-  - Free Space
-  - Percent Used
-
-
-
 
 # Lower Priority
 
