@@ -33,6 +33,8 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
   - Virus Signature Version/Date
   - IPS SIgnature Version/Date
   - Last Scan Datetime
+  - Quarantine Count
+  - Scan Exclusions
 
 
 - Add Get-EventLogs
