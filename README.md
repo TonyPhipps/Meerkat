@@ -81,7 +81,7 @@ Invoke-Meerkat
 Analysis methodologies and techniques are provided in the [Wiki pages](https://github.com/TonyPhipps/Meerkat/wiki).
 
 ## Troubleshooting
-[Installing a Powershell Module](https://msdn.microsoft.com/en-us/library/dd878350(v=vs.85).aspx)
+[Installing a Powershell Module](https://learn.microsoft.com/en-us/powershell/scripting/developer/module/installing-a-powershell-module?view=powershell-7.2)
 
 If your system does not automatically load modules in your user [profile](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6), you may need to [import the module manually](https://msdn.microsoft.com/en-us/library/dd878284(v=vs.85).aspx).
 
