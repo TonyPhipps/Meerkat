@@ -88,11 +88,12 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "RegistryPersistence", "ComputerDetails", "DLLs", "DNS", "Drivers", "EnvVars", 
+        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "RegistryPersistence", "ComputerDetails", "Disks", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "MAC" )]
-        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
+            
+        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")
     )
@@ -108,6 +109,8 @@ function Invoke-Meerkat {
             Certificates = ${Function:Get-Certificates}
             RegistryPersistence = ${Function:Get-RegistryPersistence}
             ComputerDetails = ${Function:Get-ComputerDetails}
+            Disks = ${Function:Get-Disks}
+            DLLs = ${Function:Get-DLLs}
             DNS = ${Function:Get-DNS}
             Drivers = ${Function:Get-Drivers}
             EnvVars = ${Function:Get-EnvVars}
@@ -130,13 +133,12 @@ function Invoke-Meerkat {
             MAC = ${Function:Get-MAC}
             Processes = ${Function:Get-Processes}
             RecycleBin = ${Function:Get-RecycleBin}
-            DLLs = ${Function:Get-DLLs}
             EventLogs = ${Function:Get-EventLogs}
         }
 
         if ($All) {
 
-            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "DNS", "Drivers", "EnvVars", "GroupMembers",
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers",
             "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", "ScheduledTasks",
             "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs",
             "EventLogs")
@@ -168,7 +170,6 @@ function Invoke-Meerkat {
 
         $Output = $Output + "\"
         
-        
         foreach ($Module in $Modules){
 
             try{
@@ -181,13 +182,9 @@ function Invoke-Meerkat {
                         Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
                         Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
                 }
-
             } catch{}
         }
-    
         $total++
-
-        
     }
 
     end{
