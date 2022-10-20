@@ -71,8 +71,8 @@
 
             foreach ($Result in $ResultsArray) {
 
-                $Used = $Disk.Size - $Disk.FreeSpace
-                $PercentUsed = $Used / $Disk.Size * 100
+                $Used = $Result.Size - $Result.FreeSpace
+                $PercentUsed = $Used / $Result.Size * 100
                 $PercentUsed = [math]::round($PercentUsed,2)
 
                 $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
