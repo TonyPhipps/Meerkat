@@ -69,34 +69,69 @@ Function Get-Defender {
         $ResultsArray = New-Object -TypeName PSObject
 
         $MpComputerStatus = Get-MpComputerStatus
+            foreach ($Property in $MpComputerStatus.PSObject.Properties) {
+                $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+            }  
+
         $MpPreference = Get-MpPreference
-        
-        foreach ($Property in $MpComputerStatus.PSObject.Properties) {
-            $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
-        }   
-        
-        foreach ($Property in $MpPreference.PSObject.Properties) {
-            $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
-        }
+            $AttackSurfaceReductionOnlyExclusionsList = $MpPreference.AttackSurfaceReductionOnlyExclusions -join ", "
+            $AttackSurfaceReductionRules_IdsList = $MpPreference.AttackSurfaceReductionRules_Ids -join ", "
+            $ControlledFolderAccessAllowedApplicationsList = $MpPreference.ControlledFolderAccessAllowedApplications -join ", "
+            $ControlledFolderAccessProtectedFoldersList = $MpPreference.ControlledFolderAccessProtectedFolders -join ", "
+            $ExclusionExtensionList = $MpPreference.ExclusionExtension -join ", "
+            $ExclusionIpAddressList = $MpPreference.ExclusionIpAddress -join ", "
+            $ExclusionPathList = $MpPreference.ExclusionPath -join ", "
+            $ExclusionProcessList = $MpPreference.ExclusionProcess -join ", "
+            $ProxyBypassList = $MpPreference.ProxyBypass -join ", "
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "AttackSurfaceReductionOnlyExclusionsList" -Value $AttackSurfaceReductionOnlyExclusionsList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "AttackSurfaceReductionRules_IdsList" -Value $AttackSurfaceReductionRules_IdsList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "ControlledFolderAccessAllowedApplicationsList" -Value $ControlledFolderAccessAllowedApplicationsList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "ControlledFolderAccessProtectedFoldersList" -Value $ControlledFolderAccessProtectedFoldersList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "ExclusionExtensionList" -Value $ExclusionExtensionList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "ExclusionIpAddressList" -Value $ExclusionIpAddressList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "ExclusionPathList" -Value $ExclusionPathList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "ExclusionProcessList" -Value $ExclusionProcessList -ErrorAction SilentlyContinue
+            $MpPreference | Add-Member -MemberType NoteProperty -Name "ProxyBypassList" -Value $ProxyBypassList -ErrorAction SilentlyContinue
+            foreach ($Property in $MpPreference.PSObject.Properties) {
+                $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+            }
+
+        $QuarantineCount = (Get-ChildItem "C:\ProgramData\Microsoft\Windows Defender\Quarantine\Entries").Count
+            $ResultsArray | Add-Member -MemberType NoteProperty -Name QuarantineCount -Value $QuarantineCount -ErrorAction SilentlyContinue
 
         foreach ($Result in $ResultsArray){
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, AMRunningMode, ComputerState, 
-            DeviceControlDefaultEnforcement, DeviceControlState, LastFullScanSource, 
-            LastQuickScanSource, ProductStatus, RealTimeScanDirection, AMServiceEnabled, 
-            AntispywareEnabled, AntivirusEnabled, BehaviorMonitorEnabled, IoavProtectionEnabled, 
-            NISEnabled, OnAccessProtectionEnabled, RealTimeProtectionEnabled, 
-            DefenderSignaturesOutOfDate, FullScanOverdue, FullScanRequired, IsTamperProtected, 
-            IsVirtualMachine, QuickScanOverdue, RebootRequired, AMEngineVersion, AMProductVersion, 
-            AMServiceVersion, AntispywareSignatureVersion, AntivirusSignatureVersion, 
-            FullScanSignatureVersion, NISEngineVersion, NISSignatureVersion, QuickScanSignatureVersion, 
-            AntispywareSignatureAge, AntivirusSignatureAge, FullScanAge, NISSignatureAge, QuickScanAge, 
-            AntispywareSignatureLastUpdated, AntivirusSignatureLastUpdated, DeviceControlPoliciesLastUpdated, 
-            NISSignatureLastUpdated, FullScanStartTime, FullScanEndTime, QuickScanStartTime, QuickScanEndTime
-
+        return $ResultsArray | Select-Object Host, DateScanned, AMRunningMode, ComputerState, DeviceControlDefaultEnforcement, 
+            DeviceControlState, LastFullScanSource, LastQuickScanSource, ProductStatus, AttackSurfaceReductionRules_Actions, 
+            AttackSurfaceReductionRules_IdsList, CloudBlockLevel, CloudExtendedTimeout, ControlledFolderAccessAllowedApplicationsList, 
+            ControlledFolderAccessProtectedFoldersList, DefinitionUpdatesChannel, EnableControlledFolderAccess, EnableNetworkProtection, 
+            EngineUpdatesChannel, HighThreatDefaultAction, LowThreatDefaultAction, MAPSReporting, ModerateThreatDefaultAction, PlatformUpdatesChannel, 
+            ProxyBypassList, ProxyPacUrl, ProxyServer, PUAProtection, QuarantinePurgeItemsAfterDelay, RealTimeScanDirection, RemediationScheduleDay, 
+            ReportingAdditionalActionTimeOut, ReportingCriticalFailureTimeOut, ReportingNonCriticalTimeOut, ScanAvgCPULoadFactor, ScanParameters, 
+            ScanPurgeItemsAfterDelay, ScanScheduleDay, ScanScheduleOffset, SchedulerRandomizationTime, ServiceHealthReportInterval, 
+            SevereThreatDefaultAction, SharedSignaturesPath, SignatureAuGracePeriod, SignatureBlobFileSharesSources, SignatureBlobUpdateInterval, 
+            SignatureDefinitionUpdateFileSharesSources, SignatureFallbackOrder, SignatureFirstAuGracePeriod, SignatureScheduleDay, 
+            SignatureUpdateCatchupInterval, SignatureUpdateInterval, TrustLabelProtectionStatus, UnknownThreatDefaultAction, 
+            AMServiceEnabled, AntispywareEnabled, AntivirusEnabled, BehaviorMonitorEnabled, IoavProtectionEnabled, NISEnabled, 
+            OnAccessProtectionEnabled, RealTimeProtectionEnabled, EnableDnsSinkhole, RandomizeScheduleTaskTimes, ScanOnlyIfIdleEnabled, 
+            DisableCatchupFullScan, DisableCatchupQuickScan, DisableCpuThrottleOnIdleScans, DisableEmailScanning, DisableRemovableDriveScanning, 
+            DisableRestorePoint, DisableScanningMappedNetworkDrivesForFullScan, DefenderSignaturesOutOfDate, FullScanOverdue, FullScanRequired, 
+            IsTamperProtected, IsVirtualMachine, QuickScanOverdue, RebootRequired, AllowDatagramProcessingOnWinServer, AllowNetworkProtectionDownLevel, 
+            AllowNetworkProtectionOnWinServer, AllowSwitchToAsyncInspection, CheckForSignaturesBeforeRunningScan, DisableArchiveScanning, 
+            DisableAutoExclusions, DisableBehaviorMonitoring, DisableBlockAtFirstSeen, DisableDatagramProcessing, DisableDnsOverTcpParsing, 
+            DisableDnsParsing, DisableFtpParsing, DisableGradualRelease, DisableHttpParsing, DisableInboundConnectionFiltering, DisableIOAVProtection, 
+            DisableNetworkProtectionPerfTelemetry, DisablePrivacyMode, DisableRdpParsing, DisableRealtimeMonitoring, DisableScanningNetworkFiles, 
+            DisableScriptScanning, DisableSshParsing, DisableTDTFeature, DisableTlsParsing, UILockdown, SignatureDisableUpdateOnStartupWithoutEngine, 
+            ReportDynamicSignatureDroppedEvent, MeteredConnectionUpdates, ForceUseProxyOnly, AMEngineVersion, AMProductVersion, AMServiceVersion, 
+            AntispywareSignatureVersion, AntivirusSignatureVersion, FullScanSignatureVersion, NISEngineVersion, NISSignatureVersion, QuickScanSignatureVersion, 
+            AntispywareSignatureAge, AntivirusSignatureAge, FullScanAge, NISSignatureAge, QuickScanAge, AntispywareSignatureLastUpdated, 
+            AntivirusSignatureLastUpdated, DeviceControlPoliciesLastUpdated, NISSignatureLastUpdated, FullScanStartTime, FullScanEndTime, 
+            QuickScanStartTime, QuickScanEndTime, RemediationScheduleTime, ScanScheduleQuickScanTime, ScanScheduleTime, SignatureScheduleTime, 
+            AttackSurfaceReductionOnlyExclusionsList, ExclusionExtensionList, ExclusionIpAddressList, ExclusionPathList, ExclusionProcessList, 
+            QuarantineCount
     }
 
     end{
