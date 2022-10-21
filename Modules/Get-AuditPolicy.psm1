@@ -67,7 +67,7 @@ function Get-AuditPolicy {
     process{
 
             
-        $ResultsArray = $test = auditpol.exe /get /category:* /r | ConvertFrom-Csv |
+        $ResultsArray = auditpol.exe /get /category:* /r | ConvertFrom-Csv |
         Select-Object -Property "Subcategory", "Subcategory GUID", "Inclusion Setting", "Exclusion Setting"
 
         foreach ($Result in $ResultsArray) {
