@@ -48,7 +48,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2022-05-04
+        Updated: 2022-10-22
 
         Contributing Authors:
             Anthony Phipps
@@ -92,7 +92,6 @@ function Invoke-Meerkat {
             "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", 
             "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
             "MAC" )]
-            
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")

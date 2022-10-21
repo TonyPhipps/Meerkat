@@ -4,7 +4,7 @@
 
 Meerkat is collection of PowerShell modules designed for artifact gathering and reconnaisance of Windows-based endpoints without requiring a pre-deployed agent. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
 
-# Artifacts and Wiki Articles
+# Artifacts
 |       [Host Info](https://github.com/TonyPhipps/Meerkat/wiki/Computer)       | [Processes](https://github.com/TonyPhipps/Meerkat/wiki/Processes)* |      [Services](https://github.com/TonyPhipps/Meerkat/wiki/Services)      |   [Autoruns](https://github.com/TonyPhipps/Meerkat/wiki/Autoruns)    |      [Drivers](https://github.com/TonyPhipps/Meerkat/wiki/Drivers)      |
 | :--------------------------------------------------------------------------: | :----------------------------------------------------------------: | :-----------------------------------------------------------------------: | :------------------------------------------------------------------: | :---------------------------------------------------------------------: |
 |                                     ARP                                      |      [DLLs](https://github.com/TonyPhipps/Meerkat/wiki/DLLs)*      |                                  EnvVars                                  |                              Hosts File                              |                                   ADS                                   |
@@ -88,6 +88,23 @@ If your system does not automatically load modules in your user [profile](https:
 ```
 Import-Module C:\Program Files\WindowsPowerShell\Modules\Meerkat\Meerkat.psm1
 ```
+
+## Adding a New Module
+- Create the new .psm1 file, preferrably from copying an existing module with similar enough logic and using it as a starting point.
+  - Update the module name
+  - Using find and replace, replace all instances of the template's name
+  - Update the Synopsis, Description, Parameters, Examples, and Notes sections
+  - Replace the process{} logic with the new logic. Ensure it returns an array of matching PowerShell objects.
+  - Save the module with an appropriate name.
+- Add the new module name to Meerkat.psd1. This can be done manually or by running /Utilities/Generate-ModuleManifest.ps1
+- Add the new module to the table in this README.md
+  - Add to the Artifacts table.
+- Add the new module to Invoke-Meerkat.psm1
+  - Add to the Paramater m/mod/modules, including both the ValidateSet and the $Modules array itself.
+  - In begin{}, add to $ModuleCommandArray
+  - In begin{}, add to ```if ($All) {}``` code block
+  - If the module takes more than a few seconds, also add to ```if ($Quick) {``` code block. This prevents it from running when the user invokes -Fast
+
 
 ## Screenshots
 
