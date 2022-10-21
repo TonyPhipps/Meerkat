@@ -26,17 +26,6 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
     - wmic /namespace:\\root\wmi PATH MSNdis_CurrentPacketFilter GET
       - With NdisCurrentPacketFilter >= 32
 
-- Add Get-WindowsDefender
-  - Product
-  - Version
-  - RealTime Scan Enabled
-  - Virus Signature Version/Date
-  - IPS SIgnature Version/Date
-  - Last Scan Datetime
-  - Quarantine Count
-  - Scan Exclusions
-
-
 - Add Get-EventLogs
   - Log Name
   - Earliest Log Date
