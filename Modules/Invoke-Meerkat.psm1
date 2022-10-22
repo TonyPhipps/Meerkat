@@ -88,10 +88,9 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "RegistryPersistence", "ComputerDetails", "Disks", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", 
-            "Processes", "RecycleBin", "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM",
-            "MAC" )]
+        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
+            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
+            "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")
@@ -108,6 +107,7 @@ function Invoke-Meerkat {
             Certificates = ${Function:Get-Certificates}
             RegistryPersistence = ${Function:Get-RegistryPersistence}
             ComputerDetails = ${Function:Get-ComputerDetails}
+            Defender = ${Function:Get-Defender}
             Disks = ${Function:Get-Disks}
             DLLs = ${Function:Get-DLLs}
             DNS = ${Function:Get-DNS}
@@ -137,10 +137,10 @@ function Invoke-Meerkat {
 
         if ($All) {
 
-            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers",
-            "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", "ScheduledTasks",
-            "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs",
-            "EventLogs")
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
+            "EnvVars", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
+            "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", 
+            "RecycleBin", "DLLs", "EventLogs")
         }
 
         if ($Quick) {
