@@ -89,7 +89,7 @@ function Invoke-Meerkat {
         [Parameter()]
         [alias("M", "Mod")]
         [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
+            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
             "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
@@ -117,6 +117,7 @@ function Invoke-Meerkat {
             Hardware = ${Function:Get-Hardware}
             Hosts = ${Function:Get-Hosts}
             Hotfixes = ${Function:Get-Hotfixes}
+            LoginFailures = ${Function:Get-LoginFailures}
             RegistryMRU = ${Function:Get-RegistryMRU}
             NetAdapters = ${Function:Get-NetAdapters}
             NetRoutes = ${Function:Get-NetRoutes}
@@ -138,7 +139,7 @@ function Invoke-Meerkat {
         if ($All) {
 
             [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
-            "EnvVars", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
+            "EnvVars", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
             "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", 
             "RecycleBin", "DLLs", "EventLogs")
         }
