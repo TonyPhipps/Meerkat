@@ -87,7 +87,7 @@ function Get-LoginFailures {
                 $Result | Add-Member -MemberType NoteProperty -Name "UserSID" -Value ($Result.Properties[4].Value)
                 $Result | Add-Member -MemberType NoteProperty -Name "UserName" -Value ($Result.Properties[5].Value)
                 $Result | Add-Member -MemberType NoteProperty -Name "UserDomainName" -Value ($Result.Properties[6].Value)
-                $Result | Add-Member -MemberType NoteProperty -Name "Status" -Value ($Result.Properties[7].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "Status" -Value ('0x{0:x}' -f $Result.Properties[7].Value)
                 $Result | Add-Member -MemberType NoteProperty -Name "LogonType" -Value ($Result.Properties[10].Value)
                 $Result | Add-Member -MemberType NoteProperty -Name "AuthenticationPackageName" -Value ($Result.Properties[12].Value)
                 $Result | Add-Member -MemberType NoteProperty -Name "WorkStationName" -Value ($Result.Properties[13].Value)
