@@ -29,12 +29,12 @@ function Get-LoginFailures {
         }
 
     .NOTES
-        Updated: 2019-03-28
+        Updated: 2022-10-31
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2022
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -80,65 +80,25 @@ function Get-LoginFailures {
     }
 
     process{
-
-        $UserSID = @{
-            Name = 'UserSID'
-            Expression = { $_.Properties[4].Value  }
-        }
-        
-        $UserName = @{
-            Name = 'UserName'
-            Expression = { $_.Properties[5].Value  }
-        }
-        
-        $UserDomainName = @{
-            Name = 'UserDomainName'
-            Expression = { $_.Properties[6].Value  }
-        }
-        
-        $Status = @{
-            Name = 'Status'
-            Expression = { $_.Properties[7].Value  }
-        }
-        
-        $LogonType = @{
-            Name = 'LogonType'
-            Expression = { $_.Properties[10].Value  }
-        }
-        
-        $WorkStationName = @{
-            Name = 'WorkStationName'
-            Expression = { $_.Properties[13].Value  }
-        }
-        
-        $IPAddress = @{
-            Name = 'IPAddress'
-            Expression = { $_.Properties[19].Value  }
-        }
-        
-        $AuthenticationPackageName = @{
-            Name = 'AuthenticationPackageName'
-            Expression = { $_.Properties[12].Value  }
-        }
-        
-        $ProcessId = @{
-            Name = 'ProcessId'
-            Expression = { $_.Properties[17].Value  }
-        }
-        
-        $ProcessName = @{
-            Name = 'ProcessName'
-            Expression = { $_.Properties[18].Value  }
-        }
         
         $ResultsArray = Get-WinEvent -FilterHashtable @{ LogName="Security"; ID=4625; StartTime=$StartTime; EndTime=$EndTime } 
         
             foreach ($Result in $ResultsArray) {
+                $Result | Add-Member -MemberType NoteProperty -Name "UserSID" -Value ("" + $Result.Properties[4].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "UserName" -Value ("" + $Result.Properties[5].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "UserDomainName" -Value ("" + $Result.Properties[6].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "Status" -Value ("" + $Result.Properties[7].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "LogonType" -Value ("" + $Result.Properties[10].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "AuthenticationPackageName" -Value ("" + $Result.Properties[12].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "WorkStationName" -Value ("" + $Result.Properties[13].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "CallerProcessId" -Value ("" + $Result.Properties[17].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "ProcessName" -Value ("" + $Result.Properties[18].Value)
+                $Result | Add-Member -MemberType NoteProperty -Name "IPAddress" -Value ("" + $Result.Properties[19].Value)
                 $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
                 $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             }
         
-        return $ResultsArray | Select-Object -Property Host, DateScanned, TimeCreated, $UserSID, $UserName, $UserDomainName, $Status, $LogonType, $WorkStationName, $IPAddress, $AuthenticationPackageName, $ProcessId, $ProcessName, ActivityID
+            $ResultsArray | Select-Object Host, DateScanned, TimeCreated, UserSID, UserName, UserDomainName, Status, LogonType, WorkStationName, IPAddress, AuthenticationPackageName, CallerProcessId, ProcessName, ActivityID
 
         }
     end{
