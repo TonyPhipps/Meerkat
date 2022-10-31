@@ -98,7 +98,7 @@ function Get-LoginFailures {
                 $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             }
         
-            $ResultsArray | Select-Object Host, DateScanned, TimeCreated, UserSID, UserName, UserDomainName, Status, LogonType, WorkStationName, IPAddress, AuthenticationPackageName, CallerProcessId, ProcessName, ActivityID
+            return $ResultsArray | Select-Object Host, DateScanned, TimeCreated, UserSID, UserName, UserDomainName, Status, LogonType, WorkStationName, IPAddress, AuthenticationPackageName, CallerProcessId, ProcessName, ActivityID
 
         }
     end{
