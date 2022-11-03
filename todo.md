@@ -30,11 +30,6 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
   - Log Name
   - Earliest Log Date
 
-- Add Get-LoginFailures
-  - (last 60 days)
-  - Account Name
-  - Total Failed Logins
-
 - Add Get-UserGroupPermissionChanges
   - (Filtered on Event IDs 4720, 4726, 4732, 4733, 4781)
   - Timestamp
