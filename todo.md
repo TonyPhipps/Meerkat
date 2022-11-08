@@ -21,11 +21,6 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
   - dumpsec.exe /rpt=policy
     - Minimum Password Length
 
-- Update Get-NetAdapters
-  - Sniffing NICs
-    - wmic /namespace:\\root\wmi PATH MSNdis_CurrentPacketFilter GET
-      - With NdisCurrentPacketFilter >= 32
-
 - Add Get-EventLogs
   - Log Name
   - Earliest Log Date
