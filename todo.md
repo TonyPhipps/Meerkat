@@ -2,14 +2,6 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 
 # Higher Priority
 
-- Update Get-GroupMembers
-  - Last Login DateTime
-  - Account Disabled
-  - Password Required
-  - Password Expired
-  - User Can Change Password
-  - Last Password Change
-
 - Add Get-EventLogs
   - Log Name
   - Earliest Log Date
