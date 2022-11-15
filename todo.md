@@ -10,10 +10,6 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
   - User Can Change Password
   - Last Password Change
 
-- Update AuditPolicy
-  - dumpsec.exe /rpt=policy
-    - Minimum Password Length
-
 - Add Get-EventLogs
   - Log Name
   - Earliest Log Date

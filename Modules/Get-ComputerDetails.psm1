@@ -108,9 +108,11 @@ Function Get-ComputerDetails {
             }
 
             $UpTime = (get-date) - $Win32_OperatingSystem.LastBootUpTime
+            
+            $Result.DomainRole = ([DomainRole]$Result.DomainRole).ToString()
+            $Result | Add-Member -MemberType NoteProperty -Name MinimumPasswordLength -Value (net accounts | Select-String -Pattern "Minimum password length").ToString().Split()[-1]
             $Result | Add-Member -MemberType NoteProperty -Name UpTime -Value ("{0}:{1}:{2}:{3}" -f $Uptime.Days, $UpTime.Hours, $UpTime.Minutes, $UpTime.Seconds)
             $Result | Add-Member -MemberType NoteProperty -Name USBStorageLock -Value (Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\USBStor" -Name "Start" -ErrorAction Stop).Start
-            $Result.DomainRole = ([DomainRole]$Result.DomainRole).ToString()
             $Result | Add-Member -MemberType NoteProperty -Name LicenseType -Value ($SoftwareLicensingProduct.Description).Split(",")[1].Trim()
             $Result | Add-Member -MemberType NoteProperty -Name LicenseStatus -Value ([LicenseStatus]$SoftwareLicensingProduct.LicenseStatus).ToString()
             $Result | Add-Member -MemberType NoteProperty -Name BIOSInstallDate -Value $Win32_BIOS.InstallDate -ErrorAction SilentlyContinue # Resolves InstallDate conflict with Win32_OperatingSystem
@@ -118,18 +120,17 @@ Function Get-ComputerDetails {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
 
-            return $Result | Select-Object Host, DateScanned, BootDevice, BuildNumber, Caption, LicenseType, LicenseStatus,
-            CurrentTimeZone, DataExecutionPrevention_32BitApplications, DataExecutionPrevention_Available,
-            DataExecutionPrevention_Drivers, DataExecutionPrevention_SupportPolicy, Debug, Description, Distributed,
-            EncryptionLevel, InstallDate, LastBootUpTime, UpTime, LocalDateTime, MUILanguages, OSArchitecture, OSProductSuite, 
-            OSType, OperatingSystemSKU, Organization, OtherTypeDescription, PortableOperatingSystem, ProductType, 
-            RegisteredUser, ServicePackMajorVersion, ServicePackMinorVersion, Status, SuiteMask, SystemDevice, 
-            SystemDirectory, SystemDrive, Version, WindowsDirectory, AdminPasswordStatus, BootROMSupported, BootupState, 
-            ChassisBootupState, DNSHostName, DaylightInEffect, Domain, DomainRole, EnableDaylightSavingsTime, 
-            HypervisorPresent, Manufacturer, Model, NetworkServerModeEnabled, PrimaryOwnerContact, PrimaryOwnerName, 
-            SupportContactDescription, SystemSKUNumber, ThermalState, UserName, BIOSVersion, BIOSInstallDate, 
+            return $Result | Select-Object Host, DateScanned, CurrentTimeZone, InstallDate, LastBootUpTime, UpTime, LocalDateTime, 
+            BootDevice, BootROMSupported, BootupState, ChassisBootupState, 
+            DataExecutionPrevention_32BitApplications, DataExecutionPrevention_Available, DataExecutionPrevention_Drivers, 
+            DataExecutionPrevention_SupportPolicy, MinimumPasswordLength, USBStorageLock, Debug, EncryptionLevel, AdminPasswordStatus, 
+            Description, Distributed, OSArchitecture, OSProductSuite, OSType, OperatingSystemSKU, Organization, OtherTypeDescription, PortableOperatingSystem, ProductType, 
+            RegisteredUser, ServicePackMajorVersion, ServicePackMinorVersion, Status, SuiteMask, BuildNumber, Caption, LicenseType, LicenseStatus, SystemDevice, 
+            SystemDirectory, SystemDrive, MUILanguages, Version, WindowsDirectory, DNSHostName, DaylightInEffect, Domain, DomainRole, EnableDaylightSavingsTime, 
+            PrimaryOwnerContact, PrimaryOwnerName, SupportContactDescription, UserName,
+            Manufacturer, Model, NetworkServerModeEnabled, HypervisorPresent, SystemSKUNumber, ThermalState, BIOSVersion, BIOSInstallDate, 
             BIOSManufacturer, PrimaryBIOS, BIOSReleaseDate, SMBIOSBIOSVersion, SMBIOSMajorVersion, SMBIOSMinorVersion, 
-            SMBIOSPresent, SerialNumber, SystemBiosMajorVersion, SystemBiosMinorVersion, VirtualizationFirmwareEnabled, USBStorageLock
+            SMBIOSPresent, SerialNumber, SystemBiosMajorVersion, SystemBiosMinorVersion, VirtualizationFirmwareEnabled
     }
 
     end{
