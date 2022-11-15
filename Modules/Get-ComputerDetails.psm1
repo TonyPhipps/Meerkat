@@ -24,12 +24,12 @@ Function Get-ComputerDetails {
         }
 
     .NOTES
-        Updated: 2019-03-27
+        Updated: 2022-11-15
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2022
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -60,42 +60,68 @@ Function Get-ComputerDetails {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
+
+        Enum DomainRole {
+            StandaloneWorkstation = 0
+            MemberWorkstation = 1
+            StandaloneServer = 2
+            MemberServer = 3
+            BackupDomainController = 4        
+            PrimaryDomainController = 5
+        }
+
+        Enum LicenseStatus {
+            Unlicensed = 0
+            Licensed = 1
+            OOBGrace = 2
+            OOTGrace = 3
+            NonGenuineGrace = 4        
+            Notification = 5
+            ExtendedGrace = 6
+        }
     }
 
     process{
 
             $Win32_OperatingSystem = Get-CIMinstance -class Win32_OperatingSystem
-            $Win32_ComputerSystem = Get-CimInstance -class Win32_ComputerSystem
+            $Win32_ComputerSystem = Get-CIMInstance -class Win32_ComputerSystem
             $Win32_BIOS = Get-CIMinstance -class Win32_BIOS
             $Win32_Processor = Get-CIMinstance -class Win32_Processor
+            $SoftwareLicensingProduct = Get-CimInstance SoftwareLicensingProduct -Filter "Name like 'Windows%'" | Where-Object { $_.PartialProductKey } 
 
-            $Computer = New-Object -TypeName PSObject
+            $Result = New-Object -TypeName PSObject
 
             foreach ($Property in $Win32_OperatingSystem.PSObject.Properties) {
-                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
             }            
 
             foreach ($Property in $Win32_ComputerSystem.PSObject.Properties) {
-                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
             }
                 
             foreach ($Property in $Win32_Processor.PSObject.Properties) {
-                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
             }
 
             foreach ($Property in $Win32_BIOS.PSObject.Properties) {
-                $Computer | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
             }
 
-            $Computer | Add-Member -MemberType NoteProperty -Name BIOSInstallDate -Value $Win32_BIOS.InstallDate -ErrorAction SilentlyContinue # Resolves InstallDate conflict with Win32_OperatingSystem
+            $UpTime = (get-date) - $Win32_OperatingSystem.LastBootUpTime
+            $Result | Add-Member -MemberType NoteProperty -Name UpTime -Value ("{0}:{1}:{2}:{3}" -f $Uptime.Days, $UpTime.Hours, $UpTime.Minutes, $UpTime.Seconds)
+            $Result | Add-Member -MemberType NoteProperty -Name USBStorageLock -Value (Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\USBStor" -Name "Start" -ErrorAction Stop).Start
+            $Result.DomainRole = ([DomainRole]$Result.DomainRole).ToString()
+            $Result | Add-Member -MemberType NoteProperty -Name LicenseType -Value ($SoftwareLicensingProduct.Description).Split(",")[1].Trim()
+            $Result | Add-Member -MemberType NoteProperty -Name LicenseStatus -Value ([LicenseStatus]$SoftwareLicensingProduct.LicenseStatus).ToString()
+            $Result | Add-Member -MemberType NoteProperty -Name BIOSInstallDate -Value $Win32_BIOS.InstallDate -ErrorAction SilentlyContinue # Resolves InstallDate conflict with Win32_OperatingSystem
+            
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
 
-            $Computer | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Computer | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-
-            return $Computer | Select-Object Host, DateScanned, BootDevice, BuildNumber, Caption,
+            return $Result | Select-Object Host, DateScanned, BootDevice, BuildNumber, Caption, LicenseType, LicenseStatus,
             CurrentTimeZone, DataExecutionPrevention_32BitApplications, DataExecutionPrevention_Available,
             DataExecutionPrevention_Drivers, DataExecutionPrevention_SupportPolicy, Debug, Description, Distributed,
-            EncryptionLevel, InstallDate, LastBootUpTime, LocalDateTime, MUILanguages, OSArchitecture, OSProductSuite, 
+            EncryptionLevel, InstallDate, LastBootUpTime, UpTime, LocalDateTime, MUILanguages, OSArchitecture, OSProductSuite, 
             OSType, OperatingSystemSKU, Organization, OtherTypeDescription, PortableOperatingSystem, ProductType, 
             RegisteredUser, ServicePackMajorVersion, ServicePackMinorVersion, Status, SuiteMask, SystemDevice, 
             SystemDirectory, SystemDrive, Version, WindowsDirectory, AdminPasswordStatus, BootROMSupported, BootupState, 
@@ -103,7 +129,7 @@ Function Get-ComputerDetails {
             HypervisorPresent, Manufacturer, Model, NetworkServerModeEnabled, PrimaryOwnerContact, PrimaryOwnerName, 
             SupportContactDescription, SystemSKUNumber, ThermalState, UserName, BIOSVersion, BIOSInstallDate, 
             BIOSManufacturer, PrimaryBIOS, BIOSReleaseDate, SMBIOSBIOSVersion, SMBIOSMajorVersion, SMBIOSMinorVersion, 
-            SMBIOSPresent, SerialNumber, SystemBiosMajorVersion, SystemBiosMinorVersion, VirtualizationFirmwareEnabled
+            SMBIOSPresent, SerialNumber, SystemBiosMajorVersion, SystemBiosMinorVersion, VirtualizationFirmwareEnabled, USBStorageLock
     }
 
     end{
