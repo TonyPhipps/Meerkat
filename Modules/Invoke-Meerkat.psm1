@@ -48,7 +48,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2022-11-18
+        Updated: 2022-11-15
 
         Contributing Authors:
             Anthony Phipps
@@ -88,10 +88,10 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
+        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
+            "EventLogs", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
             "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM")]
-        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
+        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "LocalGroups", "LocalUsers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
             "TPM", "Processes", "RecycleBin", "DLLs")
     )
@@ -99,7 +99,6 @@ function Invoke-Meerkat {
     begin{
 
         $ModuleCommandArray = @{
-            AccountMgmtEvents = ${Function:Get-AccountManagementEvents}
             ADS = (${Function:Get-ADS}, "C:\Temp")
             ARP = (${Function:Get-ARP}, $null)
             AuditPolicy = ${Function:Get-AuditPolicy}
@@ -114,7 +113,8 @@ function Invoke-Meerkat {
             DNS = ${Function:Get-DNS}
             Drivers = ${Function:Get-Drivers}
             EnvVars = ${Function:Get-EnvVars}
-            GroupMembers = ${Function:Get-GroupMembers}
+            LocalUsers = ${Function:Get-LocalUsers}
+            LocalGroups = ${Function:Get-LocalGroups}
             Hardware = ${Function:Get-Hardware}
             Hosts = ${Function:Get-Hosts}
             Hotfixes = ${Function:Get-Hotfixes}
@@ -139,8 +139,8 @@ function Invoke-Meerkat {
 
         if ($All) {
 
-            [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
-            "EnvVars", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
+            "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
             "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", 
             "RecycleBin", "DLLs", "EventLogs")
         }
