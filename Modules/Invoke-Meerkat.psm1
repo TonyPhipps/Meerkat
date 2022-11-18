@@ -48,7 +48,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2022-10-22
+        Updated: 2022-11-18
 
         Contributing Authors:
             Anthony Phipps
@@ -88,7 +88,7 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
+        [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
             "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "GroupMembers", "Hosts", "Hotfixes",
@@ -99,6 +99,7 @@ function Invoke-Meerkat {
     begin{
 
         $ModuleCommandArray = @{
+            AccountMgmtEvents = ${Function:Get-AccountManagementEvents}
             ADS = (${Function:Get-ADS}, "C:\Temp")
             ARP = (${Function:Get-ARP}, $null)
             AuditPolicy = ${Function:Get-AuditPolicy}
@@ -138,7 +139,7 @@ function Invoke-Meerkat {
 
         if ($All) {
 
-            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
+            [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
             "EnvVars", "GroupMembers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
             "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", 
             "RecycleBin", "DLLs", "EventLogs")
