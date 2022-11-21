@@ -1,10 +1,15 @@
-function Get-AccountManagementEvents {
+function Get-EventsUserManagement {
     <#
     .SYNOPSIS
         Gets account management events within specified time frame. Defaults to now and the last 60 days.
 
     .DESCRIPTION
         Gets account management events within specified time frame. Defaults to now and the last 60 days.
+        4720: A user account was created
+        4726: A user account was deleted
+        4732: A member was added to a security-enabled local group
+        4733: A member was removed from a security-enabled local group
+        4781: The name of an account was changed
 
     .PARAMETER StartTime
         Specify when to begin event log collection. Defaults to 7 days ago based on system time.
@@ -13,23 +18,23 @@ function Get-AccountManagementEvents {
         Specify when to end account management event collection. Defaults to current time on system time.
 
     .EXAMPLE 
-        Get-AccountManagementEvents
+        Get-EventsUserManagement
 
     .EXAMPLE 
-        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-AccountManagementEvents} | 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventsUserManagement} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-        Export-Csv -NoTypeInformation ("c:\temp\LoginFailures.csv")
+        Export-Csv -NoTypeInformation ("c:\temp\EventsUserManagement.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
-            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-AccountManagementEvents} | 
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-EventsUserManagement} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_LoginFailures.csv")
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EventsUserManagement.csv")
         }
 
     .NOTES
-        Updated: 2022-11-18
+        Updated: 2022-11-21
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
@@ -50,7 +55,7 @@ function Get-AccountManagementEvents {
         
     .LINK
        https://github.com/TonyPhipps/Meerkat
-       https://github.com/TonyPhipps/Meerkat/wiki/LoginFailures
+       https://github.com/TonyPhipps/Meerkat/wiki/EventsUserManagement
     #>
 
     [CmdletBinding()]
@@ -65,7 +70,7 @@ function Get-AccountManagementEvents {
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started Get-AccountManagementEvents at {0}" -f $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-EventsUserManagement at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
@@ -77,6 +82,76 @@ function Get-AccountManagementEvents {
         if(!($EndTime)){
             $EndTime = (Get-Date)
         }
+
+        function Get-UserName_Property($Result) {
+            switch ($Result.ID) {
+                4720 { $Result.Properties[4].Value }
+                4726 { $Result.Properties[4].Value }
+                4732 { $Result.Properties[6].Value }
+                4733 { $Result.Properties[6].Value }
+                4781 { $Result.Properties[5].Value }
+            }     
+        }
+
+        function Get-SourceName_Property($Result) {
+            switch ($Result.ID) {
+                4781 { $Result.Properties[0].Value }
+                default { "" }
+            }     
+        }
+
+        function Get-TargetName_Property($Result) {
+            switch ($Result.ID) {
+                4720 { $Result.Properties[0].Value }
+                4726 { $Result.Properties[0].Value }
+                4732 { 
+                    try{
+                        $SID = New-Object System.Security.Principal.SecurityIdentifier($Result.Properties[1].Value.Value)
+                        $objUser = $SID.Translate([System.Security.Principal.NTAccount])
+                        $objUser.Value
+                    }
+                    catch {"SID UNRESOLVABLE"}
+                }
+                4733 {
+                    try{
+                        $SID = New-Object System.Security.Principal.SecurityIdentifier($Result.Properties[1].Value.Value)
+                        $objUser = $SID.Translate([System.Security.Principal.NTAccount])
+                        $objUser.Value
+                    }
+                    catch {"SID UNRESOLVABLE"}
+                }
+                4781 { $Result.Properties[1].Value }
+            }     
+        }
+
+        function Get-TargetSID_Property($Result) {
+            switch ($Result.ID) {
+                4720 { $Result.Properties[2].Value }
+                4726 { $Result.Properties[2].Value }
+                4732 { $Result.Properties[1].Value }
+                4733 { $Result.Properties[1].Value }
+                4781 { $Result.Properties[3].Value }
+            }     
+        }
+        
+        function Get-Domain_Property($Result) {
+            switch ($Result.ID) {
+                4720 { $Result.Properties[1].Value }
+                4726 { $Result.Properties[1].Value }
+                4732 { $Result.Properties[3].Value }
+                4733 { $Result.Properties[3].Value }
+                4781 { $Result.Properties[2].Value }
+            }     
+        }
+
+        function Get-Group_Property($Result) {
+            switch ($Result.ID) {
+                4732 { $Result.Properties[2].Value }
+                4733 { $Result.Properties[2].Value }
+                default { "" }
+            }     
+        }
+        
     }
 
     process{
@@ -87,14 +162,20 @@ function Get-AccountManagementEvents {
         
             foreach ($Result in $ResultsArray) {
      
-                $Result | Add-Member -MemberType NoteProperty -Name "UserSID" -Value ($UserSID = switch ($Result.Id) {4720 {$Result.Properties[2].Value} 4726 {$Result.Properties[2].Value}  4732 {$Result.Properties[4].Value} 4733 {$Result.Properties[4].Value} 4781 {$Result.Properties[3].Value}})
-                $Result | Add-Member -MemberType NoteProperty -Name "UserName" -Value ($UserName = switch ($Result.Id) {4720 {$Result.Properties[0].Value} 4726 {$Result.Properties[0].Value}  4732 {$Result.Properties[2].Value} 4733 {$Result.Properties[2].Value} 4781 {$Result.Properties[1].Value}})
-                $Result | Add-Member -MemberType NoteProperty -Name "Domain" -Value ($Domain = switch ($Result.Id) {4720 {$Result.Properties[1].Value} 4726 {$Result.Properties[1].Value}  4732 {$Result.Properties[3].Value} 4733 {$Result.Properties[3].Value} 4781 {$Result.Properties[2].Value}})
                 $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
                 $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+
+                $Result | Add-Member -MemberType NoteProperty -Name "UserName" -Value (Get-UserName_Property($Result))
+                $Result | Add-Member -MemberType NoteProperty -Name "SourceName" -Value (Get-SourceName_Property($Result))
+                $Result | Add-Member -MemberType NoteProperty -Name "TargetName" -Value (Get-TargetName_Property($Result))
+                $Result | Add-Member -MemberType NoteProperty -Name "TargetSID" -Value (Get-TargetSID_Property($Result))
+                $Result | Add-Member -MemberType NoteProperty -Name "Domain" -Value (Get-Domain_Property($Result))
+                $Result | Add-Member -MemberType NoteProperty -Name "Group" -Value (Get-Group_Property($Result))
+                
+                $Result.Message = $Result.Message.Split([System.Environment]::NewLine)[0]
             }
         
-            return $ResultsArray | Select-Object Host, DateScanned, TimeCreated, ID, UserSID, UserName, Domain, RecordId, Message
+            return $ResultsArray | Select-Object Host, DateScanned, TimeCreated, ID, Message, UserName, SourceName, TargetName, TargetSID, Domain, Group, RecordId
 
         }
     end{

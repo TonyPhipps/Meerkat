@@ -1,4 +1,4 @@
-function Get-LoginFailures {
+function Get-EventsLoginFailures {
     <#
     .SYNOPSIS
         Gets login failures events within specified time frame. Defaults to now and the last 60 days.
@@ -13,19 +13,19 @@ function Get-LoginFailures {
         Specify when to end login failures event collection. Defaults to current time on system time.
 
     .EXAMPLE 
-        Get-LoginFailures
+        Get-EventsLoginFailures
 
     .EXAMPLE 
-        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-LoginFailures} | 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventsLoginFailures} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-        Export-Csv -NoTypeInformation ("c:\temp\LoginFailures.csv")
+        Export-Csv -NoTypeInformation ("c:\temp\EventsLoginFailures.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
-            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-LoginFailures} | 
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-EventsLoginFailures} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_LoginFailures.csv")
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EventsLoginFailures.csv")
         }
 
     .NOTES
@@ -50,7 +50,7 @@ function Get-LoginFailures {
         
     .LINK
        https://github.com/TonyPhipps/Meerkat
-       https://github.com/TonyPhipps/Meerkat/wiki/LoginFailures
+       https://github.com/TonyPhipps/Meerkat/wiki/EventsLoginFailures
     #>
 
     [CmdletBinding()]
@@ -65,7 +65,7 @@ function Get-LoginFailures {
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started Get-LoginFailures at {0}" -f $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-EventsLoginFailures at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()

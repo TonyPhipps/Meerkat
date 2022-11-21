@@ -89,7 +89,7 @@ function Invoke-Meerkat {
         [Parameter()]
         [alias("M", "Mod")]
         [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
+            "EventLogs", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
             "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "LocalGroups", "LocalUsers", "Hosts", "Hotfixes",
             "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
@@ -119,7 +119,8 @@ function Invoke-Meerkat {
             Hardware = ${Function:Get-Hardware}
             Hosts = ${Function:Get-Hosts}
             Hotfixes = ${Function:Get-Hotfixes}
-            LoginFailures = ${Function:Get-LoginFailures}
+            EventsLoginFailures = ${Function:Get-EventsLoginFailures}
+            EventsUserManagement = ${Function:Get-EventsUserManagement}
             RegistryMRU = ${Function:Get-RegistryMRU}
             NetAdapters = ${Function:Get-NetAdapters}
             NetRoutes = ${Function:Get-NetRoutes}
@@ -141,7 +142,7 @@ function Invoke-Meerkat {
         if ($All) {
 
             [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
-            "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "LoginFailures", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
+            "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
             "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", 
             "RecycleBin", "DLLs", "EventLogs")
         }
