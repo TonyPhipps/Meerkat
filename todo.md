@@ -2,19 +2,10 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 
 # Higher Priority
 
-- Add Get-EventLogs
+- Add Get-EventLogDetails
   - Log Name
   - Earliest Log Date
 
-- Add Get-UserGroupPermissionChanges
-  - (Filtered on Event IDs 4720, 4726, 4732, 4733, 4781)
-  - Timestamp
-  - User Name
-  - User SID
-  - Domain/Group
-  - Message
-  - Event Code
-  - Record Number
 
 - Add Get-WindowsFirewall
   - Rule Name
