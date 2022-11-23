@@ -7,19 +7,19 @@ function Get-EarliestLogEvents {
         Gets earliest log event. Security, Application, and System logs are queried. 
 
     .EXAMPLE 
-        Get-EventsEarliestLogEvents
+        Get-Get-EarliestLogEvents
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EarliestLogEvents} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-        Export-Csv -NoTypeInformation ("c:\temp\EventLogs.csv")
+        Export-Csv -NoTypeInformation ("c:\temp\EarliestLogEvents.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-EarliestLogEvents} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EventLogs.csv")
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EarliestLogEvents.csv")
         }
 
     .NOTES
@@ -44,7 +44,7 @@ function Get-EarliestLogEvents {
         
     .LINK
        https://github.com/TonyPhipps/Meerkat
-       https://github.com/TonyPhipps/Meerkat/wiki/EventLogs
+       https://github.com/TonyPhipps/Meerkat/wiki/EarliestLogEvents
     #>
 
     [CmdletBinding()]
