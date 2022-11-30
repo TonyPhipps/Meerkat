@@ -2,10 +2,6 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 
 # Higher Priority
 
-- Add Get-EventLogDetails
-  - Log Name
-  - Earliest Log Date
-
 - Add Get-USBHistory
   - reg query HKLM\SYSTEM\CurrentControlSet\Enum\USBStor
   - (replace & and _ with space)

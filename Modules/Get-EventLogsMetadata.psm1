@@ -1,34 +1,38 @@
-function Get-EarliestLogEvents {
+function Get-EventLogsMetadata {
     <#
     .SYNOPSIS
-        Gets earliest log event.
+        Gets metadata about each event log.
 
     .DESCRIPTION
-        Gets earliest log event. Security, Application, and System logs are queried. 
+        Gets metadata about each event log.
 
     .EXAMPLE 
-        Get-Get-EarliestLogEvents
+        Get-EventLogsMetadata
+
+    .EXAMPLE
+        Get-EventLogsMetadata | 
+        Export-Csv -NoTypeInformation ("c:\temp\EventLogsMetadata.csv")
 
     .EXAMPLE 
-        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EarliestLogEvents} | 
+        Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventLogsMetadata} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-        Export-Csv -NoTypeInformation ("c:\temp\EarliestLogEvents.csv")
+        Export-Csv -NoTypeInformation ("c:\temp\EventLogsMetadata.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
-            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-EarliestLogEvents} | 
+            Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-EventLogsMetadata} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EarliestLogEvents.csv")
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_EventLogsMetadata.csv")
         }
 
     .NOTES
-        Updated: 2022-11-23
+        Updated: 2022-11-30
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2022
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -44,7 +48,7 @@ function Get-EarliestLogEvents {
         
     .LINK
        https://github.com/TonyPhipps/Meerkat
-       https://github.com/TonyPhipps/Meerkat/wiki/EarliestLogEvents
+       https://github.com/TonyPhipps/Meerkat/wiki/EventLogsMetadata
     #>
 
     [CmdletBinding()]
@@ -59,7 +63,7 @@ function Get-EarliestLogEvents {
     begin{
 
         $DateScanned = Get-Date -Format u
-        Write-Information -InformationAction Continue -MessageData ("Started Get-EarliestLogEvents at {0}" -f $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-EventLogsMetadata at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
@@ -68,20 +72,15 @@ function Get-EarliestLogEvents {
 
     process{
 
-        $Logs = Get-WinEvent -ListLog Security,Application,System | Where-Object { ($_.RecordCount -gt 0) }
+        $ResultsArray = Get-WinEvent -ListLog *
 
-        $ResultsArray = Foreach ($Log in $Logs){
-    
-            Get-WinEvent -LogName $Log.LogName -MaxEvents 1 -Oldest -ErrorAction SilentlyContinue
-        }
-    
         foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name "OldestEvent" -Value (Get-WinEvent -LogName $Result.LogName -MaxEvents 1 -Oldest -ErrorAction SilentlyContinue | Select-Object TimeCreated -ExpandProperty TimeCreated)
         }
     
-        return $ResultsArray | Select-Object Host, DateScanned, LogName, TimeCreated, Id, 
-        Task, Level, Opcode, KeywordsDisplayNames, UserId, Message
+        return $ResultsArray | Select-Object Host, DateScanned, LogName, LogType, LogIsolation, FileSize, IsEnabled, LogFilePath, LogMode, IsLogFull, RecordCount, LastAccessTime, LastWriteTime, OldestRecordNumber, OldestEvent
      
     }
 
