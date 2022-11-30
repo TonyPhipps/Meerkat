@@ -88,7 +88,7 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
+        [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EarliestLogEvents","EnvVars", 
             "EventLogs", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
             "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "WindowsFirewall")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", 
@@ -113,6 +113,7 @@ function Invoke-Meerkat {
             DLLs = ${Function:Get-DLLs}
             DNS = ${Function:Get-DNS}
             Drivers = ${Function:Get-Drivers}
+            EarliestLogEvents = ${Function:Get-EarliestLogEvents}
             EnvVars = ${Function:Get-EnvVars}
             LocalUsers = ${Function:Get-LocalUsers}
             LocalGroups = ${Function:Get-LocalGroups}
@@ -142,7 +143,7 @@ function Invoke-Meerkat {
 
         if ($All) {
 
-            [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", 
+            [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", "EarliestLogEvents",
             "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
             "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", 
             "RecycleBin", "DLLs", "EventLogs", "WindowsFirewall")
