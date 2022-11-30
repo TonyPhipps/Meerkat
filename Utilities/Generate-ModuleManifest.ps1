@@ -12,7 +12,7 @@ $manifest = @{
     RootModule = 'Meerkat.psm1'
     Path = '..\Meerkat.psd1'
     CompatiblePSEditions = @('Desktop','Core')
-    Author = 'Anthony Phipps, Jeremy Arnold'
+    Author = 'Anthony Phipps, Jeremy Arnold, Jack Smith'
     CompanyName = 'See Authors'
     Copyright = 
         'This program is free software: you can redistribute it and/or modify
