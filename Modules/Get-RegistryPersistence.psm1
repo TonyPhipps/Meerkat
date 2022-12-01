@@ -237,7 +237,7 @@ function Get-RegistryPersistence {
                 ### Garbage collection and closing of ntuser.dat ###
 
                 [gc]::Collect()
-                reg unload HKU\$($User.SID) | Out-Null
+                reg unload HKU\$($User.SID) > nul 2> nul
             }
         }
         
