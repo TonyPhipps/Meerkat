@@ -81,21 +81,21 @@ function Get-EventLogs {
 
     process{
 
-            $Logs = Get-WinEvent -ListLog * | Where-Object { ($_.RecordCount -gt 0) }
+        $Logs = Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | Where-Object { ($_.RecordCount -gt 0) } 
 
-            $ResultsArray = Foreach ($Log in $Logs){
+        $ResultsArray = Foreach ($Log in $Logs){
 
-                Get-WinEvent -FilterHashTable @{ LogName=$Log.LogName; StartTime=$StartTime; EndTime=$EndTime } -ErrorAction SilentlyContinue
-            }
+            Get-WinEvent -FilterHashTable @{ LogName=$Log.LogName; StartTime=$StartTime; EndTime=$EndTime } -ErrorAction SilentlyContinue
+        }
 
-            foreach ($Result in $ResultsArray) {
-                $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-            }
+        foreach ($Result in $ResultsArray) {
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+        }
 
-            return $ResultsArray | Select-Object Host, DateScanned, TimeCreated, MachineName, UserId, 
-            ProcessId, LogName, ProviderName, LevelDisplayName, Id, OpcodeDisplayName, TaskDisplayName, 
-            Message, RecordId, RelatedActivityId, ThreadId, Version
+        return $ResultsArray | Select-Object Host, DateScanned, TimeCreated, MachineName, UserId, 
+        ProcessId, LogName, ProviderName, LevelDisplayName, Id, OpcodeDisplayName, TaskDisplayName, 
+        Message, RecordId, RelatedActivityId, ThreadId, Version
     }
 
     end{
