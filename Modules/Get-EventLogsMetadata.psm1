@@ -72,7 +72,7 @@ function Get-EventLogsMetadata {
 
     process{
 
-        $ResultsArray = Get-WinEvent -ListLog *
+        $ResultsArray = Get-WinEvent -ListLog * -ErrorAction SilentlyContinue
 
         foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
