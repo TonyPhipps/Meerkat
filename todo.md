@@ -2,9 +2,7 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 
 # Higher Priority
 
-- Add Get-USBHistory
-  - reg query HKLM\SYSTEM\CurrentControlSet\Enum\USBStor
-  - (replace & and _ with space)
+- Add a module to pull Domain Policy, if any.
 
 
 # Lower Priority

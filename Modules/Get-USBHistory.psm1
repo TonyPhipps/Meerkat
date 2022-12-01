@@ -9,26 +9,30 @@ function Get-USBHistory {
     .EXAMPLE 
         Get-USBHistory
 
+    .EXAMPLE
+        Get-USBHistory | 
+        Export-Csv -NoTypeInformation ("c:\temp\USBHistory.csv")
+
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-USBHistory} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-        Export-Csv -NoTypeInformation ("c:\temp\Registry.csv")
+        Export-Csv -NoTypeInformation ("c:\temp\USBHistory.csv")
 
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
             Invoke-Command -ComputerName $Target -ScriptBlock ${Function:Get-USBHistory} | 
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
-            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_Registry.csv")
+            Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_USBHistory.csv")
         }
 
     .NOTES 
-        Updated: 2022-1-12
+        Updated: 2022-12-01
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2022
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -44,11 +48,7 @@ function Get-USBHistory {
 
     .LINK
        https://github.com/TonyPhipps/Meerkat
-       https://github.com/TonyPhipps/Meerkat/wiki/Registry
-       https://blog.cylance.com/windows-registry-persistence-part-2-the-run-keys-and-search-order
-       http://resources.infosecinstitute.com/common-malware-persistence-mechanisms
-       https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis
-       https://github.com/redcanaryco/atomic-red-team
+       https://github.com/TonyPhipps/Meerkat/wiki/USBHistory
     #>
 
     [CmdletBinding()]
