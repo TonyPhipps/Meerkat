@@ -48,7 +48,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2022-11-15
+        Updated: 2022-12-1
 
         Contributing Authors:
             Anthony Phipps
@@ -90,10 +90,10 @@ function Invoke-Meerkat {
         [alias("M", "Mod")]
         [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Disks", "Defender", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "EventLogsMetadata", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
-            "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "WindowsFirewall")]
+            "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "USBHistory", "WindowsFirewall")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "EventsLoginFailures", 
         "LocalGroups", "LocalUsers", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", 
-        "Sessions", "Shares", "Software", "TPM", "Processes", "RecycleBin", "DLLs", "WindowsFirewall")
+        "Sessions", "Shares", "Software", "TPM", "Processes", "RecycleBin", "DLLs", "USBHistory", "WindowsFirewall")
     )
 
     begin{
@@ -138,6 +138,7 @@ function Invoke-Meerkat {
             Processes = ${Function:Get-Processes}
             RecycleBin = ${Function:Get-RecycleBin}
             EventLogs = ${Function:Get-EventLogs}
+            USBHistory = ${Function:Get-USBHistory}
             WindowsFirewall = ${Function:Get-WindowsFirewall}
         }
 
@@ -146,7 +147,7 @@ function Invoke-Meerkat {
             [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Disks", "Defender", "DNS", "Drivers", "EventLogsMetadata",
             "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry",
             "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", 
-            "RecycleBin", "DLLs", "EventLogs", "WindowsFirewall")
+            "RecycleBin", "DLLs", "EventLogs", "USBHistory", "WindowsFirewall")
         }
 
         if ($Quick) {
