@@ -3,6 +3,8 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 # Higher Priority
 
 - Add a module to pull Domain Policy, if any.
+- Update Get-EventsUserManagement to not throw an error when no matching events are present
+- Update Get-Defender to not throw an error when no Quarantine folder exists
 
 
 # Lower Priority
