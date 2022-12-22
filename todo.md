@@ -10,6 +10,8 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 
 # Lower Priority
 
+- Look into https://github.com/ForensicArtifacts/artifacts
+
 - c:\windows\prefetch file listing
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
 - ShimCache entries
