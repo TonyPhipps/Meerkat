@@ -88,7 +88,7 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks", "DomainInfo", "DomainPasswordPolicy", "DLLs", "DNS", "Drivers", "EnvVars", 
+        [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks", "DomainInfo", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "EventLogsMetadata", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
             "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "USBHistory", "WindowsFirewall")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "EventsLoginFailures", 
@@ -113,7 +113,6 @@ function Invoke-Meerkat {
             DLLs = ${Function:Get-DLLs}
             DNS = ${Function:Get-DNS}
             DomainInfo = ${Function:Get-DomainInfo}
-            DomainPasswordPolicy = ${Function:Get-DomainPasswordPolicy}
             Drivers = ${Function:Get-Drivers}
             EventLogsMetadata = ${Function:Get-EventLogsMetadata}
             EnvVars = ${Function:Get-EnvVars}
@@ -147,7 +146,7 @@ function Invoke-Meerkat {
         if ($All) {
 
             [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Defender", 
-            "Disks", "DLLs", "DomainInfo", "DomainPasswordPolicy", "DNS", "Drivers", "EventLogsMetadata", "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes",
+            "Disks", "DLLs", "DomainInfo", "DNS", "Drivers", "EventLogsMetadata", "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes",
             "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", 
             "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs", "EventLogs", "USBHistory", 
             "WindowsFirewall")
@@ -156,7 +155,7 @@ function Invoke-Meerkat {
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object { $_ -notin "ADS", "DLLs", "DomainInfo", "DomainPasswordPolicy", "Drivers", "EventLogs", "MAC", "RegistryMRU", "RecycleBin", "Sessions", "Strings" }
+            Where-Object { $_ -notin "ADS", "DLLs", "DomainInfo", "Drivers", "EventLogs", "MAC", "RegistryMRU", "RecycleBin", "Sessions", "Strings" }
         }  
 
         $DateScanned = Get-Date -Format u
