@@ -90,7 +90,7 @@ function Get-Processes {
             $Process | Add-Member -MemberType NoteProperty -Name "ThreadCount" -Value @($Process.Threads).Count
         }
 
-        return $ProcessArray | Select-Object Host, DateScanned, CommandLine, Services, PercentProcessorTime, MemoryMB, BasePriority, Id, MainWindowHandle, MainWindowTitle, PriorityBoostEnabled, PriorityClass, PrivateMemorySize, PrivilegedProcessorTime, ProcessName, Responding, SessionId, StartTime, TotalProcessorTime, UserProcessorTime, Company, CPU, Description, FileVersion, Path, Product, ProductVersion, ModuleCount, ThreadCount, HandleCount
+        return $ProcessArray | Select-Object Host, DateScanned, CommandLine, Services, UserName, PercentProcessorTime, MemoryMB, BasePriority, Id, MainWindowHandle, MainWindowTitle, PriorityBoostEnabled, PriorityClass, PrivateMemorySize, PrivilegedProcessorTime, ProcessName, Responding, SessionId, StartTime, TotalProcessorTime, UserProcessorTime, Company, CPU, Description, FileVersion, Path, Product, ProductVersion, ModuleCount, ThreadCount, HandleCount
     }
 
     end{
