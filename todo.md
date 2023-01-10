@@ -6,7 +6,7 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 - Update Get-EventsUserManagement to not throw an error when no matching events are present
 - Update Get-Defender to not throw an error when no Quarantine folder exists
 - Update Get-Defender to not throw an error if Get-MpComputerStatus fails due to not having Defender installed
-
+- Create a diff script to identify differences between the "current" scan results and a "baseline" set of results.
 
 # Lower Priority
 
