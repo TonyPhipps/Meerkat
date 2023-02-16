@@ -88,7 +88,7 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks", "DomainInfo", "DLLs", "DNS", "Drivers", "EnvVars", 
+        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks", "DomainInfo", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "EventLogsMetadata", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
             "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "USBHistory", "WindowsFirewall")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "EventsLoginFailures", 
@@ -99,7 +99,6 @@ function Invoke-Meerkat {
     begin{
 
         $ModuleCommandArray = @{
-            AccountMgmtEvents = ${Function:Get-AccountManagementEvents}
             ADS = (${Function:Get-ADS}, "C:\Temp")
             ARP = (${Function:Get-ARP}, $null)
             AuditPolicy = ${Function:Get-AuditPolicy}
@@ -145,7 +144,7 @@ function Invoke-Meerkat {
 
         if ($All) {
 
-            [array]$Modules = ("AccountMgmtEvents", "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Defender", 
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Defender", 
             "Disks", "DLLs", "DomainInfo", "DNS", "Drivers", "EventLogsMetadata", "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes",
             "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", 
             "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs", "EventLogs", "USBHistory", 
