@@ -12,14 +12,24 @@ NOTE: Some lines will be messed up due to markdown, be sure to grab raw file, no
 
 - Look into https://github.com/ForensicArtifacts/artifacts
 
-- c:\windows\prefetch file listing
+- Update Get-Registry to include 
+  - Key='HKLM\SOFTWARE\Microsoft\Wbem\CIMON', Value='Autorecover MOFs', Data=*
+    - https://0xdf.gitlab.io/2018/11/03/htb-dropzone.html
+  - "HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Servers"
+    - recent RDP Client activity from registry
+
+- Important file listings
   - FullName, CreationTimeUtc, LastAccesstimeUtc, LastWriteTimeUtc
+  - c:\windows\prefetch 
+  - c:\windows\system32\wbem\*.mof
+  - c:\windows\system32\wbem\autorecover\
+  - c:\windows\system32\wbem\repository\index.btr
+
 - ShimCache entries
   - HKLM\SYSTEM\CurrentControlSet\Control\SessionManager\AppCompatCache\AppCompatCache
   - ref https://github.com/mandiant/ShimCacheParser
-- Pull recent RDP Client activity from registry
-  - "HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Servers"
-- Build module(s) to pull files
+
+- Pull artifact files
   - C:\Users\username\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadline\ConsoleHost_history.txt
   - \%SystemRoot%\AppCompat\Programs\Amcache.hve
   - logs
