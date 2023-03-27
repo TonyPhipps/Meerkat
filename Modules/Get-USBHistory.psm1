@@ -27,12 +27,12 @@ function Get-USBHistory {
         }
 
     .NOTES 
-        Updated: 2022-12-01
+        Updated: 2023-03-27
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -68,7 +68,7 @@ function Get-USBHistory {
           
         $Key = "Registry::HKLM\SYSTEM\CurrentControlSet\Enum\USBStor\"
 
-        $SubKeys = Get-ChildItem $Key
+        $SubKeys = Get-ChildItem $Key -ErrorAction SilentlyContinue
         
         $Devices = foreach ($device in $SubKeys){
             $keyObject = Get-Item ("Registry::" + $device.Name + "\*")
