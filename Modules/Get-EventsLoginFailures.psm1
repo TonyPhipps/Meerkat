@@ -29,12 +29,12 @@ function Get-EventsLoginFailures {
         }
 
     .NOTES
-        Updated: 2022-10-31
+        Updated: 2023-03-27
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -81,7 +81,7 @@ function Get-EventsLoginFailures {
 
     process{
         
-        $ResultsArray = Get-WinEvent -FilterHashtable @{ LogName="Security"; ID=4625; StartTime=$StartTime; EndTime=$EndTime } 
+        $ResultsArray = Get-WinEvent -FilterHashtable @{ LogName="Security"; ID=4625; StartTime=$StartTime; EndTime=$EndTime } -ErrorAction SilentlyContinue
         
             foreach ($Result in $ResultsArray) {
                 $Result | Add-Member -MemberType NoteProperty -Name "UserSID" -Value ($Result.Properties[4].Value)
