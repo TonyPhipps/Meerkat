@@ -90,10 +90,10 @@ function Invoke-Meerkat {
         [alias("M", "Mod")]
         [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks", "DomainInfo", "DLLs", "DNS", "Drivers", "EnvVars", 
             "EventLogs", "EventLogsMetadata", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
-            "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "USBHistory", "WindowsFirewall")]
+            "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPMDetails", "USBHistory", "WindowsFirewall")]
         [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "EventsLoginFailures", 
         "LocalGroups", "LocalUsers", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", 
-        "Sessions", "Shares", "Software", "TPM", "Processes", "RecycleBin", "DLLs", "USBHistory", "WindowsFirewall")
+        "Sessions", "Shares", "Software", "TPMDetails", "Processes", "RecycleBin", "DLLs", "USBHistory", "WindowsFirewall")
     )
 
     begin{
@@ -133,7 +133,7 @@ function Invoke-Meerkat {
             Shares = ${Function:Get-Shares}
             Software = ${Function:Get-Software}
             Strings = ${Function:Get-Strings}
-            TPM = ${Function:Get-TPMDetails}
+            TPMDetails = ${Function:Get-TPMDetails}
             MAC = ${Function:Get-MAC}
             Processes = ${Function:Get-Processes}
             RecycleBin = ${Function:Get-RecycleBin}
@@ -147,7 +147,7 @@ function Invoke-Meerkat {
             [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Defender", 
             "Disks", "DLLs", "DomainInfo", "DNS", "Drivers", "EventLogsMetadata", "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes",
             "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", 
-            "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPM", "MAC", "Processes", "RecycleBin", "DLLs", "EventLogs", "USBHistory", 
+            "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPMDetails", "MAC", "Processes", "RecycleBin", "DLLs", "EventLogs", "USBHistory", 
             "WindowsFirewall")
         }
 
