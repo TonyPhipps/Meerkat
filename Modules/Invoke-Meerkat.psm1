@@ -25,13 +25,6 @@ function Invoke-Meerkat {
     .PARAMETER Output
         Specify a path to save results to. Default is the current working directory.
 
-    .PARAMETER Ingest
-        When used, an additional subfolder will me made under -Output for each collection type enabled. 
-        Intended for use with products that ingest files, like Elasticstack, Graylog, Splunk, etc.
-        To speed up bulk collections, consider using a jobs manager like PoshRSJob 
-        (https://github.com/proxb/PoshRSJob)
-        A PoshRSJob wrapper is provided in the \Utilities\ folder of this project.
-
     .EXAMPLE
         Invoke-Meerkat -Computer WorkComputer
 
@@ -42,13 +35,13 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Modules Computer, Autoruns
 
     .EXAMPLE
-        Invoke-Meerkat -Ingest -Output $pwd
+        Get-Content c:\hosts.csv | Invoke-Meerkat -Output C:\TodaysDate\Meerkat\
 
     .EXAMPLE
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2022-12-1
+        Updated: 2023-04-18
 
         Contributing Authors:
             Anthony Phipps
