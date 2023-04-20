@@ -170,20 +170,47 @@ function Invoke-Meerkat {
 
         $Output = $Output + "\"
         
-        foreach ($Module in $Modules){
-
-            try{
-                if ($Computer -eq $env:COMPUTERNAME){
-                    & ("Get-" + $Module) |
-                        Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+        try{
+            if ($Computer -eq $env:COMPUTERNAME){
+                foreach ($Module in $Modules){
+                    try{
+                        & ("Get-" + $Module) |
+                            Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
                     }
-                else {
-                    Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
-                        Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
-                        Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                    catch{}
                 }
-            } catch{}
-        }
+            }
+            else {
+                $session = New-PSSession $Computer -ErrorAction SilentlyContinue
+
+                if ($session -is [System.Management.Automation.Runspaces.PSSession]) {
+                    
+                    foreach ($Module in $Modules){
+                        try {
+                            Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
+                            Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
+                            Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                        }
+                        catch{}
+                    }
+                }
+                else {
+                    Write-Host "Remote test failed: $Computer."
+
+                    $cred = Get-Credential "$Computer\"
+
+                    foreach ($Module in $Modules){
+                        try{
+                            Invoke-Command -ComputerName $Computer -Credential $cred -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
+                            Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
+                            Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                        }
+                        catch{}
+                    }
+                }
+            }
+        } catch{}
+
         $total++
     }
 
