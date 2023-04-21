@@ -48,7 +48,7 @@ function Get-RegistryPersistence {
        https://blog.cylance.com/windows-registry-persistence-part-2-the-run-keys-and-search-order
        http://resources.infosecinstitute.com/common-malware-persistence-mechanisms
        https://andreafortuna.org/cybersecurity/windows-registry-in-forensic-analysis
-       https://github.com/redcanaryco/atomic-red-team
+       Red Canary's Atomic Red Team (the link to their Github alone fires AV alarms)
     #>
 
     [CmdletBinding()]
