@@ -70,7 +70,7 @@ function Get-LocalGroups {
         Foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-            $Result | Add-Member -MemberType NoteProperty -Name "Users" -Value ((Get-LocalGroupMember -Group $Group).Name -join ", ")
+            $Result | Add-Member -MemberType NoteProperty -Name "Users" -Value ((Get-LocalGroupMember -Group $Result).Name -join ", ")
         }
 
         return $ResultsArray | Select-Object Host, DateScanned, Name, Description, SID, PrincipalSource, ObjectClass, Users
