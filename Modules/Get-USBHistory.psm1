@@ -27,7 +27,7 @@ function Get-USBHistory {
         }
 
     .NOTES 
-        Updated: 2023-03-27
+        Updated: 2023-04-21
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
@@ -66,34 +66,34 @@ function Get-USBHistory {
 
     process{
           
-        $Key = "Registry::HKLM\SYSTEM\CurrentControlSet\Enum\USBStor\"
+        $USBStor = "Registry::HKLM\SYSTEM\CurrentControlSet\Enum\USBStor\"
 
-        $SubKeys = Get-ChildItem $Key -ErrorAction SilentlyContinue
-        
-        $Devices = foreach ($device in $SubKeys){
-            $keyObject = Get-Item ("Registry::" + $device.Name + "\*")
+        $DeviceTypes = Get-ChildItem $USBStor -ErrorAction SilentlyContinue
+
+        $DeviceKeys = foreach ($DeviceType in $DeviceTypes) {
+            Get-ChildItem ("Registry::" + $DeviceType.Name + "\*")
+        }
+
+        $Devices = foreach ($Device in $DeviceKeys){
+            $keyObject = Get-Item ("Registry::" + $Device.Name)
             
             $Properties = $keyObject.Property
         
            foreach ($Property in $Properties){
-                $device | Add-Member -MemberType NoteProperty -Name $Property -Value $keyObject.GetValue($Property)
+                $Device | Add-Member -MemberType NoteProperty -Name $Property -Value $keyObject.GetValue($Property)
             }
         
-           $device | Add-Member -MemberType NoteProperty -Name "WindowsID" -Value ($device | Get-ChildItem).Name.split("\")[-1]
-        
-           $device
+           $Device
         }
         
         $ResultsArray = foreach ($Result in $Devices) {
             
-            $Result.CompatibleIDs = ($device.CompatibleIDs -join ", ")
-            $Result.HardwareID = ($device.HardwareID -join ", ")
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             $Result
         }
         
-        $ResultsArray | Select-Object Host, DateScanned, Name, FriendlyName, WindowsID, Address, Capabilities, ClassGUID, CompatibleIDs, ConfigFlags, ContainerID, DeviceDesc, Driver, HardwareID, Mfg, Service
+        return $ResultsArray | Select-Object Host, DateScanned, Name, FriendlyName, WindowsID, Address, Capabilities, ClassGUID, CompatibleIDs, ConfigFlags, ContainerID, DeviceDesc, Driver, HardwareID, Mfg, Service
     }
     end{
 
