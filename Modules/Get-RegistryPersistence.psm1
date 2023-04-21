@@ -23,12 +23,12 @@ function Get-RegistryPersistence {
         }
 
     .NOTES 
-        Updated: 2019-04-08
+        Updated: 2019-04-21
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -99,7 +99,8 @@ function Get-RegistryPersistence {
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\magnify.exe",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\narrator.exe",
             "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\DisplaySwitch.exe",
-            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AtBroker.exe"
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\AtBroker.exe",
+            "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\Cpls"
 
         $UserKeysValues =
             "\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce",
@@ -118,6 +119,23 @@ function Get-RegistryPersistence {
             "\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Control Panel\CPLs",
             "\Software\Microsoft\Windows\CurrentVersion\Control Panel\CPLs"
 
+        foreach ($KeyValue in $KeysValues){ # Determine if subkeys exist and, if so, add them to $KeyValues (only one level deep)
+                    
+            $Key = "Registry::" + $KeyValue
+                
+            if (Test-Path $Key){ # A Key was given
+
+                $keyObject = Get-Item $Key
+                $childKeys = ($keyObject.GetSubKeyNames() | Measure-Object -Line).Lines
+
+                if ($childkeys){
+                    foreach ($childkey in ($keyObject.GetSubKeyNames())){
+                    $KeysValues += $("$($keyObject.PSPath.Split('::')[2])\$childkey")
+                    }
+                }
+            }
+        }
+        
         $DataArray = foreach ($KeyValue in $KeysValues){
             
             $Key = "Registry::" + $KeyValue
