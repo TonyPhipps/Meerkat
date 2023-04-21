@@ -87,7 +87,10 @@ function Get-USBHistory {
         }
         
         $ResultsArray = foreach ($Result in $Devices) {
-            
+
+            $Result.CompatibleIDs = ($Result.CompatibleIDs -join ", ")
+            $Result.HardwareID = ($Result.HardwareID -join ", ")
+            $Result | Add-Member -MemberType NoteProperty -Name "WindowsID" -Value $Result.PSParentPath.split("\")[-1]
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             $Result
