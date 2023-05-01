@@ -87,7 +87,7 @@ function Invoke-Meerkat_PSExec {
         [string]$Command = "Invoke-Meerkat",
         
         #Local Parameters
-        [string]$ModulePath = "C:\Program Files\WindowsPowerShell\Modules\Meerkat\Modules",
+        [string]$ModulePath = "C:\Program Files\WindowsPowerShell\Modules\Meerkat",
         [string]$Output = "$ENV:USERPROFILE\Meerkat\",
         [string]$ModuleName = "Meerkat.psm1",
         [string]$PSExec = "C:\Program Files\Sysinternals"
@@ -149,7 +149,7 @@ function Invoke-Meerkat_PSExec {
         Copy-WithProgress -Source "$ModulePath" -Destination "\\$Computer\$ModuleShare"
 
         # Import modules and execute command as system. -s was added due to access denied errors on only some modules.
-        & $PSExec\PsExec.exe \\$Computer -s -accepteula powershell -ExecutionPolicy ByPass -windowstyle hidden -nologo -noprofile -command "& {import-module $ModuleNTFS\$ModuleName; & $Command}"
+        & $PSExec\PsExec.exe \\$Computer -s -accepteula powershell -ExecutionPolicy ByPass -windowstyle hidden -nologo -noprofile -command ("& {import-module $ModuleNTFS" + "$ModuleName; & $Command}")
     }
 
     end{
