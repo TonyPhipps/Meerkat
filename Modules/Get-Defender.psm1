@@ -28,7 +28,7 @@ Function Get-Defender {
         }
 
     .NOTES
-        Updated: 2022-10-21
+        Updated: 2023-05-11
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
@@ -70,7 +70,7 @@ Function Get-Defender {
 
         $MpComputerStatus = Get-MpComputerStatus
             foreach ($Property in $MpComputerStatus.PSObject.Properties) {
-                $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }  
 
         $MpPreference = Get-MpPreference
@@ -93,7 +93,7 @@ Function Get-Defender {
             $MpPreference | Add-Member -MemberType NoteProperty -Name "ExclusionProcessList" -Value $ExclusionProcessList -ErrorAction SilentlyContinue
             $MpPreference | Add-Member -MemberType NoteProperty -Name "ProxyBypassList" -Value $ProxyBypassList -ErrorAction SilentlyContinue
             foreach ($Property in $MpPreference.PSObject.Properties) {
-                $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }
 
         $QuarantineCount = (Get-ChildItem "C:\ProgramData\Microsoft\Windows Defender\Quarantine\Entries").Count

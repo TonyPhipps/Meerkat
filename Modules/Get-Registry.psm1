@@ -23,7 +23,7 @@ function Get-Registry {
         }
 
     .NOTES 
-        Updated: 2019-04-08
+        Updated: 2023-05-11
 
         Contributing Authors:
             Anthony Phipps
@@ -115,7 +115,7 @@ function Get-Registry {
 
             else{ # A key and value was given
                 $Key = Split-Path -Path $Key
-                $hasData = (Get-Item $Key -ErrorAction SilentlyContinue)
+                $hasData = (Get-Item $Key -ErrorAction SilentlyContinue | Out-Null)
                     
                     if ($hasData) {
 

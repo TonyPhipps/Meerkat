@@ -26,7 +26,7 @@ function Get-Processes {
         }
 
     .NOTES 
-        Updated: 2019-04-03
+        Updated: 2019-05-11
 
         Contributing Authors:
             Anthony Phipps
@@ -78,8 +78,10 @@ function Get-Processes {
             $CommandLine = $CIMProcesses | Where-Object ProcessID -eq $Process.ID | Select-Object -ExpandProperty CommandLine
             $PercentProcessorTime = $PerfProcArray | Where-Object IDProcess -eq $Process.ID | Select-Object -ExpandProperty PercentProcessorTime
             $MemoryMB = $PerfProcArray | Where-Object IDProcess -eq $Process.ID | Select-Object -ExpandProperty workingSetPrivate
-            $MemoryMB = try {[Math]::Round(($MemoryMB / 1mb),2)} Catch{}
-
+                if ($MemoryMB.GetType().Name -eq "UInt64"){
+                    $MemoryMB = [Math]::Round(($MemoryMB / 1mb),2)
+                }
+                else { $MemoryMB = "" }
             $Process | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Process | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             $Process | Add-Member -MemberType NoteProperty -Name "CommandLine" -Value $CommandLine

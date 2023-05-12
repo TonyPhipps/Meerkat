@@ -27,7 +27,7 @@ function Get-USBHistory {
         }
 
     .NOTES 
-        Updated: 2023-04-21
+        Updated: 2023-05-11
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
@@ -68,7 +68,7 @@ function Get-USBHistory {
           
         $USBStor = "Registry::HKLM\SYSTEM\CurrentControlSet\Enum\USBStor\"
 
-        $DeviceTypes = Get-ChildItem $USBStor -ErrorAction SilentlyContinue
+        $DeviceTypes = Get-ChildItem $USBStor -ErrorAction SilentlyContinue | Out-Null
 
         $DeviceKeys = foreach ($DeviceType in $DeviceTypes) {
             Get-ChildItem ("Registry::" + $DeviceType.Name + "\*")

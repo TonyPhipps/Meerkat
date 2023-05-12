@@ -24,7 +24,7 @@ Function Get-ComputerDetails {
         }
 
     .NOTES
-        Updated: 2022-11-15
+        Updated: 2023-05-11
 
         Contributing Authors:
             Anthony Phipps
@@ -92,19 +92,19 @@ Function Get-ComputerDetails {
             $Result = New-Object -TypeName PSObject
 
             foreach ($Property in $Win32_OperatingSystem.PSObject.Properties) {
-                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }            
 
             foreach ($Property in $Win32_ComputerSystem.PSObject.Properties) {
-                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }
                 
             foreach ($Property in $Win32_Processor.PSObject.Properties) {
-                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }
 
             foreach ($Property in $Win32_BIOS.PSObject.Properties) {
-                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue
+                $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }
 
             $UpTime = (get-date) - $Win32_OperatingSystem.LastBootUpTime
