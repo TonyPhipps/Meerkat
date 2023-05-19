@@ -23,13 +23,13 @@ function Get-NetAdapters {
         }
 
     .NOTES 
-        Updated: 2019-04-03
+        Updated: 2023-05-19
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -63,24 +63,32 @@ function Get-NetAdapters {
     process{
             
         $AdaptersArray = Get-NetAdapter -ErrorAction SilentlyContinue
-        $AdapterConfigArray = Get-CimInstance Win32_NetworkAdapterConfiguration -ErrorAction SilentlyContinue  #get the configuration for the current adapter
+        $AdapterConfigArray = Get-CimInstance Win32_NetworkAdapterConfiguration -ErrorAction SilentlyContinue
+        $NetConnectionProfileArray = Get-NetConnectionProfile
+        $NetFirewallProfileArray = Get-NetFirewallProfile -PolicyStore ActiveStore
 
         $ResultsArray = $AdaptersArray | Where-Object {$_.MediaConnectionState -eq "Connected"}
         
         foreach ($Result in $ResultsArray) {
             
             $AdapterConfig = $AdapterConfigArray | Where-Object {$_.InterfaceIndex -eq $Result.IfIndex}
+            $NetConnectionProfile = $NetConnectionProfileArray | Where-Object {$_.InterfaceIndex -eq $Result.IfIndex}
+            $NetFirewallProfile = $NetFirewallProfileArray | Where-Object {$_.Name -eq $NetConnectionProfile.NetworkCategory}
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
             $Result | Add-Member -MemberType NoteProperty -Name IPAddress -Value ($AdapterConfig.IPAddress -join ", ")
             $Result | Add-Member -MemberType NoteProperty -Name IPsubnet -Value ($AdapterConfig.IPsubnet -join ", ")
             $Result | Add-Member -MemberType NoteProperty -Name DefaultIPGateway -Value $AdapterConfig.DefaultIPGateway
-            $Result | Add-Member -MemberType NoteProperty -Name DNSServerSearchOrder -Value $AdapterConfig.DNSServerSearchOrder                
+            $Result | Add-Member -MemberType NoteProperty -Name DNSServerSearchOrder -Value $AdapterConfig.DNSServerSearchOrder
+            $Result | Add-Member -MemberType NoteProperty -Name DHCPEnabled -Value $AdapterConfig.DHCPEnabled
+            $Result | Add-Member -MemberType NoteProperty -Name NetworkCategory -Value $NetConnectionProfile.NetworkCategory
+            $Result | Add-Member -MemberType NoteProperty -Name FirewallEnabled -Value $NetFirewallProfile.Enabled
         }
 
         return $AdaptersArray | Select-Object Host, DateScanned, SystemName, InterfaceDescription, Name, MediaConnectionState, 
-        ifIndex, Speed, MacAddress, IPAddress, IPSubnet, DefaultIPGateway, DNSServerSearchOrder, MtuSize, PromiscuousMode
+        ifIndex, Speed, MacAddress, IPAddress, IPSubnet, DefaultIPGateway, DNSServerSearchOrder, MtuSize, PromiscuousMode, DHCPEnabled, NetworkCategory, FirewallEnabled
     }
 
     end{
