@@ -28,12 +28,12 @@ Function Get-Defender {
         }
 
     .NOTES
-        Updated: 2023-05-11
+        Updated: 2023-05-19
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -96,8 +96,12 @@ Function Get-Defender {
                 $ResultsArray | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }
 
-        $QuarantineCount = (Get-ChildItem "C:\ProgramData\Microsoft\Windows Defender\Quarantine\Entries").Count
+        try {$QuarantineCount = (Get-ChildItem "C:\ProgramData\Microsoft\Windows Defender\Quarantine\Entries" -ErrorAction Stop).Count   
+        }
+        catch{ $QuarantineCount = 0 }
+        finally{
             $ResultsArray | Add-Member -MemberType NoteProperty -Name QuarantineCount -Value $QuarantineCount -ErrorAction SilentlyContinue
+        }
 
         foreach ($Result in $ResultsArray){
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
