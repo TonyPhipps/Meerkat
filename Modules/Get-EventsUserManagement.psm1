@@ -34,12 +34,12 @@ function Get-EventsUserManagement {
         }
 
     .NOTES
-        Updated: 2022-11-21
+        Updated: 2023-05-19
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -158,7 +158,7 @@ function Get-EventsUserManagement {
 
         $EventID = 4720, 4726, 4732, 4733, 4781
         
-        $ResultsArray = Get-WinEvent -FilterHashtable @{ LogName="Security"; ID = $EventID } 
+        $ResultsArray = Get-WinEvent -FilterHashtable @{ LogName="Security"; ID = $EventID } -ErrorAction SilentlyContinue
         
             foreach ($Result in $ResultsArray) {
      
