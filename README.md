@@ -79,6 +79,17 @@ This command will output results to C:\Users\YourName\Meerkat\
 Invoke-Meerkat
 ```
 
+NOTE: The following modules will not return results if not ran with Administrative privileges
+
+- AuditPolicy
+- Drivers
+- EventsLoginFailures
+- Hotfixes
+- RegistryMRU
+- Registry
+- Processes
+- RecycleBin
+
 ## Analysis
 
 Analysis methodologies and techniques are provided in the [Wiki pages](https://github.com/TonyPhipps/Meerkat/wiki).
