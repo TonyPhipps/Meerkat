@@ -26,12 +26,12 @@ function Get-Processes {
         }
 
     .NOTES 
-        Updated: 2019-05-11
+        Updated: 2019-05-31
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -65,7 +65,7 @@ function Get-Processes {
 
     process{
 
-        $ProcessArray = Get-Process -IncludeUserName
+        try{ $ProcessArray = Get-Process -IncludeUserName }catch{ $ProcessArray = Get-Process }
         $CIMProcesses = Get-CimInstance -class win32_Process
         $CIMServices = Get-CIMinstance -class Win32_Service        
         $PerfProcArray = Get-CIMinstance -class Win32_PerfFormattedData_PerfProc_Process
