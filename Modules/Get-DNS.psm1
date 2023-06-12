@@ -26,13 +26,13 @@
         }
 
     .NOTES 
-        Updated: 2019-04-18
+        Updated: 2023-06-12
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -80,6 +80,7 @@
 
         enum recordStatus {
             Success = 0
+            NotExist = 9002
             NotExist = 9003
             NoRecords = 9501
         }
