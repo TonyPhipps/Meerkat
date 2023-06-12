@@ -81,7 +81,7 @@
         enum recordStatus {
             Success = 0
             NotExist = 9002
-            NotExist = 9003
+            SecureNotExist = 9003
             NoRecords = 9501
         }
 
