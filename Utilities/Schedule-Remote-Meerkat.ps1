@@ -1,14 +1,22 @@
-# Executing this script will create a Scheduled Task that runs another .ps1 using an MSA account and highest runlevel every hour.
-# Tweak the following as needed BEFORE execution:
-# The contents of the sample Meerkat-Task.ps1 to ensure proper arguments are used.
-# Edit MSAName to define which name should be used for the managed service account.
-# Edit $Server to define Which server will be running the service.
-# Edit $ScriptName to point to the full path to the .ps1 script.
-# Edit $AtTime to specify when the schedule should start.
-# The Repetition Duration and Repetition Interval, both defined within $Trigger
-# Verify Task runs by Right Clicking > Run in Task Sscheduler Library
-# Ensure the new account has local admin rights on all target systems. 
-# Review the results in the Windows Task Scheduler
+<# 
+Executing this script will create a Scheduled Task that runs another .ps1 using an MSA account and highest runlevel every hour.
+Do the following as needed BEFORE execution:
+- Tweak The contents of the sample Meerkat-Task.ps1 to ensure proper arguments are used, then save it somewhere secure.
+- Update the various variables below to match the environment
+  - Edit MSAName to define which name should be used for the managed service account.
+  - Edit $Server to define Which server will be running the service.
+  - Edit $ScriptName to point to the full path to the .ps1 script.
+  - Edit $AtTime to specify when the schedule should start.
+  - The Repetition Duration and Repetition Interval, both defined within $Trigger
+
+The MSA will need permission to run as a service and as a batch job on the system performing the scan.
+  - Computer Configuration > Policies > Windows Settings > Security Settings > Local Policies > User Rights Assignment
+    - Log on as a batch job
+    - Log on as a service
+The MSA will need local admin privileges on all target sytems.
+WinRM will need to be enabled on all target systems. This can be done via GPO
+  - https://troubleshootingsql.com/2014/11/17/gotcha-executing-powershell-scripts-using-scheduled-tasks/
+#>
 
 
 $MSAName = "svcMSA-Meerkat"
