@@ -41,12 +41,12 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2023-04-18
+        Updated: 2023-06-12
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -78,6 +78,10 @@ function Invoke-Meerkat {
         [Parameter()]
         [alias("Fast")]
         [switch] $Quick,
+        
+        [Parameter()]
+        [alias("NonInteractive")]
+        [switch] $Service = $false,
 
         [Parameter()]
         [alias("M", "Mod")]
@@ -164,6 +168,14 @@ function Invoke-Meerkat {
 
         $Computer = $Computer.Replace('"', '')  # get rid of quotes, if present
 
+        if (Test-Connection $Computer -Quiet -ErrorAction SilentlyContinue){
+            Write-Information -InformationAction Continue -MessageData ("Test-Connection for {0} succeeded." -f $Computer)
+        }
+        else{
+            Write-Information -InformationAction Continue -MessageData ("Test-Connection for {0} FAILED - skipping." -f $Computer)
+            return
+        }
+
         if (!(Test-Path $Output)){
             mkdir $Output
         }
@@ -185,6 +197,7 @@ function Invoke-Meerkat {
 
                 if ($session -is [System.Management.Automation.Runspaces.PSSession]) {
                     
+                    Exit-PSSession
                     foreach ($Module in $Modules){
                         try {
                             Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
@@ -194,8 +207,8 @@ function Invoke-Meerkat {
                         catch{}
                     }
                 }
-                else {
-                    Write-Host "Remote test failed: $Computer."
+                elseif ($Service -eq $false) {
+                    Write-Information -InformationAction Continue -MessageData ("Remote test failed: $Computer.`n")
 
                     $cred = Get-Credential "$Computer\"
 
@@ -207,6 +220,9 @@ function Invoke-Meerkat {
                         }
                         catch{}
                     }
+                }
+                else{
+                    Write-Information -InformationAction Continue -MessageData ("Running as service, skipping {}.`n" -f $Computer)
                 }
             }
         } catch{}
