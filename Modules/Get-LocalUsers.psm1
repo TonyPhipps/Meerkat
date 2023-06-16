@@ -27,12 +27,12 @@ function Get-LocalUsers {
         }
 
     .NOTES 
-        Updated: 2022-11-15
+        Updated: 2023-06-16
 
         Contributing Authors:
             Anthony Phipps
 
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -75,7 +75,7 @@ function Get-LocalUsers {
         Foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-            $Result | Add-Member -MemberType NoteProperty -Name "Groups" -Value (($GroupArray | Where-Object Users -Match $test).Name -join ", ")
+            $Result | Add-Member -MemberType NoteProperty -Name "Groups" -Value (($GroupArray | Where-Object Users -Match $Result.Name).Name -join ", ")
         }
 
         return $ResultsArray | Select-Object Host, DateScanned, Name, Description, SID, PrincipalSource, ObjectClass, Groups, Enabled, FullName, PasswordChangeableDate, PasswordExpires, UserMayChangePassword, PasswordRequired, PasswordLastSet, LastLogon
