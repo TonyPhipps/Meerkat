@@ -67,7 +67,7 @@ Function Get-WindowsFirewall {
 
         $ResultsArray = foreach ($rule in $rulesArray) {
             if ($rule -match "Rule Name:") {
-                $RuleName = ($rule | Select-String -Pattern "Rule Name: +(.+)").Matches.Groups[1].Value
+                $RuleName = ($rule | Select-String -Pattern "Rule Name: +([^\r\n]+)").Matches.Groups[1].Value
                 $Enabled = ($rule | Select-String -Pattern "Enabled: +([^\r\n]+)").Matches.Groups[1].Value
                 $Direction = ($rule | Select-String -Pattern "Direction: +([^\r\n]+)").Matches.Groups[1].Value
                 $Profiles = ($rule | Select-String -Pattern "Profiles: +([^\r\n]+)").Matches.Groups[1].Value
