@@ -23,12 +23,12 @@ Function Get-WindowsFirewall {
         }
     
      .NOTES 
-        Updated: 2023-05-11
+        Updated: 2023-06-23
 
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -68,24 +68,24 @@ Function Get-WindowsFirewall {
         $ResultsArray = foreach ($rule in $rulesArray) {
             if ($rule -match "Rule Name:") {
                 $RuleName = ($rule | Select-String -Pattern "Rule Name: +(.+)").Matches.Groups[1].Value
-                $Enabled = ($rule | Select-String -Pattern "Enabled: +(.+)").Matches.Groups[1].Value
-                $Direction = ($rule | Select-String -Pattern "Direction: +(.+)").Matches.Groups[1].Value
-                $Profiles = ($rule | Select-String -Pattern "Profiles: +(.+)").Matches.Groups[1].Value
-                $Grouping = ($rule | Select-String -Pattern "Grouping: +(.+)").Matches.Groups[1].Value
-                $LocalIP = ($rule | Select-String -Pattern "LocalIP: +(.+)").Matches.Groups[1].Value
-                $RemoteIP = ($rule | Select-String -Pattern "RemoteIP: +(.+)").Matches.Groups[1].Value
-                $Protocol = ($rule | Select-String -Pattern "Protocol: +(.+)").Matches.Groups[1].Value
-                $EdgeTraversal = ($rule | Select-String -Pattern "Edge traversal: +(.+)").Matches.Groups[1].Value
-                $InterfaceTypes = ($rule | Select-String -Pattern "InterfaceTypes: +(.+)").Matches.Groups[1].Value
-                $Security = ($rule | Select-String -Pattern "Security: +(.+)").Matches.Groups[1].Value
-                $RuleSource = ($rule | Select-String -Pattern "Rule source: +(.+)").Matches.Groups[1].Value
-                $Action = ($rule | Select-String -Pattern "Action: +(.+)").Matches.Groups[1].Value
-                
-                if ($rule -match "Description: +(.+)") { $Description = ($rule | Select-String -Pattern "Description: +(.+)").Matches.Groups[1].Value } else { $Description = "" }
-                if ($rule -match "LocalPort: +(.+)") { $LocalPort = ($rule | Select-String -Pattern "LocalPort: +(.+)").Matches.Groups[1].Value } else { $LocalPort = "" }
-                if ($rule -match "RemotePort: +(.+)") { $RemotePort = ($rule | Select-String -Pattern "RemotePort: +(.+)").Matches.Groups[1].Value } else { $RemotePort = "" }
-                if ($rule -match "Program: +(.+)") { $Program = ($rule | Select-String -Pattern "Program: +(.+)").Matches.Groups[1].Value } else { $Program = "" }
-                if ($rule -match "Service: +(.+)") { $Service = ($rule | Select-String -Pattern "Service: +(.+)").Matches.Groups[1].Value } else { $Service = "" }
+                $Enabled = ($rule | Select-String -Pattern "Enabled: +([^\r\n]+)").Matches.Groups[1].Value
+                $Direction = ($rule | Select-String -Pattern "Direction: +([^\r\n]+)").Matches.Groups[1].Value
+                $Profiles = ($rule | Select-String -Pattern "Profiles: +([^\r\n]+)").Matches.Groups[1].Value
+                $Grouping = ($rule | Select-String -Pattern "Grouping: +([^\r\n]+)").Matches.Groups[1].Value
+                $LocalIP = ($rule | Select-String -Pattern "LocalIP: +([^\r\n]+)").Matches.Groups[1].Value
+                $RemoteIP = ($rule | Select-String -Pattern "RemoteIP: +([^\r\n]+)").Matches.Groups[1].Value
+                $Protocol = ($rule | Select-String -Pattern "Protocol: +([^\r\n]+)").Matches.Groups[1].Value
+                $EdgeTraversal = ($rule | Select-String -Pattern "Edge traversal: +([^\r\n]+)").Matches.Groups[1].Value
+                $InterfaceTypes = ($rule | Select-String -Pattern "InterfaceTypes: +([^\r\n]+)").Matches.Groups[1].Value
+                $Security = ($rule | Select-String -Pattern "Security: +([^\r\n]+)").Matches.Groups[1].Value
+                $RuleSource = ($rule | Select-String -Pattern "Rule source: +([^\r\n]+)").Matches.Groups[1].Value
+                $Action = ($rule | Select-String -Pattern "Action: +([^\r\n]+)").Matches.Groups[1].Value
+
+                if ($rule -match "LocalPort: +([^\r\n]+)") { $LocalPort = ($rule | Select-String -Pattern "LocalPort: +([^\r\n]+)").Matches.Groups[1].Value }
+                if ($rule -match "Description: +([^\r\n]+)") { $Description = ($rule | Select-String -Pattern "Description: +([^\r\n]+)").Matches.Groups[1].Value }
+                if ($rule -match "RemotePort: +([^\r\n]+)") { $RemotePort = ($rule | Select-String -Pattern "RemotePort: +([^\r\n]+)").Matches.Groups[1].Value }
+                if ($rule -match "Program: +([^\r\n]+)") { $Program = ($rule | Select-String -Pattern "Program: +([^\r\n]+)").Matches.Groups[1].Value }
+                if ($rule -match "Service: +([^\r\n]+)") { $Service = ($rule | Select-String -Pattern "Service: +([^\r\n]+)").Matches.Groups[1].Value }
                 
                 $RuleObject = [PSCustomObject]@{
                     RuleName = $RuleName
