@@ -41,7 +41,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2023-06-12
+        Updated: 2023-07-28
 
         Contributing Authors:
             Anthony Phipps
@@ -195,9 +195,9 @@ function Invoke-Meerkat {
             else {
                 $session = New-PSSession $Computer -ErrorAction SilentlyContinue
 
-                if ($session -is [System.Management.Automation.Runspaces.PSSession]) {
+                if ($session -is [System.Management.Automation.Runspaces.PSSession])
+                    Remove-PSSession $session
                     
-                    Exit-PSSession
                     foreach ($Module in $Modules){
                         try {
                             Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
