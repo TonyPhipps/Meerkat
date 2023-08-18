@@ -23,7 +23,7 @@ Function Get-DomainInfo {
             Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_DomainInfo.csv")
         }
     .NOTES
-        Updated: 2022-12-12
+        Updated: 2023-08-18
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
@@ -52,7 +52,7 @@ Function Get-DomainInfo {
 
 
 
-        $DateScanned = Get-Date -Format u
+        $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ")
         Write-Information -InformationAction Continue -MessageData ("Started Get-DomainInfo at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
@@ -126,6 +126,6 @@ Function Get-DomainInfo {
         $elapsed = $stopwatch.Elapsed
 
         Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
-        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
+        Write-Verbose ("Ended at {0}" -f ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ"))
     }
 }

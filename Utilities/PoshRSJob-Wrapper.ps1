@@ -21,7 +21,7 @@ While (Get-RSJob) { # So long as there is a job remaining
     $RunningJobs = Get-RSJob -State Running
     $NotStartedJobs = Get-RSJob -State NotStarted
         
-    Write-Host -Object ("{0} `t {1} completed jobs `t {2} active jobs `t {3} not started." -f (Get-Date -Format u), $CompletedJobs.Count, $RunningJobs.Count, $NotStartedJobs.Count)
+    Write-Host -Object ("{0} `t {1} completed jobs `t {2} active jobs `t {3} not started." -f ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ"), $CompletedJobs.Count, $RunningJobs.Count, $NotStartedJobs.Count)
         
     ForEach ($DoneJob in $CompletedJobs) {
 

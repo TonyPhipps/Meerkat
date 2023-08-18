@@ -41,7 +41,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2023-07-28
+        Updated: 2023-08-18
 
         Contributing Authors:
             Anthony Phipps
@@ -154,7 +154,7 @@ function Invoke-Meerkat {
             Where-Object { $_ -notin "ADS", "DLLs", "DomainInfo", "Drivers", "EventLogs", "MAC", "RegistryMRU", "RecycleBin", "Sessions", "Strings" }
         }  
 
-        $DateScanned = Get-Date -Format u
+        $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ")
         $DateScannedFolder = ((Get-Date).ToUniversalTime()).ToString("yyyyMMdd-hhmmssZ")
         Write-Information -InformationAction Continue -MessageData ("Started {0} at {1}" -f $MyInvocation.MyCommand.Name, $DateScanned)
 
@@ -195,7 +195,7 @@ function Invoke-Meerkat {
             else {
                 $session = New-PSSession $Computer -ErrorAction SilentlyContinue
 
-                if ($session -is [System.Management.Automation.Runspaces.PSSession])
+                if ($session -is [System.Management.Automation.Runspaces.PSSession]){
                     Remove-PSSession $session
                     
                     foreach ($Module in $Modules){
@@ -236,6 +236,6 @@ function Invoke-Meerkat {
 
         Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total Systems: {0} `t Total time elapsed: {1}" -f $total, $elapsed)
-        Write-Verbose ("Ended at {0}" -f (Get-Date -Format u))
+        Write-Verbose ("Ended at {0}" -f ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ"))
     }
 }
