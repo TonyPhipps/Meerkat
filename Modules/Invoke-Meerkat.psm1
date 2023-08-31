@@ -25,6 +25,9 @@ function Invoke-Meerkat {
     .PARAMETER Output
         Specify a path to save results to. Default is the current working directory.
 
+    .PARAMETER Service
+        Skips requesting credentials on systems that fail WinRM PSSession check.
+
     .EXAMPLE
         Invoke-Meerkat -Computer WorkComputer
 
@@ -41,7 +44,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-08-31
 
         Contributing Authors:
             Anthony Phipps
@@ -207,22 +210,25 @@ function Invoke-Meerkat {
                         catch{}
                     }
                 }
-                elseif ($Service -eq $false) {
-                    Write-Information -InformationAction Continue -MessageData ("Remote test failed: $Computer.`n")
-
-                    $cred = Get-Credential "$Computer\"
-
-                    foreach ($Module in $Modules){
-                        try{
-                            Invoke-Command -ComputerName $Computer -Credential $cred -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
-                            Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
-                            Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
-                        }
-                        catch{}
-                    }
-                }
                 else{
-                    Write-Information -InformationAction Continue -MessageData ("Running as service, skipping {}.`n" -f $Computer)
+                    Write-Information -InformationAction Continue -MessageData ("Remote test failed: $Computer.`n")
+                    
+                    if ($Service -eq $false) {
+
+                        $cred = Get-Credential "$Computer\"
+    
+                        foreach ($Module in $Modules){
+                            try{
+                                Invoke-Command -ComputerName $Computer -Credential $cred -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
+                                Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
+                                Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                            }
+                            catch{}
+                        }
+                    }
+                    else{
+                        Write-Information -InformationAction Continue -MessageData ("Running as service, skipping {}.`n" -f $Computer)
+                    }
                 }
             }
         } catch{}
