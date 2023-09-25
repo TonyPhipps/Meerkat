@@ -23,7 +23,7 @@ function Get-Shares {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-09-25
 
         Contributing Authors:
             Anthony Phipps
@@ -100,7 +100,7 @@ function Get-Shares {
 
                         if ($Key -band $DACL.AccessMask) {
                                         
-                            $PermissionFlags[$Key] + ";"
+                            $PermissionFlags[$Key]
                         }
                     }
 
@@ -115,7 +115,7 @@ function Get-Shares {
                     $output | Add-Member -MemberType NoteProperty -Name TrusteeSID -Value $TrusteeSID
                     $output | Add-Member -MemberType NoteProperty -Name AccessType -Value $Type
                     $output | Add-Member -MemberType NoteProperty -Name AccessMask -Value $DACL.AccessMask
-                    $output | Add-Member -MemberType NoteProperty -Name SharePermissions -Value $SharePermission
+                    $output | Add-Member -MemberType NoteProperty -Name SharePermissions -Value ($SharePermission -join ", ")
 
                     $output
                 }
@@ -128,7 +128,7 @@ function Get-Shares {
             }
 
             return $ResultsArray | Select-Object Host, DateScanned, Name, Path, Description, TrusteeName, 
-            TrusteeDomain, TrusteeSID, Type, AccessMask, SharePermission
+            TrusteeDomain, TrusteeSID, Type, AccessMask, SharePermissions
         }
     }
 
