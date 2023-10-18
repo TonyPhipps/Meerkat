@@ -8,7 +8,7 @@ function Invoke-Meerkat {
 
         Invoke-Meerkat takes advantage of the `export-csv` cmdlet in this way by exporting ALL enabled modules to csv. The basic syntax is `Invoke-Meerkat -Computer [Computername] -Modules [Module1, Module2, etc.]` (details via `get-help Invoke-Meerkat -Full`).
 
-        When running a single function against a single endpoint, the typical sytnax is `Get-[ModuleName] -Computer [ComputerName]`, which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, `Get-[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -notypeinformation` will utilize PowerShell's built-in csv export function (details via `get-help Get-[function] -Full`).
+        When running a single function against a single endpoint, the typical sytnax is 'Get-[ModuleName] -Computer [ComputerName]', which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, 'Get-[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -notypeinformation' will utilize PowerShell's built-in csv export function (details via 'get-help Get-[function] -Full').
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
@@ -35,7 +35,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -All -Computer WorkComputer2
 
     .EXAMPLE
-        Invoke-Meerkat -Modules Computer, Autoruns
+        Invoke-Meerkat -Modules "ComputerDetails", "Autoruns"
 
     .EXAMPLE
         Get-Content c:\hosts.csv | Invoke-Meerkat -Output C:\TodaysDate\Meerkat\
@@ -44,7 +44,7 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2023-08-31
+        Updated: 2023-10-18
 
         Contributing Authors:
             Anthony Phipps
