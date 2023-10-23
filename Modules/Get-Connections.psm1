@@ -63,14 +63,14 @@
         Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State, AppliedSettings,
         @{Name="Protocol";Expression={"TCP"}},
         OwningProcess,
-        @{Name="Path"; Expression={ (Get-Process -Id $Result.OwningProcess).Path }}
+        @{Name="Path"; Expression={ (Get-Process -Id $_.OwningProcess).Path }}
 
         $NetUDPEndpoints = Get-NetUDPEndpoint |
             Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State,
             @{Name="AppliedSetting";Expression={$_.Description}},
             @{Name="Protocol";Expression={"UDP"}},
             OwningProcess,
-            @{Name="Path"; Expression={ (Get-Process -Id $Result.OwningProcess).Path }}
+            @{Name="Path"; Expression={ (Get-Process -Id $_.OwningProcess).Path }}
         
         $ResultsArray = $NetTCPConnections + $NetUDPEndpoints
         
