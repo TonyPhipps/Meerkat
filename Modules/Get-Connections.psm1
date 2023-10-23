@@ -1,7 +1,7 @@
 ﻿function Get-Connections {
     <#
     .SYNOPSIS
-        Gets the active TCP connections.
+        Retrieves details on all TCP and UDP connections and listening ports.
 
     .EXAMPLE 
         Get-Connections
@@ -20,13 +20,13 @@
         }
 
     .NOTES
-        Updated: 2023-08-18
+        Updated: 2023-10-23
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -57,19 +57,32 @@
         $stopwatch.Start()
     }
 
-    process{
-            
-        $ResultsArray = Get-NetTCPConnection
+   process{
+        
+        $NetTCPConnections = Get-NetTCPConnection | 
+        Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State, AppliedSettings,
+        @{Name="Protocol";Expression={"TCP"}},
+        OwningProcess,
+        @{Name="Path"; Expression={ (Get-Process -Id $Result.OwningProcess).Path }}
+
+        $NetUDPEndpoints = Get-NetUDPEndpoint |
+            Select-Object LocalAddress, LocalPort, RemoteAddress, RemotePort, State,
+            @{Name="AppliedSetting";Expression={$_.Description}},
+            @{Name="Protocol";Expression={"UDP"}},
+            OwningProcess,
+            @{Name="Path"; Expression={ (Get-Process -Id $Result.OwningProcess).Path }}
+        
+        $ResultsArray = $NetTCPConnections + $NetUDPEndpoints
         
         foreach ($Result in $ResultsArray){
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-            $Result | Add-Member -MemberType NoteProperty -Name Path -Value ((Get-Process -Id $Result.OwningProcess).Path)
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, LocalAddress, LocalPort, 
-        RemoteAddress, RemotePort, State, AppliedSetting, OwningProcess, Path
+        return $ResultsArray | Select-Object Host, DateScanned, ModuleVersion, LocalAddress, LocalPort, 
+        RemoteAddress, RemotePort, State, AppliedSetting, Protocol, OwningProcess, Path
     }
 
     end{
