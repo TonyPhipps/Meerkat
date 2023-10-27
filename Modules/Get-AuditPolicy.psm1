@@ -28,12 +28,12 @@ function Get-AuditPolicy {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-10-27
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -76,7 +76,25 @@ function Get-AuditPolicy {
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, "Subcategory", "Subcategory GUID", "Inclusion Setting", "Exclusion Setting"
+        return $ResultsArray | 
+            Select-Object Host, DateScanned, ModuleVersion, "Subcategory", "Subcategory GUID", "Inclusion Setting", "Exclusion Setting" | 
+                Group-Object Host, DateScanned | Foreach-Object {
+                    $hash = [ordered]@{
+                        Host = ($_.Name -Split', ')[0]
+                        DateScanned = ($_.Name -Split', ')[1]
+                    }
+                    
+                    $_.Group | Foreach-Object {
+                        if ($_."Exclusion Setting") {
+                            $hash.Add($_.Subcategory, ("{0}, Exclusions: {0}" -f $_."Inclusion Setting", $_."Exclusion Setting"))
+                        }
+                        else {
+                            $hash.Add($_.Subcategory, "{0}" -f $_."Inclusion Setting")
+                        }
+                    }
+                    
+                    [pscustomobject]$hash
+                }
     }
 
     end{
