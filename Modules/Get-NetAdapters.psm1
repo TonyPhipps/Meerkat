@@ -23,7 +23,7 @@ function Get-NetAdapters {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-11-02
 
         Contributing Authors:
             Jeremy Arnold
@@ -80,8 +80,8 @@ function Get-NetAdapters {
             $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
             $Result | Add-Member -MemberType NoteProperty -Name IPAddress -Value ($AdapterConfig.IPAddress -join ", ")
             $Result | Add-Member -MemberType NoteProperty -Name IPsubnet -Value ($AdapterConfig.IPsubnet -join ", ")
-            $Result | Add-Member -MemberType NoteProperty -Name DefaultIPGateway -Value $AdapterConfig.DefaultIPGateway
-            $Result | Add-Member -MemberType NoteProperty -Name DNSServerSearchOrder -Value $AdapterConfig.DNSServerSearchOrder
+            $Result | Add-Member -MemberType NoteProperty -Name DefaultIPGateway -Value ($AdapterConfig.DefaultIPGateway -join ", ")
+            $Result | Add-Member -MemberType NoteProperty -Name DNSServerSearchOrder -Value ($AdapterConfig.DNSServerSearchOrder -join ", ")
             $Result | Add-Member -MemberType NoteProperty -Name DHCPEnabled -Value $AdapterConfig.DHCPEnabled
             $Result | Add-Member -MemberType NoteProperty -Name NetworkCategory -Value $NetConnectionProfile.NetworkCategory
             $Result | Add-Member -MemberType NoteProperty -Name FirewallEnabled -Value $NetFirewallProfile.Enabled
