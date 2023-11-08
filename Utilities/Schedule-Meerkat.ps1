@@ -33,6 +33,12 @@ if(-not $MSAExists) {
         Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10))
     }
 
+    $Identity = Get-ADComputer -identity $Server
+    New-ADServiceAccount -Name $MSAName -Enabled $true -RestrictToSingleComputer -KerberosEncryptionType AES256
+    Add-ADComputerServiceAccount -Identity $Identity -ServiceAccount $MSAName
+    
+    Install-ADServiceAccount -Identity ($MSAName + "$")
+}
 
 # Create the Scheduled Task
     $Identity = Get-ADComputer -identity $Server
