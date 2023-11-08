@@ -25,15 +25,29 @@ $ScriptName = "C:\Meerkat-Task.ps1"
 $AtTime = "1/30/2023 1:01:00 AM"
 
 # Create the MSA
-Add-WindowsFeature RSAT-AD-PowerShell
-Import-Module ActiveDirectory
-Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10))
+if(-not $MSAExists) {
+    Add-WindowsFeature RSAT-AD-PowerShell
+    Import-Module ActiveDirectory
+    
+    $KDSKeys = Get-KdsRootKey
 
-$Identity = Get-ADComputer -identity $Server
-New-ADServiceAccount -Name $MSAName -Enabled $true -RestrictToSingleComputer -KerberosEncryptionType AES256
-Add-ADComputerServiceAccount -Identity $Identity -ServiceAccount $MSAName
+    if ($null -ne $KDSKeys -and $KDSKeys.Count -gt 0 ) {
+        Write-Information -InformationAction Continue -MessageData ("'{0}' KDS Root Key(s) exists already, skipping KdsRootKey creation." -f $KDSKeyCount)
+    }
+    elseif ($null -eq $KDSKeys) {
+        Write-Information -InformationAction Continue -MessageData ("Permissions not available. Skipping KdsRootKey creation." -f $KDSKeyCount)
+    }
+    else {
+        Write-Information -InformationAction Continue -MessageData ("No KDS Root Key found. Creating KdsRootKey")
+        Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10))
+    }
 
-Install-ADServiceAccount -Identity ($MSAName + "$")
+    $Identity = Get-ADComputer -identity $Server
+    New-ADServiceAccount -Name $MSAName -Enabled $true -RestrictToSingleComputer -KerberosEncryptionType AES256
+    Add-ADComputerServiceAccount -Identity $Identity -ServiceAccount $MSAName
+    
+    Install-ADServiceAccount -Identity ($MSAName + "$")
+}
 
 # Create the Scheduled Task
 
