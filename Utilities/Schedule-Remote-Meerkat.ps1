@@ -25,6 +25,8 @@ $ScriptName = "C:\Meerkat-Task.ps1"
 $AtTime = "1/30/2023 1:01:00 AM"
 
 # Create the MSA
+$Identity = Get-ADComputer -identity $Server
+
 if(-not $MSAExists) {
     Add-WindowsFeature RSAT-AD-PowerShell
     Import-Module ActiveDirectory
@@ -42,12 +44,13 @@ if(-not $MSAExists) {
         Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10))
     }
 
-    $Identity = Get-ADComputer -identity $Server
     New-ADServiceAccount -Name $MSAName -Enabled $true -RestrictToSingleComputer -KerberosEncryptionType AES256
-    Add-ADComputerServiceAccount -Identity $Identity -ServiceAccount $MSAName
-    
-    Install-ADServiceAccount -Identity ($MSAName + "$")
 }
+
+Add-ADComputerServiceAccount -Identity $Identity -ServiceAccount $MSAName
+Install-ADServiceAccount -Identity ($MSAName + "$")
+
+Write-Information -InformationAction Continue -MessageData ("`n Computer accounts with access to {0}:`n `t{1}`n" -f $MSAName, $HostServiceAccountBL)
 
 # Create the Scheduled Task
 
