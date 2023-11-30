@@ -56,6 +56,7 @@ Write-Information -InformationAction Continue -MessageData ("`n Computer account
 
 $Action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -Windowstyle Hidden -File `"$ScriptName`""
 $Trigger = New-ScheduledTaskTrigger -Once -At $AtTime -RepetitionDuration (New-TimeSpan -Days (365 * 20)) -RepetitionInterval  (New-TimeSpan -Minutes 60)
+$Trigger.ExecutionTimeLimit = "PT23H"
 $Principal = New-ScheduledTaskPrincipal -UserId ($MSAName + "$") -RunLevel Highest -LogonType Password
 
 Register-ScheduledTask -Action $Action -Trigger $Trigger -Principal $Principal -TaskName "Meerkat Remote Collection" -Description "https://github.com/TonyPhipps/Meerkat/"
