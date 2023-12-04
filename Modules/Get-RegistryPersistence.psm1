@@ -23,7 +23,7 @@ function Get-RegistryPersistence {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-12-04
 
         Contributing Authors:
             Anthony Phipps
@@ -166,6 +166,7 @@ function Get-RegistryPersistence {
             }
 
             else{ # A key and value was given
+                $value = Split-Path -Leaf $Key
                 $Key = Split-Path -Path $Key
                 $hasData = (Get-Item $Key -ErrorAction SilentlyContinue)
                     
