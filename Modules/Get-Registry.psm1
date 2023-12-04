@@ -1,10 +1,10 @@
 function Get-Registry {
     <#
     .SYNOPSIS 
-        Gets a list of registry keys that may be used to achieve persistence or clear tracks.
+        Gets a list of registry keys that relate to key configurations relevant to cybersecurity.
 
     .DESCRIPTION 
-        Gets a list of registry keys that may be used to achieve persistence or clear tracks.
+        Gets a list of registry keys that relate to key configurations relevant to cybersecurity.
 
     .EXAMPLE 
         Get-Registry
@@ -23,12 +23,12 @@ function Get-Registry {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-12-04
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -114,8 +114,9 @@ function Get-Registry {
             }
 
             else{ # A key and value was given
+                $value = Split-Path -Leaf $Key
                 $Key = Split-Path -Path $Key
-                $hasData = (Get-Item $Key -ErrorAction SilentlyContinue | Out-Null)
+                $hasData = (Get-Item $Key -ErrorAction SilentlyContinue)
                     
                     if ($hasData) {
 
