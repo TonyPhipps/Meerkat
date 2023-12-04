@@ -86,7 +86,8 @@ function Get-Sessions {
                     ID = $id;
                     State = $state;
                     Type = $type;
-                    Device = $device}
+                    Device = $device
+                }
             }
         }
 
