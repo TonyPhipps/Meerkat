@@ -23,12 +23,12 @@ function Get-Sessions {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-12-04
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -60,9 +60,35 @@ function Get-Sessions {
     }
 
     process{
-
-            
-        $ResultsArray = qwinsta /server:$Computer 2> $null | Foreach-Object { (($_.trim() -replace "\s+",","))} | ConvertFrom-Csv
+    
+        $first = 1
+        $ResultsArray = qwinsta 2>$null | ForEach-Object {
+            if ($first -eq 1) {
+                $userPos = $_.IndexOf("USERNAME")
+                $sessionPos = $_.IndexOf("SESSIONNAME")  # max length 15
+                $idPos = $_.IndexOf("ID") - 2  # id is right justified
+                $statePos = $_.IndexOf("STATE") # max length 6
+                $typePos = $_.IndexOf("TYPE")  # right justified too 
+                $devicePos = $_.IndexOf("DEVICE")
+                $first = 0
+            }
+            else {
+                $user = $_.substring($userPos,$userPos-$sessionPos).Trim()
+                $session = $_.substring($sessionPos,$userPos-$sessionPos).Trim()
+                $id = [int]$_.substring($idPos,$statePos-$idPos).Trim()
+                $state = $_.substring($statePos,$typePos-$statePos).Trim()
+                $type = $_.substring($typePos,$devicePos-$typePos).Trim()
+                $device = $_.substring($devicePos,$_.length-$devicePos).Trim()
+        
+                [pscustomobject]@{
+                    SessionName = $session;
+                    UserName = $user;
+                    ID = $id;
+                    State = $state;
+                    Type = $type;
+                    Device = $device}
+            }
+        }
 
         foreach ($Result in $ResultsArray) {
 
