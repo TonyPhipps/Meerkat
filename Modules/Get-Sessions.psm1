@@ -64,8 +64,8 @@ function Get-Sessions {
         $first = 1
         $ResultsArray = qwinsta 2>$null | ForEach-Object {
             if ($first -eq 1) {
-                $userPos = $_.IndexOf("USERNAME")
                 $sessionPos = $_.IndexOf("SESSIONNAME")  # max length 15
+                $userPos = $_.IndexOf("USERNAME")
                 $idPos = $_.IndexOf("ID") - 2  # id is right justified
                 $statePos = $_.IndexOf("STATE") # max length 6
                 $typePos = $_.IndexOf("TYPE")  # right justified too 
@@ -73,8 +73,8 @@ function Get-Sessions {
                 $first = 0
             }
             else {
-                $user = $_.substring($userPos,$userPos-$sessionPos).Trim()
                 $session = $_.substring($sessionPos,$userPos-$sessionPos).Trim()
+                $user = $_.substring($userPos,$userPos-$sessionPos).Trim()
                 $id = [int]$_.substring($idPos,$statePos-$idPos).Trim()
                 $state = $_.substring($statePos,$typePos-$statePos).Trim()
                 $type = $_.substring($typePos,$devicePos-$typePos).Trim()
