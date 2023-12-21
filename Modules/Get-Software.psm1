@@ -23,12 +23,12 @@
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2023-12-21
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2023
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -64,16 +64,60 @@
         $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
         $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
             
-        $ResultsArray = Get-ItemProperty -Path $pathAllUser, $pathAllUser32 |
-            Where-Object DisplayName -ne $null
+        $SystemResultsArray = Get-ItemProperty -Path $pathAllUser, $pathAllUser32 |
+            Where-Object DisplayName -ne $null | Select-Object Publisher, DisplayName, DisplayVersion, InstallDate, 
+            InstallSource, InstallLocation, PSChildName, HelpLink
+
+        $UsersResultsArray = @()
+        $32BitPath = "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+        $64BitPath = "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
+
+        $AllProfiles = Get-CimInstance Win32_UserProfile | Select-Object LocalPath, SID, Loaded, Special | Where-Object {$_.SID -like "S-1-5-21-*"}
+        $MountedProfiles = $AllProfiles | Where-Object {$_.Loaded -eq $true}
+        $UnmountedProfiles = $AllProfiles | Where-Object {$_.Loaded -eq $false}
+
+        # Processing mounted hives
+        $MountedProfiles | ForEach-Object {
+            $UsersResultsArray += Get-ItemProperty -Path "Registry::\HKEY_USERS\$($_.SID)\$32BitPath"
+            $UsersResultsArray += Get-ItemProperty -Path "Registry::\HKEY_USERS\$($_.SID)\$64BitPath"
+        }
+
+        # Processing unmounted hives
+        $UnmountedProfiles | ForEach-Object {
+
+            $Hive = "$($_.LocalPath)\NTUSER.DAT"
+
+            if (Test-Path $Hive) {
+                    
+                REG LOAD HKU\temp $Hive
+
+                $UsersResultsArray += Get-ItemProperty -Path "Registry::\HKEY_USERS\temp\$32BitPath"
+                $UsersResultsArray += Get-ItemProperty -Path "Registry::\HKEY_USERS\temp\$64BitPath"
+
+                # Run manual GC to allow hive to be unmounted
+                [GC]::Collect()
+                [GC]::WaitForPendingFinalizers()
+                    
+                REG UNLOAD HKU\temp
+
+            } else {
+                Write-Warning "Unable to access registry hive at $Hive"
+            }
+        }
+
+        $UsersResultsArray | Select-Object Publisher, DisplayName, DisplayVersion, InstallDate, 
+        InstallSource, InstallLocation, PSChildName, HelpLink
+
+        $ResultsArray = $SystemResultsArray + $UsersResultsArray
 
         foreach ($Result in $ResultsArray) {
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, Publisher, DisplayName, DisplayVersion, InstallDate, 
+        return $ResultsArray | Select-Object Host, DateScanned, ModuleVersion, Publisher, DisplayName, DisplayVersion, InstallDate, 
         InstallSource, InstallLocation, PSChildName, HelpLink
     }
 
