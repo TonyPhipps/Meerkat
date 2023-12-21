@@ -114,7 +114,6 @@
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
-            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
         }
 
         return $ResultsArray | Select-Object Host, DateScanned, Publisher, DisplayName, DisplayVersion, InstallDate, 
