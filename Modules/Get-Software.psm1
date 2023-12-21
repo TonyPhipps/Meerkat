@@ -117,7 +117,7 @@
             $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, ModuleVersion, Publisher, DisplayName, DisplayVersion, InstallDate, 
+        return $ResultsArray | Select-Object Host, DateScanned, Publisher, DisplayName, DisplayVersion, InstallDate, 
         InstallSource, InstallLocation, PSChildName, HelpLink
     }
 
