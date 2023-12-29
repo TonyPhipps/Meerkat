@@ -1,19 +1,35 @@
-# Run Meerkat with highest rights every hour
-# Edit the parameters here and for the example Meerkat-Task.ps1, then save the Meerkat-Task.ps1 somewhere acessible by the serivce.
+# Executing this script will create a Scheduled Task that runs another .ps1 using an MSA account and highest runlevel daily.
+# Tweak the following as needed BEFORE execution:
+# The contents of the sample Meerkat-Daily-Task.ps1 to ensure proper arguments are used.
+#   Edit $MSAName to define which name should be used for the managed service account.
+#   Edit $Server to define Which server will be running the service.
+#   Edit $ScriptName to point to the full path to the .ps1 script.
+#   Edit $AtTime to specify when the schedule should start.
+# Verify Task runs by Right Clicking > Run in Task Sscheduler Library
+# Ensure the new account has local admin rights on all target systems (usually via GPO).
+# Review the results in the Windows Task Scheduler, History tab
 
-$MSAName = "svcMSA-Meerkat"
+$MSAName = "svcMSA-Name"
 $Server = "ServerName"
-$ScriptName = "C:\Meerkat-Task.ps1"
+$ScriptName = "C:\Program Files\WindowsPowerShell\Modules\Meerkat\Utilities\Meerkat-Daily-Task.ps1"
 $AtTime = "1/30/2023 2:00:00 AM"
 
 # Create the MSA
-
+$Identity = Get-ADComputer -identity $Server
 try {
-    Test-ADServiceAccount -Identity $MSAName
+    Get-ADServiceAccount -Identity $MSAName
     $MSAExists = $true
 }
 catch {
     $MSAExists = $false
+}
+
+try {
+    Test-ADServiceAccount -Identity $MSAName
+    $MSAInstalled = $true
+}
+catch {
+    $MSAInstalled = $false
 }
 
 if(-not $MSAExists) {
@@ -33,41 +49,26 @@ if(-not $MSAExists) {
         Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10))
     }
 
-    $Identity = Get-ADComputer -identity $Server
     New-ADServiceAccount -Name $MSAName -Enabled $true -RestrictToSingleComputer -KerberosEncryptionType AES256
+} 
+else { 
+    Write-Information -InformationAction Continue -MessageData ("MSA '{0}' is exists and is installed already, skipping creation." -f $MSAName)
+}
+
+if(-not $MSAInstalled) {
     Add-ADComputerServiceAccount -Identity $Identity -ServiceAccount $MSAName
-    
     Install-ADServiceAccount -Identity ($MSAName + "$")
 }
 
-# Create the Scheduled Task
-    $Identity = Get-ADComputer -identity $Server
-    New-ADServiceAccount -Name $MSAName -Enabled $true -RestrictToSingleComputer -KerberosEncryptionType AES256
-    Add-ADComputerServiceAccount -Identity $Identity -ServiceAccount $MSAName
+$HostServiceAccountBL = (Get-ADServiceAccount $MSAName -Properties msDS-HostServiceAccountBL) | Select-Object msDS-HostServiceAccountBL -ExpandProperty msDS-HostServiceAccountBL
 
-    Install-ADServiceAccount -Identity ($MSAName + "$")
-} else { Write-Information -InformationAction Continue -MessageData ("MSA '{0}' exists already, skipping creation." -f $MSAName) }
+Write-Information -InformationAction Continue -MessageData ("`n Computer accounts with access to {0}:`n `t{1}`n" -f $MSAName, $HostServiceAccountBL)
+
+# Create the Scheduled Task
 
 $Action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -Windowstyle Hidden -File `"$ScriptName`""
-$Trigger = New-ScheduledTaskTrigger -Once -At $AtTime -RepetitionDuration (New-TimeSpan -Days (365 * 20)) -RepetitionInterval (New-TimeSpan -Minutes 60)
+$Trigger = New-ScheduledTaskTrigger -Daily -At $AtTime
+$Settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit "23:55:00"
 $Principal = New-ScheduledTaskPrincipal -UserId ($MSAName + "$") -RunLevel Highest -LogonType Password
 
-Register-ScheduledTask -Action $Action -Trigger $Trigger -Principal $Principal -TaskName "Meerkat Collection" -Description "https://github.com/TonyPhipps/Meerkat"
-
-<#
-Meerkat-Task.ps1 would contain something like:
-
-    #Set-ExecutionPolicy -ExecutionPolicy Bypass
-    Import-Module "C:\Program Files\WindowsPowerShell\Modules\Meerkat\Meerkat.psm1" -Force
-    $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd")
-    Invoke-Meerkat -Output "D:\Logs\Meerkat\$DateScanned"
-
-    # Get target computers from AD, filtering on Enabled objects
-    #Get-ADComputer -Filter {Enabled -eq $true} | Select-Object Name -ExpandProperty Name | Invoke-REC -Output "D:\Logs\Meerkat\$DateScanned"
-
-    # Get target computers from a curated list stored in a file with one computer name per line.
-    #Get-Item "c:\hosts.txt" | Invoke-Meerkat -Output "D:\Logs\Meerkat\$DateScanned"
-
-    # Purge files older than 30d
-    #Get-ChildItem -Path "D:\Logs\Meerkat\" -Recurse | where {$_.LastWriteTime -le $(Get-Date).AddDays(-30)} | Remove-Item -Recurse -Force
---#>
+Register-ScheduledTask -Action $Action -Trigger $Trigger -Settings $Settings -Principal $Principal -TaskName "Meerkat Daily Collection" -Description "https://github.com/TonyPhipps/Meerkat"
