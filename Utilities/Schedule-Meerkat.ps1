@@ -11,7 +11,7 @@
 
 $MSAName = "svcMSA-Name"
 $Server = "ServerName"
-$ScriptName = "C:\Program Files\WindowsPowerShell\Modules\Meerkat\Utilities\Meerkat-Daily-Task.ps1"
+$ScriptName = "C:\Program Files\WindowsPowerShell\Modules\Meerkat\Utilities\Meerkat-Task.ps1"
 $AtTime = "1/30/2023 2:00:00 AM"
 
 # Create the MSA
