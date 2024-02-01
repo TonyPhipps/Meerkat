@@ -103,6 +103,54 @@ If your system does not automatically load modules in your user [profile](https:
 Import-Module C:\Program Files\WindowsPowerShell\Modules\Meerkat\Meerkat.psm1
 ```
 
+It is recommended that the following approach be taken to assist in locating where the actual issue resides.
+
+#### TEST 1 – DOES MEERKAT WORK LOCALLY?
+- Test Meerkat against the local system
+  - Invoke-Meerkat
+
+#### TEST 2 – DOES REMOTE SCANNING WORK?
+Note: Perform this test with an account that has local admin rights on the target system.
+
+- Test Meerkat against a remote Windows system
+  - Invoke-Meerkat -Computer RemoteName
+
+#### TEST 3 – CAN YOU CREATE THE SCHEDULE TASK AND MSA?
+- Remove any existing Scheduled Tasks related to Meerkat
+- Remove any MSA’s related to Meerkat
+- Configure the Schedule-Meerkat-Daily.ps1 file, then run it.
+
+#### TEST 4 – DOES MEERKAT-DAILY-TASK.PS1 WORK?
+Note: Perform this test with an account that has local admin rights on the target system.
+
+- Configure the Meerkat-Daily-Task.ps1 file with #Option 1 (local host)
+- Run the script manually.
+
+#### TEST 5 – DOES THE SCHEDULED TASK AND THE MSA WORK?
+- Run the Meerkat-Daily-Task.ps1 script via Scheduled Tasks.
+
+If this fails:
+- Ensure WinRM is enabled on remote host
+- Ensure the MSA has local admin rights on remote host
+
+#### TEST 6 – DOES THE MEERKAT-DAILY-TASK.PS1 WORK REMOTELY?
+- Configure the Meerkat-Daily-Task.ps1 file with #Option 4 (remote host, Daily)
+  - Specify a remote host in hosts.txt
+  - Run the script manually with an account with local admin on the remote system.
+
+#### TEST 7 – DOES THE MSA HAVE PROPER PERMISSIONS ON REMOTE HOSTS?
+- Configure the Meerkat-Daily-Task.ps1 file with #Option 4 (remote host, Daily)
+  - Specify a remote host in hosts.txt
+  - Run the Meerkat-Daily-Task.ps1 script via Scheduled Tasks.
+
+#### TEST 8 – DOES EVERYTHING NOW WORK?
+- Configure the Meerkat-Daily-Task.ps1 file with #Option 2 (fully automated domain scan)
+  - Run the script manually with an account with local admin on the remote system.
+  - Run the Meerkat-Daily-Task.ps1 script via Scheduled Tasks.
+
+
+
+
 ## Adding a New Module
 - Create the new .psm1 file, preferrably from copying an existing module with similar enough logic and using it as a starting point.
   - Update the module name
