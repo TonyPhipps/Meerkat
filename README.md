@@ -118,35 +118,35 @@ Note: Perform this test with an account that has local admin rights on the targe
 #### TEST 3 – CAN YOU CREATE THE SCHEDULE TASK AND MSA?
 - Remove any existing Scheduled Tasks related to Meerkat
 - Remove any MSA’s related to Meerkat
-- Configure the Schedule-Meerkat-Daily.ps1 file, then run it.
+- Configure the Schedule-Meerkat.ps1 file, then run it.
 
-#### TEST 4 – DOES MEERKAT-DAILY-TASK.PS1 WORK?
+#### TEST 4 – DOES MEERKAT-TASK.PS1 WORK?
 Note: Perform this test with an account that has local admin rights on the target system.
 
-- Configure the Meerkat-Daily-Task.ps1 file with #Option 1 (local host)
+- Configure the Meerkat-Task.ps1 file with # OPTION 1 (local host)
 - Run the script manually.
 
 #### TEST 5 – DOES THE SCHEDULED TASK AND THE MSA WORK?
-- Run the Meerkat-Daily-Task.ps1 script via Scheduled Tasks.
+- Run the Meerkat-Task.ps1 script via Scheduled Tasks.
 
 If this fails:
 - Ensure WinRM is enabled on remote host
 - Ensure the MSA has local admin rights on remote host
 
-#### TEST 6 – DOES THE MEERKAT-DAILY-TASK.PS1 WORK REMOTELY?
-- Configure the Meerkat-Daily-Task.ps1 file with #Option 4 (remote host, Daily)
+#### TEST 6 – DOES THE MEERKAT-TASK.PS1 WORK REMOTELY?
+- Configure the Meerkat-Daily-Task.ps1 file with # OPTION 3 (remote host, Daily)
   - Specify a remote host in hosts.txt
   - Run the script manually with an account with local admin on the remote system.
 
 #### TEST 7 – DOES THE MSA HAVE PROPER PERMISSIONS ON REMOTE HOSTS?
-- Configure the Meerkat-Daily-Task.ps1 file with #Option 4 (remote host, Daily)
+- Configure the Meerkat-Task.ps1 file with # OPTION 3 (remote host, Daily)
   - Specify a remote host in hosts.txt
-  - Run the Meerkat-Daily-Task.ps1 script via Scheduled Tasks.
+  - Run the Meerkat-Task.ps1 script via Scheduled Tasks.
 
 #### TEST 8 – DOES EVERYTHING NOW WORK?
-- Configure the Meerkat-Daily-Task.ps1 file with #Option 2 (fully automated domain scan)
+- Configure the Meerkat-Task.ps1 file with # OPTION 2 (fully automated domain scan)
   - Run the script manually with an account with local admin on the remote system.
-  - Run the Meerkat-Daily-Task.ps1 script via Scheduled Tasks.
+  - Run the Meerkat-Task.ps1 script via Scheduled Tasks.
 
 
 
