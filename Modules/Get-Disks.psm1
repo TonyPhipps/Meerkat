@@ -72,8 +72,12 @@
             foreach ($Result in $ResultsArray) {
 
                 $Used = $Result.Size - $Result.FreeSpace
-                $PercentUsed = $Used / $Result.Size * 100
-                $PercentUsed = [math]::round($PercentUsed,2)
+                if ($Result.size -eq 0){
+                    $PercentUsed = 0   
+                } else {
+                    $PercentUsed = $Used / $Result.Size * 100
+                    $PercentUsed = [math]::round($PercentUsed, 2)   
+                }
 
                 $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
                 $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
