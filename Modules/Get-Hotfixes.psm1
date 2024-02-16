@@ -87,7 +87,7 @@ function Get-Hotfixes {
         
         $FilteredHotFixesArray = $HotfixesArray | Where-Object { $_.HotFixID -notin $MatchingHotFixIDs }
 
-        $ResultsArray = $UpdatesArray + $FilteredHotFixesArray
+        $ResultsArray = @() + $UpdatesArray + $FilteredHotFixesArray
 
         foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
