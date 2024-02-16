@@ -27,12 +27,12 @@
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2024-02-16
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
