@@ -23,11 +23,11 @@ Function Get-DomainInfo {
             Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_DomainInfo.csv")
         }
     .NOTES
-        Updated: 2023-08-18
+        Updated: 2024-02-16
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -108,7 +108,9 @@ Function Get-DomainInfo {
 
         foreach ($Result in $ResultsArray){
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name "DCDiagDNSConnectivity" -Value $Result.'DCDiagDNS-Connectivity'
+            $Result | Add-Member -MemberType NoteProperty -Name "DCDiagDNSDNS" -Value $Result.'DCDiagDNS-DNS'
         }
 
 
