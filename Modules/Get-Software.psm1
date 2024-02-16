@@ -98,7 +98,7 @@
                 [GC]::Collect()
                 [GC]::WaitForPendingFinalizers()
                     
-                REG UNLOAD HKU\temp
+                REG UNLOAD HKU\temp *> $null
 
             } else {
                 Write-Warning "Unable to access registry hive at $Hive"
