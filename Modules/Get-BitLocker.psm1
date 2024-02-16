@@ -24,13 +24,13 @@ function Get-BitLocker {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2024-02-16
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -59,6 +59,12 @@ function Get-BitLocker {
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
+
+        $BitLockerCmdlet = Get-Command 'Get-BitLockerVolume' -ErrorAction SilentlyContinue
+        if ($null -eq $BitLockerCmdlet){
+            Write-Information -InformationAction Continue -MessageData ("`tHost has no BitLocker Volumes. Stopping collection of this module.")
+            continue
+        }
     }
 
     process{
