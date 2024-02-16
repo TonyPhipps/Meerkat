@@ -179,8 +179,7 @@ function Get-RegistryMRU {
                 
                 ### Garbage collection and closing of ntuser.dat ###
                 [gc]::Collect()
-                try{reg unload HKU\$($User.SID) > nul 2> nul}
-                catch{}
+                reg unload HKU\$($User.SID) *> $null
             }
         }
         
