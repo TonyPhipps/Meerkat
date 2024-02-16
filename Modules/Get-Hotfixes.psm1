@@ -23,12 +23,12 @@ function Get-Hotfixes {
         }
 
     .NOTES 
-        Updated: 2023-08-18
+        Updated: 2024-02-16
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -64,15 +64,38 @@ function Get-Hotfixes {
         $Session = New-Object -ComObject "Microsoft.Update.Session"
         $Searcher = $Session.CreateUpdateSearcher()
         $historyCount = $Searcher.GetTotalHistoryCount()
-
-        $ResultsArray = $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null
+        $UpdatesArray = $Searcher.QueryHistory(0, $historyCount) | Where-Object Title -ne $null
         
+        $HotfixesArray = Get-Hotfix
+        
+        foreach ($Hotfix in $HotfixesArray) {
+            $Hotfix | Add-Member -MemberType NoteProperty -Name "Date" -Value $Hotfix.InstalledOn
+            $Hotfix | Add-Member -MemberType NoteProperty -Name "Title" -Value $Hotfix.HotFixID
+            $Hotfix | Add-Member -MemberType NoteProperty -Name "SupportUrl" -Value $Hotfix.Caption
+        }
+
+        foreach ($Update in $UpdatesArray){
+            $pattern = "(KB\d+)"
+
+            if ($Update.Title -match $pattern) {
+                $HotFixID = $matches[1]
+                $Update | Add-Member -MemberType NoteProperty -Name "HotFixID" -Value $HotFixID
+            }
+        }
+
+        $MatchingHotFixIDs = (Compare-Object $UpdatesArray $HotfixesArray -Property "HotFixID" -IncludeEqual -ExcludeDifferent -PassThru).HotFixID
+        
+        $FilteredHotFixesArray = $HotfixesArray | Where-Object { $_.HotFixID -notin $MatchingHotFixIDs }
+
+        $ResultsArray = $UpdatesArray + $FilteredHotFixesArray
+
         foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
         }
         
-        return $ResultsArray | Select-Object Host, DateScanned, Operation, ResultCode, HResult, Date, Title, Description, UnmappedResultCode, ClientApplicationID, ServerSelection, ServiceID, UninstallationNotes, SupportUrl
+        return $ResultsArray | Select-Object Host, DateScanned, Operation, ResultCode, HResult, Date, HotFixID, Title, Description, UnmappedResultCode, ClientApplicationID, ServerSelection, ServiceID, UninstallationNotes, SupportUrl, InstalledBy
 
     }
 
