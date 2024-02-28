@@ -2,7 +2,7 @@
 ![Meerkat Logo](https://i.imgur.com/7gHUYBh.png)
 
 
-Meerkat is collection of PowerShell modules designed for artifact gathering and reconnaisance of Windows-based endpoints without requiring a pre-deployed agent. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
+Meerkat is collection of PowerShell modules designed for artifact gathering and reconnaissance of Windows-based endpoints without requiring a pre-deployed agent. Use cases include incident response triage, threat hunting, baseline monitoring, snapshot comparisons, and more.
 
 # Artifacts
 |    [Host Info](https://github.com/TonyPhipps/Meerkat/wiki/Computer)    |                       Net Adapters                        | [Processes](https://github.com/TonyPhipps/Meerkat/wiki/Processes)* |       [Services](https://github.com/TonyPhipps/Meerkat/wiki/Services)        |        [Files](https://github.com/TonyPhipps/Meerkat/wiki/Files)        |
