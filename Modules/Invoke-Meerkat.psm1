@@ -8,7 +8,7 @@ function Invoke-Meerkat {
 
         Invoke-Meerkat takes advantage of the `export-csv` cmdlet in this way by exporting ALL enabled modules to csv. The basic syntax is `Invoke-Meerkat -Computer [Computername] -Modules [Module1, Module2, etc.]` (details via `get-help Invoke-Meerkat -Full`).
 
-        When running a single function against a single endpoint, the typical sytnax is 'Get-[ModuleName] -Computer [ComputerName]', which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, 'Get-[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -notypeinformation' will utilize PowerShell's built-in csv export function (details via 'get-help Get-[function] -Full').
+        When running a single function against a single endpoint, the typical sytnax is 'Get-[ModuleName] -Computer [ComputerName]', which returns objects relevant to the function called. All modules support the pipeline, which means results can be exported. For example, 'Get-[ModuleName] -Computer [ComputerName] | export-csv "c:\temp\results.csv" -NoTypeInformation -Encoding UTF8' will utilize PowerShell's built-in csv export function (details via 'get-help Get-[function] -Full').
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
@@ -190,7 +190,7 @@ function Invoke-Meerkat {
                 foreach ($Module in $Modules){
                     try{
                         & ("Get-" + $Module) |
-                            Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                            Export-Csv -NoTypeInformation -Encoding UTF8 -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
                     }
                     catch{}
                 }
@@ -205,7 +205,7 @@ function Invoke-Meerkat {
                         try {
                             Invoke-Command -ComputerName $Computer -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
                             Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
-                            Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                            Export-Csv -NoTypeInformation -Encoding UTF8 -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
                         }
                         catch{}
                     }
@@ -221,7 +221,7 @@ function Invoke-Meerkat {
                             try{
                                 Invoke-Command -ComputerName $Computer -Credential $cred -SessionOption (New-PSSessionOption -NoMachineProfile) -ScriptBlock $ModuleCommandArray.$Module[0] -ArgumentList $ModuleCommandArray.$Module[1] | 
                                 Select-Object -Property * -ExcludeProperty PSComputerName, RunspaceID, PSShowComputerName | 
-                                Export-Csv -NoTypeInformation -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                                Export-Csv -NoTypeInformation -Encoding UTF8 -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
                             }
                             catch{}
                         }
