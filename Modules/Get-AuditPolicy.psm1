@@ -28,12 +28,12 @@ function Get-AuditPolicy {
         }
 
     .NOTES 
-        Updated: 2023-10-27
+        Updated: 2024-03-27
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2023
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -77,7 +77,7 @@ function Get-AuditPolicy {
         }
 
         return $ResultsArray | 
-            Select-Object Host, DateScanned, ModuleVersion, "Subcategory", "Subcategory GUID", "Inclusion Setting", "Exclusion Setting" | 
+            Select-Object Host, DateScanned, "Subcategory", "Subcategory GUID", "Inclusion Setting", "Exclusion Setting" | 
                 Group-Object Host, DateScanned | Foreach-Object {
                     $hash = [ordered]@{
                         Host = ($_.Name -Split', ')[0]

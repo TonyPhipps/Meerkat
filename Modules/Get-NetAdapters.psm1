@@ -23,13 +23,13 @@ function Get-NetAdapters {
         }
 
     .NOTES 
-        Updated: 2023-11-02
+        Updated: 2024-03-27
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2023
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -77,7 +77,6 @@ function Get-NetAdapters {
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
             $Result | Add-Member -MemberType NoteProperty -Name IPAddress -Value ($AdapterConfig.IPAddress -join ", ")
             $Result | Add-Member -MemberType NoteProperty -Name IPsubnet -Value ($AdapterConfig.IPsubnet -join ", ")
             $Result | Add-Member -MemberType NoteProperty -Name DefaultIPGateway -Value ($AdapterConfig.DefaultIPGateway -join ", ")

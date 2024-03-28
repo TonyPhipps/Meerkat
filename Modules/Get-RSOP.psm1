@@ -24,12 +24,12 @@ function Get-RSOP {
         }
 
     .NOTES 
-        Updated: 2023-10-25
+        Updated: 2024-03-27
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2023
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -73,8 +73,7 @@ function Get-RSOP {
 
         foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
-            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
 
         return $ResultsArray | 

@@ -88,12 +88,15 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks", "DomainInfo", "DLLs", "DNS", "Drivers", "EnvVars", 
-            "EventLogs", "EventLogsMetadata", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventsLoginFailures", "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", "Processes", "RecycleBin", 
-            "Registry", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPMDetails", "USBHistory", "WindowsFirewall")]
-        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "RegistryPersistence", "ComputerDetails", "Disks", "DNS", "Drivers", "EnvVars", "EventsLoginFailures", "EventLogsMetadata", 
-        "LocalGroups", "LocalUsers", "Hosts", "Hotfixes", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections",  "Registry", "ScheduledTasks", "Services", 
-        "Sessions", "Shares", "Software", "TPMDetails", "Processes", "RecycleBin", "DLLs", "USBHistory", "WindowsFirewall")
+        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks",
+        "DomainInfo", "DLLs", "DNS", "Drivers", "EnvVars", "EventLogs", "EventsLoginFailures", "EventLogsMetadata", "EventsUserManagement", 
+        "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventCounts", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", 
+        "Processes", "RecycleBin", "Registry", "RegistryPersistence", "RSOP", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", 
+        "Strings", "TPMDetails", "USBHistory", "WindowsFirewall")]
+        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "ComputerDetails", "Connections", "Disks", "DLLs", "DNS", "Drivers", 
+        "EventCounts", "EnvVars", "EventsLoginFailures", "EventLogsMetadata", "Hosts", "Hotfixes", "LocalGroups", "LocalUsers", "NetAdapters", 
+        "NetRoutes", "Processes", "RecycleBin", "Registry", "RegistryMRU", "RegistryPersistence", "RSOP", "ScheduledTasks", "Services", 
+        "Sessions", "Shares", "Software", "TPMDetails", "USBHistory", "WindowsFirewall")
     )
 
     begin{
@@ -105,28 +108,34 @@ function Invoke-Meerkat {
             Autoruns = ${Function:Get-Autoruns}
             BitLocker = ${Function:Get-BitLocker}
             Certificates = ${Function:Get-Certificates}
-            RegistryPersistence = ${Function:Get-RegistryPersistence}
             ComputerDetails = ${Function:Get-ComputerDetails}
+            Connections = ${Function:Get-Connections}
             Defender = ${Function:Get-Defender}
             Disks = ${Function:Get-Disks}
             DLLs = ${Function:Get-DLLs}
             DNS = ${Function:Get-DNS}
             DomainInfo = ${Function:Get-DomainInfo}
             Drivers = ${Function:Get-Drivers}
-            EventLogsMetadata = ${Function:Get-EventLogsMetadata}
             EnvVars = ${Function:Get-EnvVars}
-            LocalUsers = ${Function:Get-LocalUsers}
-            LocalGroups = ${Function:Get-LocalGroups}
+            EventCounts = ${Function:Get-EventCounts}
+            EventLogsMetadata = ${Function:Get-EventLogsMetadata}
+            EventLogs = ${Function:Get-EventLogs}
+            EventsLoginFailures = ${Function:Get-EventsLoginFailures}
+            EventsUserManagement = ${Function:Get-EventsUserManagement}
             Hardware = ${Function:Get-Hardware}
             Hosts = ${Function:Get-Hosts}
             Hotfixes = ${Function:Get-Hotfixes}
-            EventsLoginFailures = ${Function:Get-EventsLoginFailures}
-            EventsUserManagement = ${Function:Get-EventsUserManagement}
-            RegistryMRU = ${Function:Get-RegistryMRU}
+            LocalUsers = ${Function:Get-LocalUsers}
+            LocalGroups = ${Function:Get-LocalGroups}
+            MAC = ${Function:Get-MAC}
             NetAdapters = ${Function:Get-NetAdapters}
-            NetRoutes = ${Function:Get-NetRoutes}
-            Connections = ${Function:Get-Connections}
+            NetRoutes = ${Function:Get-NetRoutes}           
+            Processes = ${Function:Get-Processes}
+            RecycleBin = ${Function:Get-RecycleBin}
             Registry = ${Function:Get-Registry}
+            RegistryMRU = ${Function:Get-RegistryMRU}
+            RegistryPersistence = ${Function:Get-RegistryPersistence}
+            RSOP = ${Function:Get-RSOP}
             ScheduledTasks = ${Function:Get-ScheduledTasks}
             Services = ${Function:Get-Services}
             Sessions = ${Function:Get-Sessions}
@@ -134,21 +143,17 @@ function Invoke-Meerkat {
             Software = ${Function:Get-Software}
             Strings = ${Function:Get-Strings}
             TPMDetails = ${Function:Get-TPMDetails}
-            MAC = ${Function:Get-MAC}
-            Processes = ${Function:Get-Processes}
-            RecycleBin = ${Function:Get-RecycleBin}
-            EventLogs = ${Function:Get-EventLogs}
             USBHistory = ${Function:Get-USBHistory}
             WindowsFirewall = ${Function:Get-WindowsFirewall}
         }
 
         if ($All) {
 
-            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Defender", 
-            "Disks", "DLLs", "DomainInfo", "DNS", "Drivers", "EventLogsMetadata", "EnvVars", "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes",
-            "EventsLoginFailures", "EventsUserManagement", "RegistryMRU", "NetAdapters", "NetRoutes", "Connections", "Registry", "RegistryPersistence", 
-            "ScheduledTasks", "Services", "Sessions", "Shares", "Software", "Strings", "TPMDetails", "MAC", "Processes", "RecycleBin", "DLLs", "EventLogs", "USBHistory", 
-            "WindowsFirewall")
+            [array]$Modules = ("ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender",
+            "Disks", "DLLs", "DomainInfo", "DNS", "Drivers", "EnvVars", "EventCounts", "EventLogs", "EventsLoginFailures", "EventLogsMetadata", 
+            "EventsUserManagement", "Hardware", "Hosts", "Hotfixes", "LocalGroups", "LocalUsers", "MAC", "NetAdapters", "NetRoutes", "Processes",
+            "RecycleBin", "Registry", "RegistryMRU", "RegistryPersistence", "RSOP", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", 
+            "Strings", "TPMDetails", "USBHistory", "WindowsFirewall")
         }
 
         if ($Quick) {
@@ -190,7 +195,7 @@ function Invoke-Meerkat {
                 foreach ($Module in $Modules){
                     try{
                         & ("Get-" + $Module) |
-                            Export-Csv -NoTypeInformation -Encoding UTF8 -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
+                        Export-Csv -NoTypeInformation -Encoding UTF8 -Path ($Output + $Computer + "_" + $DateScannedFolder + "_" + $Module + ".csv")
                     }
                     catch{}
                 }

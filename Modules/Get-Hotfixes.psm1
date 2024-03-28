@@ -23,7 +23,7 @@ function Get-Hotfixes {
         }
 
     .NOTES 
-        Updated: 2024-02-16
+        Updated: 2024-03-27
 
         Contributing Authors:
             Anthony Phipps
@@ -91,8 +91,7 @@ function Get-Hotfixes {
 
         foreach ($Result in $ResultsArray) {
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
-            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
         
         return $ResultsArray | Select-Object Host, DateScanned, Operation, ResultCode, HResult, Date, HotFixID, Title, Description, UnmappedResultCode, ClientApplicationID, ServerSelection, ServiceID, UninstallationNotes, SupportUrl, InstalledBy

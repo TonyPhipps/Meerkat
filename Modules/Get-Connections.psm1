@@ -20,13 +20,13 @@
         }
 
     .NOTES
-        Updated: 2023-10-23
+        Updated: 2024-03-27
 
         Contributing Authors:
             Jeremy Arnold
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2023
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -78,10 +78,9 @@
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
-            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, ModuleVersion, LocalAddress, LocalPort, 
+        return $ResultsArray | Select-Object Host, DateScanned, LocalAddress, LocalPort, 
         RemoteAddress, RemotePort, State, AppliedSetting, Protocol, OwningProcess, Path
     }
 
