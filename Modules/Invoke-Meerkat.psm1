@@ -44,12 +44,12 @@ function Invoke-Meerkat {
         Invoke-Meerkat -Quick -Output .\Results\
 
     .NOTES 
-        Updated: 2023-10-18
+        Updated: 2024-03-29
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2023
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -88,15 +88,15 @@ function Invoke-Meerkat {
 
         [Parameter()]
         [alias("M", "Mod")]
-        [ValidateSet( "ADS", "ARP", "Autoruns", "AuditPolicy", "BitLocker", "Certificates", "ComputerDetails", "Connections", "Defender", "Disks",
-        "DomainInfo", "DLLs", "DNS", "Drivers", "EnvVars", "EventLogs", "EventsLoginFailures", "EventLogsMetadata", "EventsUserManagement", 
-        "LocalGroups", "LocalUsers", "Hardware", "Hosts", "Hotfixes", "EventCounts", "RegistryMRU", "MAC", "NetAdapters", "NetRoutes", 
-        "Processes", "RecycleBin", "Registry", "RegistryPersistence", "RSOP", "ScheduledTasks", "Services", "Sessions", "Shares", "Software", 
-        "Strings", "TPMDetails", "USBHistory", "WindowsFirewall")]
-        [array]$Modules = ("ARP", "Autoruns", "AuditPolicy", "BitLocker", "ComputerDetails", "Connections", "Disks", "DLLs", "DNS", "Drivers", 
-        "EventCounts", "EnvVars", "EventsLoginFailures", "EventLogsMetadata", "Hosts", "Hotfixes", "LocalGroups", "LocalUsers", "NetAdapters", 
-        "NetRoutes", "Processes", "RecycleBin", "Registry", "RegistryMRU", "RegistryPersistence", "RSOP", "ScheduledTasks", "Services", 
-        "Sessions", "Shares", "Software", "TPMDetails", "USBHistory", "WindowsFirewall")
+        [ValidateSet("ADS", "ARP", "AuditPolicy", "Autoruns", "BitLocker", "Certificates", "ComputerDetails", "Connections", "DLLs", "DNS", 
+            "Defender", "Disks","DomainInfo", "Drivers", "EnvVars", "EventCounts", "EventLogs", "EventLogsMetadata", "EventsLoginFailures",
+            "EventsUserManagement", "Hardware", "Hosts", "Hotfixes", "LocalGroups", "LocalUsers", "MAC", "NetAdapters", "NetRoutes", "Processes",
+            "RSOP", "RecycleBin", "Registry", "RegistryMRU", "RegistryPersistence", "ScheduledTasks", "Services", "Sessions", "Shares", "Software",
+            "Strings", "TPMDetails", "USBHistory", "WindowsFirewall")]
+        [array]$Modules = ("ARP", "AuditPolicy", "Autoruns", "BitLocker", "ComputerDetails", "Connections", "DLLs", "DNS", "Disks", "Drivers", 
+            "EnvVars", "EventCounts", "EventLogsMetadata", "EventsLoginFailures", "Hosts", "Hotfixes", "LocalGroups", "LocalUsers", "NetAdapters", 
+            "NetRoutes", "Processes", "RSOP", "RecycleBin", "Registry", "RegistryMRU", "RegistryPersistence", "ScheduledTasks", "Services", 
+            "Sessions", "Shares", "Software", "TPMDetails", "USBHistory", "WindowsFirewall")
     )
 
     begin{
@@ -110,32 +110,32 @@ function Invoke-Meerkat {
             Certificates = ${Function:Get-Certificates}
             ComputerDetails = ${Function:Get-ComputerDetails}
             Connections = ${Function:Get-Connections}
-            Defender = ${Function:Get-Defender}
-            Disks = ${Function:Get-Disks}
             DLLs = ${Function:Get-DLLs}
             DNS = ${Function:Get-DNS}
+            Defender = ${Function:Get-Defender}
+            Disks = ${Function:Get-Disks}
             DomainInfo = ${Function:Get-DomainInfo}
             Drivers = ${Function:Get-Drivers}
             EnvVars = ${Function:Get-EnvVars}
             EventCounts = ${Function:Get-EventCounts}
-            EventLogsMetadata = ${Function:Get-EventLogsMetadata}
             EventLogs = ${Function:Get-EventLogs}
+            EventLogsMetadata = ${Function:Get-EventLogsMetadata}
             EventsLoginFailures = ${Function:Get-EventsLoginFailures}
             EventsUserManagement = ${Function:Get-EventsUserManagement}
             Hardware = ${Function:Get-Hardware}
             Hosts = ${Function:Get-Hosts}
             Hotfixes = ${Function:Get-Hotfixes}
-            LocalUsers = ${Function:Get-LocalUsers}
             LocalGroups = ${Function:Get-LocalGroups}
+            LocalUsers = ${Function:Get-LocalUsers}
             MAC = ${Function:Get-MAC}
             NetAdapters = ${Function:Get-NetAdapters}
             NetRoutes = ${Function:Get-NetRoutes}           
             Processes = ${Function:Get-Processes}
+            RSOP = ${Function:Get-RSOP}
             RecycleBin = ${Function:Get-RecycleBin}
             Registry = ${Function:Get-Registry}
             RegistryMRU = ${Function:Get-RegistryMRU}
             RegistryPersistence = ${Function:Get-RegistryPersistence}
-            RSOP = ${Function:Get-RSOP}
             ScheduledTasks = ${Function:Get-ScheduledTasks}
             Services = ${Function:Get-Services}
             Sessions = ${Function:Get-Sessions}
