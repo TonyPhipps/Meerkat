@@ -23,7 +23,7 @@ Function Get-DomainInfo {
             Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_DomainInfo.csv")
         }
     .NOTES
-        Updated: 2024-02-16
+        Updated: 2024-03-29
         Contributing Authors:
             Anthony Phipps, Jack Smith
             
@@ -89,7 +89,7 @@ Function Get-DomainInfo {
         }  
 
         $DCDiag = dcdiag /s:$env:COMPUTERNAME
-        $DCDiag | select-string -pattern '\. (.*) \b(passed|failed)\b test (.*)' | foreach {
+        $DCDiag | select-string -pattern '\. (.*) \b(passed|failed)\b test (.*)' | ForEach-Object {
             $output = [pscustomobject] @{
                 TestName = $_.Matches.Groups[3].Value
                 TestResult = $_.Matches.Groups[2].Value
@@ -98,7 +98,7 @@ Function Get-DomainInfo {
         }
 
         $DCDiagDNS = dcdiag /test:dns
-        $DCDiagDNS | select-string -pattern '\. (.*) \b(passed|failed)\b test (.*)' | foreach {
+        $DCDiagDNS | select-string -pattern '\. (.*) \b(passed|failed)\b test (.*)' | ForEach-Object {
             $dnsoutput = [pscustomobject] @{
                 TestName = $_.Matches.Groups[3].Value
                 TestResult = $_.Matches.Groups[2].Value
@@ -114,13 +114,12 @@ Function Get-DomainInfo {
         }
 
 
-        return $ResultsArray | Select-Object Host, DateScanned, DomainNamingMaster, SchemaMaster, InfrastructureMaster, RIDMaster, 
-            PDCEmulator, DomainMode, ForestMode, objectVersion, LastReplicationSuccess, LastReplicationAttempt, ScheduledSync, 
-            SyncOnStartup, Connectivity, Advertising, FrsEvent, DFSREvent, SysVolCheck, KccEvent, 
-            KnowsOfRoleHolders, MachineAccount, NCSecDesc, NetLogons, ObjectsReplicated, Replications, RidManager, Services, 
-            SystemLog, VerifyReferences, DCDiagDNS-Connectivity, DCDiagDNS-DNS, ComplexityEnabled, ReversibleEncryptionEnabled, DistinguishedName, objectClass, 
-            objectGuid, LockoutDuration, LockoutObservationWindow, MaxPasswordAge, MinPasswordAge, LockoutThreshold, 
-            MinPasswordLength, PasswordHistoryCount
+        return $ResultsArray | Select-Object Host, DateScanned, DomainNamingMaster, SchemaMaster, InfrastructureMaster, RIDMaster, PDCEmulator, 
+            DomainMode, ForestMode, objectVersion, LastReplicationSuccess, LastReplicationAttempt, ScheduledSync, SyncOnStartup, Connectivity, 
+            Advertising, FrsEvent, DFSREvent, SysVolCheck, KccEvent, KnowsOfRoleHolders, MachineAccount, NCSecDesc, NetLogons, ObjectsReplicated, 
+            Replications, RidManager, Services, SystemLog, VerifyReferences, DCDiagDNS-Connectivity, DCDiagDNS-DNS, ComplexityEnabled, 
+            ReversibleEncryptionEnabled, DistinguishedName, objectClass, objectGuid, LockoutDuration, LockoutObservationWindow, MaxPasswordAge, 
+            MinPasswordAge, LockoutThreshold, MinPasswordLength, PasswordHistoryCount
     }
 
     end{
