@@ -90,12 +90,11 @@ function Get-EventCounts {
 
         $EventsArray = Foreach ($Log in $Logs){
 
-            Get-WinEvent -FilterHashTable @{ LogName=$Log.LogName; StartTime=$StartTime; EndTime=$EndTime } -ErrorAction SilentlyContinue
+            Get-WinEvent -FilterHashTable @{ LogName=$Log.LogName; StartTime=$StartTime; EndTime=$EndTime } -ErrorAction SilentlyContinue | 
+                Select-Object -Property ContainerLog, Id, ProviderName, LevelDisplayName
         }
 
-        $FilteredEvents = $EventsArray | Select-Object -Property ContainerLog, Id, ProviderName, LevelDisplayName
-
-        $ResultsArray = $FilteredEvents | Group-Object ContainerLog, Id, ProviderName, LevelDisplayName | ForEach-Object {
+        $ResultsArray = $EventsArray | Group-Object ContainerLog, Id, ProviderName, LevelDisplayName | ForEach-Object {
             $Property = $_.name -split ', '
             [pscustomobject] @{
                 ContainerLog = $Property[0]
