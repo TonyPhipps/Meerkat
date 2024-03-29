@@ -159,7 +159,7 @@ function Invoke-Meerkat {
         if ($Quick) {
 
             $Modules = $Modules | 
-            Where-Object { $_ -notin "DomainInfo", "MAC", "Strings" }
+            Where-Object { $_ -notin "EventCounts", "DomainInfo", "MAC", "Strings" }
         }  
 
         $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ")
