@@ -70,7 +70,7 @@ function Get-EventCounts {
     begin{
 
         $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ")
-        Write-Information -InformationAction Continue -MessageData ("Started Get-EventLogs at {0}" -f $DateScanned)
+        Write-Information -InformationAction Continue -MessageData ("Started Get-EventCounts at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
