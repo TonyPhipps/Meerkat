@@ -118,7 +118,7 @@ function Get-Registry {
                 $Key = Split-Path -Path $Key
                 $hasData = (Get-Item $Key -ErrorAction SilentlyContinue)
                     
-                    if ($hasData) {
+                if ($hasData) {
 
                     $output = [pscustomobject] @{
                         Key = $Key.Split(":")[2]
