@@ -9,6 +9,7 @@ Get-ChildItem "..\Modules" -Filter *.psm1 | Select-Object -ExpandProperty FullNa
 }
 
 $manifest = @{
+    ModuleVersion = '2024.4.3'
     RootModule = 'Meerkat.psm1'
     Path = '..\Meerkat.psd1'
     CompatiblePSEditions = @('Desktop','Core')
