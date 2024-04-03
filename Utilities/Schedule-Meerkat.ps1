@@ -6,7 +6,8 @@
 #   Edit $ScriptName to point to the full path to the .ps1 script.
 #   Edit $AtTime to specify when the schedule should start.
 # Verify Task runs by Right Clicking > Run in Task Sscheduler Library
-# Ensure the new account has local admin rights on all target systems (usually via GPO).
+# Ensure the new account has local admin rights on all target systems.
+# Ensure the new account has Logon as a Service and Logon as a Batch Job rights (usually via GPO).
 # Review the results in the Windows Task Scheduler, History tab
 
 $MSAName = "svcMSA-Name"
