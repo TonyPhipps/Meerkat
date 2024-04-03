@@ -23,12 +23,12 @@ function Get-Registry {
         }
 
     .NOTES 
-        Updated: 2023-12-04
+        Updated: 2024-04-03
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2023
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -116,9 +116,8 @@ function Get-Registry {
             else{ # A key and value was given
                 $value = Split-Path -Leaf $Key
                 $Key = Split-Path -Path $Key
-                $hasData = (Get-Item $Key -ErrorAction SilentlyContinue)
                     
-                if ($hasData) {
+                if (Test-Path $Key) {
 
                     $output = [pscustomobject] @{
                         Key = $Key.Split(":")[2]
