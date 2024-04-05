@@ -17,6 +17,14 @@ $AtTime = "1/30/2023 2:00:00 AM"
 
 # Create the MSA
 $Identity = Get-ADComputer -identity $Server
+
+if ($MSAName -notlike '*$'){
+    $MSAIdentity = "$($MSAName)$"
+}
+else {
+	$MSAIdentity = $MSAName
+}
+
 try {
     Get-ADServiceAccount -Identity $MSAName
     $MSAExists = $true
@@ -70,6 +78,6 @@ Write-Information -InformationAction Continue -MessageData ("`n Computer account
 $Action = New-ScheduledTaskAction -Execute "Powershell.exe" -Argument "-ExecutionPolicy Bypass -Windowstyle Hidden -File `"$ScriptName`""
 $Trigger = New-ScheduledTaskTrigger -Daily -At $AtTime
 $Settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit "23:55:00"
-$Principal = New-ScheduledTaskPrincipal -UserId ($MSAName + "$") -RunLevel Highest -LogonType Password
+$Principal = New-ScheduledTaskPrincipal -UserId $MSAIdentity -RunLevel Highest -LogonType Password
 
 Register-ScheduledTask -Action $Action -Trigger $Trigger -Settings $Settings -Principal $Principal -TaskName "Meerkat Daily Collection" -Description "https://github.com/TonyPhipps/Meerkat"
