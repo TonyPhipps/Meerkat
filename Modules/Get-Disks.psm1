@@ -27,7 +27,7 @@
         }
 
     .NOTES 
-        Updated: 2024-02-16
+        Updated: 2024-04-15
 
         Contributing Authors:
             Anthony Phipps
@@ -72,7 +72,7 @@
             foreach ($Result in $ResultsArray) {
 
                 $Used = $Result.Size - $Result.FreeSpace
-                if ($Result.size -eq 0){
+                if (($Result.size -eq 0) -or ($null -eq $Result.size)) {
                     $PercentUsed = 0   
                 } else {
                     $PercentUsed = $Used / $Result.Size * 100
