@@ -28,7 +28,7 @@ function Get-AuditPolicy {
         }
 
     .NOTES 
-        Updated: 2024-03-27
+        Updated: 2024-04-15
 
         Contributing Authors:
             Anthony Phipps
@@ -66,6 +66,7 @@ function Get-AuditPolicy {
 
     process{
 
+        $IdleLockoutTime = (Get-ItemPropertyValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "InactivityTimeoutSecs" -ErrorAction SilentlyContinue)/60
             
         $ResultsArray = auditpol.exe /get /category:* /r | ConvertFrom-Csv |
         Select-Object -Property "Subcategory", "Subcategory GUID", "Inclusion Setting", "Exclusion Setting"
@@ -79,9 +80,10 @@ function Get-AuditPolicy {
         return $ResultsArray | 
             Select-Object Host, DateScanned, "Subcategory", "Subcategory GUID", "Inclusion Setting", "Exclusion Setting" | 
                 Group-Object Host, DateScanned | Foreach-Object {
-                    $hash = [ordered]@{
+                    $hash = [Ordered]@{
                         Host = ($_.Name -Split', ')[0]
                         DateScanned = ($_.Name -Split', ')[1]
+                        IdleLockoutTime = $IdleLockoutTime
                     }
                     
                     $_.Group | Foreach-Object {
