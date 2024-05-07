@@ -24,12 +24,12 @@ Function Get-ComputerDetails {
         }
 
     .NOTES
-        Updated: 2023-08-18
+        Updated: 2024-05-07
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2022
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -116,6 +116,7 @@ Function Get-ComputerDetails {
             $Result | Add-Member -MemberType NoteProperty -Name LicenseType -Value ($SoftwareLicensingProduct.Description).Split(",")[1].Trim()
             $Result | Add-Member -MemberType NoteProperty -Name LicenseStatus -Value ([LicenseStatus]$SoftwareLicensingProduct.LicenseStatus).ToString()
             $Result | Add-Member -MemberType NoteProperty -Name BIOSInstallDate -Value $Win32_BIOS.InstallDate -ErrorAction SilentlyContinue # Resolves InstallDate conflict with Win32_OperatingSystem
+            $Result | Add-Member -MemberType NoteProperty -Name BIOSManufacturer -Value $Win32_BIOS.Manufacturer -ErrorAction SilentlyContinue # Resolves Manufacturer conflict with Win32_ComputerSystem
             
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
