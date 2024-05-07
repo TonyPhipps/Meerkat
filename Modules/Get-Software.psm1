@@ -64,9 +64,7 @@
         $pathAllUser = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*"
         $pathAllUser32 = "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
             
-        $SystemResultsArray = Get-ItemProperty -Path $pathAllUser, $pathAllUser32 |
-            Where-Object DisplayName -ne $null | Select-Object Publisher, DisplayName, DisplayVersion, InstallDate, 
-            InstallSource, InstallLocation, PSChildName, HelpLink
+        $SystemResultsArray = Get-ItemProperty -Path $pathAllUser, $pathAllUser32 | Where-Object DisplayName -ne $null
 
         $UsersResultsArray = @()
         $32BitPath = "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
@@ -89,7 +87,7 @@
 
             if (Test-Path $Hive) {
                     
-                REG LOAD HKU\temp $Hive
+                REG LOAD HKU\temp $Hive > $null
 
                 $UsersResultsArray += Get-ItemProperty -Path "Registry::\HKEY_USERS\temp\$32BitPath"
                 $UsersResultsArray += Get-ItemProperty -Path "Registry::\HKEY_USERS\temp\$64BitPath"
@@ -105,19 +103,18 @@
             }
         }
 
-        $UsersResultsArray | Select-Object Publisher, DisplayName, DisplayVersion, InstallDate, 
-        InstallSource, InstallLocation, PSChildName, HelpLink
-
         $ResultsArray = $SystemResultsArray + $UsersResultsArray
 
         foreach ($Result in $ResultsArray) {
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
+            $Result.PSParentPath = ($Result.PSParentPath -Split "::\\")[1]
         }
 
         return $ResultsArray | Select-Object Host, DateScanned, Publisher, DisplayName, DisplayVersion, InstallDate, 
-        InstallSource, InstallLocation, PSChildName, HelpLink
+        InstallSource, InstallLocation, PSChildName, PSParentPath, HelpLink
     }
 
     end{
