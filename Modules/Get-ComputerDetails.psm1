@@ -24,7 +24,7 @@ Function Get-ComputerDetails {
         }
 
     .NOTES
-        Updated: 2024-05-07
+        Updated: 2024-05-15
 
         Contributing Authors:
             Anthony Phipps
@@ -115,8 +115,9 @@ Function Get-ComputerDetails {
             $Result | Add-Member -MemberType NoteProperty -Name USBStorageLock -Value (Get-ItemProperty -Path "HKLM:SYSTEM\CurrentControlSet\Services\USBStor" -Name "Start" -ErrorAction Stop).Start
             $Result | Add-Member -MemberType NoteProperty -Name LicenseType -Value ($SoftwareLicensingProduct.Description).Split(",")[1].Trim()
             $Result | Add-Member -MemberType NoteProperty -Name LicenseStatus -Value ([LicenseStatus]$SoftwareLicensingProduct.LicenseStatus).ToString()
-            $Result | Add-Member -MemberType NoteProperty -Name BIOSInstallDate -Value $Win32_BIOS.InstallDate -ErrorAction SilentlyContinue # Resolves InstallDate conflict with Win32_OperatingSystem
-            $Result | Add-Member -MemberType NoteProperty -Name BIOSManufacturer -Value $Win32_BIOS.Manufacturer -ErrorAction SilentlyContinue # Resolves Manufacturer conflict with Win32_ComputerSystem
+            $Result | Add-Member -MemberType NoteProperty -Name BIOSInstallDate -Value $Win32_BIOS.InstallDate -ErrorAction SilentlyContinue # Resolves conflict with Win32_OperatingSystem
+            $Result | Add-Member -MemberType NoteProperty -Name BIOSManufacturer -Value $Win32_BIOS.Manufacturer -ErrorAction SilentlyContinue # Resolves conflict with Win32_ComputerSystem
+            $Result | Add-Member -MemberType NoteProperty -Name BIOSSerialNumber -Value $Win32_BIOS.SerialNumber -ErrorAction SilentlyContinue # Resolves conflict with Win32_OperatingSystem
             
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
@@ -131,7 +132,7 @@ Function Get-ComputerDetails {
             PrimaryOwnerContact, PrimaryOwnerName, SupportContactDescription, UserName,
             Manufacturer, Model, NetworkServerModeEnabled, HypervisorPresent, SystemSKUNumber, ThermalState, BIOSVersion, BIOSInstallDate, 
             BIOSManufacturer, PrimaryBIOS, BIOSReleaseDate, SMBIOSBIOSVersion, SMBIOSMajorVersion, SMBIOSMinorVersion, 
-            SMBIOSPresent, SerialNumber, SystemBiosMajorVersion, SystemBiosMinorVersion, VirtualizationFirmwareEnabled
+            SMBIOSPresent, BIOSSerialNumber, SystemBiosMajorVersion, SystemBiosMinorVersion, VirtualizationFirmwareEnabled
     }
 
     end{
