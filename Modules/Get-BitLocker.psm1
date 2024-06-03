@@ -24,7 +24,7 @@ function Get-BitLocker {
         }
 
     .NOTES 
-        Updated: 2024-02-16
+        Updated: 2024-06-03
 
         Contributing Authors:
             Jeremy Arnold
@@ -54,7 +54,7 @@ function Get-BitLocker {
 
     begin{
 
-        $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ")
+        $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd HH:mm:ssZ")
         Write-Information -InformationAction Continue -MessageData ("Started Get-BitLocker at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
@@ -87,6 +87,6 @@ function Get-BitLocker {
 
         Write-Verbose ("Started at {0}" -f $DateScanned)
         Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
-        Write-Verbose ("Ended at {0}" -f ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ"))
+        Write-Verbose ("Ended at {0}" -f ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd HH:mm:ssZ"))
     }
 }

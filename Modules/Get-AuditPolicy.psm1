@@ -28,7 +28,7 @@ function Get-AuditPolicy {
         }
 
     .NOTES 
-        Updated: 2024-04-15
+        Updated: 2024-06-03
 
         Contributing Authors:
             Anthony Phipps
@@ -57,7 +57,7 @@ function Get-AuditPolicy {
 
     begin{
 
-        $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ")
+        $DateScanned = ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd HH:mm:ssZ")
         Write-Information -InformationAction Continue -MessageData ("Started Get-AuditPolicy at {0}" -f $DateScanned)
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
@@ -104,6 +104,6 @@ function Get-AuditPolicy {
         $elapsed = $stopwatch.Elapsed
 
         Write-Verbose ("Total time elapsed: {0}" -f $elapsed)
-        Write-Verbose ("Ended at {0}" -f ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd hh:mm:ssZ"))
+        Write-Verbose ("Ended at {0}" -f ((Get-Date).ToUniversalTime()).ToString("yyyy-MM-dd HH:mm:ssZ"))
     }
 }
