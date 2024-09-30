@@ -12,6 +12,11 @@ function Get-Processes {
     .EXAMPLE
         Get-Processes
 
+    .EXAMPLE
+        Get-Processes | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Processes.csv")
+
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Processes} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
@@ -26,12 +31,12 @@ function Get-Processes {
         }
 
     .NOTES 
-        Updated: 2024-06-03
+        Updated: 2024-09-30
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2023
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -75,7 +80,10 @@ function Get-Processes {
             $Services = $CIMServices | Where-Object ProcessID -eq $Process.ID 
             $Services = $Services.PathName -Join "; "
             
-            $CommandLine = $CIMProcesses | Where-Object ProcessID -eq $Process.ID | Select-Object -ExpandProperty CommandLine
+            $CommandLine = $CIMProcesses | Where-Object ProcessId -eq $Process.Id | Select-Object -ExpandProperty CommandLine
+            $ParentId = $CIMProcesses | Where-Object ProcessId -eq $Process.Id | Select-Object -ExpandProperty ParentProcessId
+            $ParentPath = Get-CimInstance -class win32_Process -Filter "ProcessId = '$ParentId'" | Select-Object -ExpandProperty Path
+            $ParentCommandLine = Get-CimInstance -class win32_Process -Filter "ProcessId = '$ParentId'" | Select-Object -ExpandProperty CommandLine
             $PercentProcessorTime = $PerfProcArray | Where-Object IDProcess -eq $Process.ID | Select-Object -ExpandProperty PercentProcessorTime
             $MemoryMB = $PerfProcArray | Where-Object IDProcess -eq $Process.ID | Select-Object -ExpandProperty workingSetPrivate
                 if ($MemoryMB.GetType().Name -eq "UInt64"){
@@ -85,6 +93,9 @@ function Get-Processes {
             $Process | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Process | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
             $Process | Add-Member -MemberType NoteProperty -Name "CommandLine" -Value $CommandLine
+            $Process | Add-Member -MemberType NoteProperty -Name "ParentId" -Value $ParentId
+            $Process | Add-Member -MemberType NoteProperty -Name "ParentPath" -Value $ParentPath
+            $Process | Add-Member -MemberType NoteProperty -Name "ParentCommandLine" -Value $ParentCommandLine
             $Process | Add-Member -MemberType NoteProperty -Name "Services" -Value $Services
             $Process | Add-Member -MemberType NoteProperty -Name "PercentProcessorTime" -Value $PercentProcessorTime
             $Process | Add-Member -MemberType NoteProperty -Name "MemoryMB" -Value $MemoryMB
@@ -92,7 +103,7 @@ function Get-Processes {
             $Process | Add-Member -MemberType NoteProperty -Name "ThreadCount" -Value @($Process.Threads).Count
         }
 
-        return $ProcessArray | Select-Object Host, DateScanned, CommandLine, Services, UserName, PercentProcessorTime, MemoryMB, BasePriority, Id, MainWindowHandle, MainWindowTitle, PriorityBoostEnabled, PriorityClass, PrivateMemorySize, PrivilegedProcessorTime, ProcessName, Responding, SessionId, StartTime, TotalProcessorTime, UserProcessorTime, Company, CPU, Description, FileVersion, Path, Product, ProductVersion, ModuleCount, ThreadCount, HandleCount
+        return $ProcessArray | Select-Object Host, DateScanned, CommandLine, Services, PercentProcessorTime, MemoryMB, BasePriority, Id, MainWindowHandle, MainWindowTitle, PriorityBoostEnabled, PriorityClass, PrivateMemorySize, PrivilegedProcessorTime, ProcessName, Responding, SessionId, StartTime, TotalProcessorTime, UserName, UserProcessorTime, Company, CPU, Description, FileVersion, Path, Product, ProductVersion, ModuleCount, ThreadCount, HandleCount, ParentId, ParentPath, ParentCommandLine
     }
 
     end{
