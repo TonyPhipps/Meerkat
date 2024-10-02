@@ -1,13 +1,18 @@
 function Get-Hotfixes {
     <#
     .SYNOPSIS 
-        Returns all applied hotfixes.
+        Collects information on Microsoft hotfixes and  updates applied to the system.
 
     .DESCRIPTION 
-        Returns all applied hotfixes. Get-Hotfix returns only OS-level hotfixes, this one grabs em all.
+        Collects information on Microsoft hotfixes and  updates applied to the system.
 
     .EXAMPLE 
         Get-Hotfixes
+
+    .EXAMPLE
+        Get-Hotfixes | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Hotfixes.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Hotfixes} | 
