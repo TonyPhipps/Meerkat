@@ -1,13 +1,18 @@
 function Get-Shares {
     <#
     .SYNOPSIS 
-        Gets all shares.
+        Collects information on all existing shares on the system.
 
     .DESCRIPTION 
-        Gets all shares.
+        Collects information on all existing shares on the system.
 
     .EXAMPLE 
         Get-Shares
+
+    .EXAMPLE
+        Get-Shares | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Shares.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Shares} | 
