@@ -1,13 +1,20 @@
 function Get-TPMDetails{
     <#
     .SYNOPSIS 
-        Gets TPM info.
+        Collects information on the Trusted Platform Module (TPM) installed in the system. 
+        Converts ManufacturerId if the ID is in the list of built-in names.
 
     .DESCRIPTION 
-        Gets TPM info. Converts ManufacturerId if the ID is in the list of built-in names.
+        Collects information on the Trusted Platform Module (TPM) installed in the system. 
+        Converts ManufacturerId if the ID is in the list of built-in names.
 
     .EXAMPLE 
         Get-TPMDetails
+
+    .EXAMPLE
+        Get-TPMDetails | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\TPMDetails.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-TPMDetails} | 
