@@ -1,17 +1,18 @@
 function Get-LocalUsers {
     <#
     .SYNOPSIS 
-        Gets a list of local users and additional details.
+        Collects information on all users found on the system.
 
     .DESCRIPTION 
-        Gets a list of local users and additional details.
-
-        Alternative: net.exe user
-        Alternative: net.exe localgroup
-        Alternative: net.exe localgroup administrators
+        Collects information on all users found on the system.
 
     .EXAMPLE 
         Get-LocalUsers
+
+    .EXAMPLE
+        Get-LocalUsers | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\LocalUsers.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-LocalUsers} | 
