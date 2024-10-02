@@ -1,16 +1,21 @@
 ﻿function Get-DNS {
     <#
     .SYNOPSIS 
-        Gets the DNS cache from all connected interfaces.
+        Collects information on the system's DNS cache for all connected newtork interfaces.
 
     .DESCRIPTION 
-        Gets the DNS cache from all connected interfaces.
+        Collects information on the system's DNS cache for all connected newtork interfaces.
 
     .PARAMETER Computer  
         Computer can be a single hostname, FQDN, or IP address.
 
     .EXAMPLE 
         Get-DNS
+
+    .EXAMPLE
+        Get-DNS | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\DNS.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-DNS} | 
