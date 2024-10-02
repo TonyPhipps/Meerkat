@@ -1,10 +1,10 @@
-﻿function Get-Strings {
+function Get-Strings {
     <#
     .SYNOPSIS 
-        Gets a list of strings from the executables tied to each process.
+        Scans the file associated with each running process to detrmine if any strings exist that appear to be an IP address, URL, or email address.
 
     .DESCRIPTION 
-        Gets a list of strings from the executables tied to each process.
+        Scans the file associated with each running process to detrmine if any strings exist that appear to be an IP address, URL, or email address.
 
     .PARAMETER PathContains
         If specified, limits the strings collection via -like.
@@ -14,6 +14,11 @@
 
     .EXAMPLE 
         Get-Strings
+
+    .EXAMPLE
+        Get-Strings | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Strings.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Strings} | 
