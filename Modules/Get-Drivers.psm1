@@ -1,13 +1,18 @@
 function Get-Drivers {
     <#
     .SYNOPSIS 
-        Gets a list of drivers.
+        Collects information from all drivers installed on the system.
 
     .DESCRIPTION 
-        Gets a list of drivers.
+        Collects information from all drivers installed on the system.
 
     .EXAMPLE 
         Get-Drivers
+
+    .EXAMPLE
+        Get-Drivers | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Drivers.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Drivers} | 
