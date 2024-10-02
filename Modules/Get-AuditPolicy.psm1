@@ -4,7 +4,7 @@ function Get-AuditPolicy {
         Gets Audit Policy settings from auditpol.exe.
 
     .DESCRIPTION 
-        Gets Audit Policy settings from auditpol.exe.
+        Collects Audit Policy settings from auditpol.exe, including inclusions and exclusions. Also collects IdleLockoutTime from the Registry.
 
     .EXAMPLE 
         Get-AuditPolicy
