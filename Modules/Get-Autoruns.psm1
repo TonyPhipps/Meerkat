@@ -4,13 +4,19 @@
         Gets a list of programs that auto start.
 
     .DESCRIPTION 
-        Gets a list of programs that auto start.
+        Collects a list of programs that auto start as presented in the Windows
+        Management Instrumentation (WMI) class Win32_StartupCommand.
 
         Alternative: Sysinternals autoruns.exe
         Alternative: wmic.exe startup list full
 
     .EXAMPLE 
         Get-Autoruns
+
+    .EXAMPLE
+        Get-Autoruns | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Autoruns.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Autoruns} | 
