@@ -4,10 +4,16 @@ Function Get-EnvVars {
         Retreives the values of all environment variables from the system.
     
     .DESCRIPTION
-        Retreives the values of all environment variables from the system.
+        Collects all environment variables from the system. 
+        Variable values will be split into their own entries for reporting.
     
     .EXAMPLE 
         Get-EnvVars
+
+    .EXAMPLE
+        Get-EnvVars | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\EnvVars.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EnvVars} | 
