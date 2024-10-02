@@ -1,13 +1,18 @@
 function Get-RegistryMRU {
     <#
     .SYNOPSIS 
-        Gets a Most Recently Used information from various locations.
+        Collects Most Recently Used (MRU) information from various registry keys and values.
 
     .DESCRIPTION 
-        Gets a Most Recently Used information from various locations.
+        Collects Most Recently Used (MRU) information from various registry keys and values.
 
     .EXAMPLE 
         Get-RegistryMRU
+
+    .EXAMPLE
+        Get-RegistryMRU | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\RegistryMRU.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-RegistryMRU} | 
