@@ -1,13 +1,18 @@
 ﻿function Get-Certificates {
     <#
     .SYNOPSIS 
-        Gets a list of trusted certificates at the system level.
+        Collects information on trusted certificates installed at the system level.
 
     .DESCRIPTION 
-        Gets a list of trusted certificates at the system level.
+        Collects information on trusted certificates installed at the system level.
 
     .EXAMPLE 
         Get-Certificates
+
+    .EXAMPLE
+        Get-Certificates | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Certificates.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Certificates} | 
