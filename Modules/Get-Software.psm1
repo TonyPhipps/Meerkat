@@ -1,13 +1,18 @@
-﻿function Get-Software {
+function Get-Software {
     <#
     .SYNOPSIS 
-        Gets installed software.
+        Collects information on all currently installed software on the system.
 
     .DESCRIPTION 
-        Gets installed software.
+        Collects information on all currently installed software on the system.
 
     .EXAMPLE 
         Get-Software
+
+    .EXAMPLE
+        Get-Software | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Software.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Software} | 
