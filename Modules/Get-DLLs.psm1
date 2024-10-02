@@ -9,6 +9,11 @@
     .EXAMPLE 
         Get-DLLs
 
+    .EXAMPLE
+        Get-DLLs | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\DLLs.csv")
+
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-DLLs} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
