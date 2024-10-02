@@ -1,16 +1,17 @@
 function Get-EventLogsMetadata {
     <#
     .SYNOPSIS
-        Gets metadata about each event log.
+        Collects metadata about each Windows event log.
 
     .DESCRIPTION
-        Gets metadata about each event log.
+        Collects metadata about each Windows event log.
 
     .EXAMPLE 
         Get-EventLogsMetadata
 
     .EXAMPLE
         Get-EventLogsMetadata | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
         Export-Csv -NoTypeInformation ("c:\temp\EventLogsMetadata.csv")
 
     .EXAMPLE 
