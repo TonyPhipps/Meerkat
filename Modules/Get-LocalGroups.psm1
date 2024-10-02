@@ -1,16 +1,18 @@
 function Get-LocalGroups {
     <#
     .SYNOPSIS 
-        Gets a list of each local group and additional details.
+        Collects information on all user groups found on the system.
 
     .DESCRIPTION 
-        Gets a list of each local group and additional details.
-
-        Alternative: net.exe localgroup
-        Alternative: net.exe localgroup administrators
+        Collects information on all user groups found on the system.
 
     .EXAMPLE 
         Get-LocalGroups
+
+    .EXAMPLE
+        Get-LocalGroups | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\LocalGroups.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-LocalGroups} | 
