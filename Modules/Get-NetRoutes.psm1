@@ -1,13 +1,18 @@
-﻿function Get-NetRoutes {
+function Get-NetRoutes {
     <#
     .SYNOPSIS 
-        Gets a list of IPv4 Routes.
+        Collects infomration contained within the system's IP routing table.
 
     .DESCRIPTION 
-        Gets a list of IPv4 Routes.
+        Collects infomration contained within the system's IP routing table.
 
     .EXAMPLE 
         Get-NetRoutes
+
+    .EXAMPLE
+        Get-NetRoutes | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\NetRoutes.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-NetRoutes} | 
