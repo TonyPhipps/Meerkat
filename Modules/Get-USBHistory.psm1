@@ -1,16 +1,17 @@
 function Get-USBHistory {
     <#
     .SYNOPSIS 
-        Returns list of USB devices previously connected to target system from the registry.
+        Collects information on USB devices previously connected to target system from the registry.
 
     .DESCRIPTION 
-        Returns list of USB devices previously connected to target system from the registry. Each device entry contains metadata for each device. 
+        Collects information on USB devices previously connected to target system from the registry.
 
     .EXAMPLE 
         Get-USBHistory
 
     .EXAMPLE
         Get-USBHistory | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
         Export-Csv -NoTypeInformation ("c:\temp\USBHistory.csv")
 
     .EXAMPLE 
