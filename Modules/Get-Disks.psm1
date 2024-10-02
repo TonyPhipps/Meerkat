@@ -66,29 +66,40 @@
 
     process{
 
-        $ResultsArray = Get-CIMinstance -Class Win32_LogicalDisk -Namespace "root\cimv2"
-
-        if ($ResultsArray) {
-
-            foreach ($Result in $ResultsArray) {
-
-                $Used = $Result.Size - $Result.FreeSpace
-                if (($Result.size -eq 0) -or ($null -eq $Result.size)) {
-                    $PercentUsed = 0   
-                } else {
-                    $PercentUsed = $Used / $Result.Size * 100
-                    $PercentUsed = [math]::round($PercentUsed, 2)   
+        $ResultsArray = Get-CIMInstance -Class Win32_DiskDrive | ForEach-Object {
+            $disk = $_
+            $partitions = "ASSOCIATORS OF " +
+                          "{Win32_DiskDrive.DeviceID='$($disk.DeviceID)'} " +
+                          "WHERE AssocClass = Win32_DiskDriveToDiskPartition"
+          
+            Get-CIMInstance -Query $partitions | ForEach-Object {
+                $partition = $_
+                $drives = "ASSOCIATORS OF " +
+                            "{Win32_DiskPartition.DeviceID='$($partition.DeviceID)'} " +
+                            "WHERE AssocClass = Win32_LogicalDiskToPartition"
+                
+                Get-CIMInstance -Query $drives | ForEach-Object {
+                    New-Object -Type PSCustomObject -Property @{
+                        Host          = $env:COMPUTERNAME
+                        DateScanned   = $DateScanned
+                        DiskID        = $disk.DeviceID
+                        DiskSize      = [math]::round($disk.Size / 1024 / 1024 / 1024, 2)
+                        DiskModel     = $disk.Model
+                        DiskSerial    = $_.VolumeSerialNumber
+                        Partition     = $partition.Name
+                        PartitionSize = [math]::round($partition.Size / 1024 / 1024 / 1024, 2)
+                        VolDeviceID   = $_.DeviceID
+                        VolumeName    = $_.VolumeName
+                        VolumeSize    = [math]::round($_.Size / 1024 / 1024 / 1024, 2)
+                        VolumeFree    = [math]::round($_.FreeSpace / 1024 / 1024 / 1024, 2)
+                        VolPercUsed   = try{ [math]::round(($_.Size - $_.FreeSpace) / $_.Size * 100, 2) } catch { 0 }
+                    }
                 }
-
-                $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
-                $Result | Add-Member -MemberType NoteProperty -Name "PercentUsed" -Value $PercentUsed
             }
-
-            return $ResultsArray | Select-Object Host, DateScanned, Description, DeviceID, FileSystem, Size, FreeSpace, PercentUsed
         }
+        
+        return $ResultsArray | Select-Object Host, DateScanned, DiskID, DiskSize, DiskModel, DiskSerial, Partition, PartitionSize, VolDeviceID, VolumeName, VolumeSize, VolumeFree, VolPercUsed
     }
-
     end{
 
         $elapsed = $stopwatch.Elapsed
