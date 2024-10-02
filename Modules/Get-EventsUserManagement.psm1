@@ -20,6 +20,11 @@ function Get-EventsUserManagement {
     .EXAMPLE 
         Get-EventsUserManagement
 
+    .EXAMPLE
+        Get-EventsUserManagement | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\EventsUserManagement.csv")
+
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventsUserManagement} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
