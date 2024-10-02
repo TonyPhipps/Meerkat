@@ -1,13 +1,18 @@
 function Get-Sessions {
     <#
     .SYNOPSIS 
-        Gets login sessions.
+        Collects information on all current login sessions on the system utizling the builtin "qwinsta.exe" tool.
 
     .DESCRIPTION 
-        Gets login sessions utizling the builtin "qwinsta.exe" tool.
+        Collects information on all current login sessions on the system utizling the builtin "qwinsta.exe" tool.
 
     .EXAMPLE 
         Get-Sessions
+
+    .EXAMPLE
+        Get-Sessions | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Sessions.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Sessions} | 
