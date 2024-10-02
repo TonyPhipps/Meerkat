@@ -1,13 +1,18 @@
 ﻿function Get-ARP {
     <#
     .SYNOPSIS 
-        Gets the arp cache.
+        Collects Address Resolution Protocol (ARP) cache and details from all network interfaces.
 
     .DESCRIPTION 
-        Gets the arp cache from all connected interfaces.
+        Collects Address Resolution Protocol (ARP) cache and details from all network interfaces.
 
-    .EXAMPLE 
+    .EXAMPLE
         Get-ARP
+
+    .EXAMPLE
+        Get-ARP | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\ARP.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-ARP} | 
