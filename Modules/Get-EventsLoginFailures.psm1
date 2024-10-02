@@ -1,10 +1,12 @@
 function Get-EventsLoginFailures {
     <#
     .SYNOPSIS
-        Gets login failures events within specified time frame. Defaults to now and the last 60 days.
+        Collects login failures events on the system within specified time frame. 
+        The default time range is the last 60 days.
 
     .DESCRIPTION
-        Gets login failures events within specified time frame. Defaults to now and the last 60 days.
+        Collects login failures events on the system within specified time frame. 
+        The default time range is the last 60 days.
 
     .PARAMETER StartTime
         Specify when to begin event log collection. Defaults to 60 days ago based on system time.
@@ -14,6 +16,11 @@ function Get-EventsLoginFailures {
 
     .EXAMPLE 
         Get-EventsLoginFailures
+
+    .EXAMPLE
+        Get-EventsLoginFailures | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\EventsLoginFailures.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventsLoginFailures} | 
