@@ -1,13 +1,18 @@
 ﻿ function Get-Hardware {
     <#
     .SYNOPSIS 
-        Gets a list of installed devices.
+        Collects information on all installed hardware components.
 
     .DESCRIPTION 
-        Gets a list of installed devices.
+        Collects information on all installed hardware components.
 
     .EXAMPLE 
         Get-Hardware
+
+    .EXAMPLE
+        Get-Hardware | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Hardware.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Hardware} | 
