@@ -1,17 +1,18 @@
 function Get-Services {
     <#
     .SYNOPSIS 
-        Queries the services on a given hostname, FQDN, or IP address.
+        Collects information on all services that exist on the system.
 
     .DESCRIPTION 
-        Queries the services on a given hostname, FQDN, or IP address.
-
-        Alternative: net.exe start
-        Alternative: sc.exe query
-        Alternative: tasklist.exe /svc
+        Collects information on all services that exist on the system.
 
     .EXAMPLE 
         Get-Services
+
+    .EXAMPLE
+        Get-Services | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Services.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Services} | 
