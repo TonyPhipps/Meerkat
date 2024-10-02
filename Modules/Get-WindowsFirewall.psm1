@@ -1,13 +1,18 @@
 Function Get-WindowsFirewall {
     <#
     .SYNOPSIS 
-        Retreives all Windows Firewall rules.
+        Collects information on all current Windows Firewall rules on the system.
     
     .DESCRIPTION
-        Retreives all Windows Firewall rules.
+        Collects information on all current Windows Firewall rules on the system.
     
     .EXAMPLE 
         Get-WindowsFirewall
+
+    .EXAMPLE
+        Get-WindowsFirewall | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\WindowsFirewall.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-WindowsFirewall} | 
