@@ -1,14 +1,18 @@
 function Get-RSOP {
     <#
     .SYNOPSIS 
-        Gets Resultant Set of Policy settings specific to security.
+        Collects information from the system resultant set of policies specific to security.
 
     .DESCRIPTION 
-        Gets Resultant Set of Policy settings specific to security.
-  
-
+        Collects information from the system resultant set of policies specific to security.
+        
     .EXAMPLE 
         Get-RSOP
+
+    .EXAMPLE
+        Get-RSOP | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\RSOP.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-RSOP} | 
