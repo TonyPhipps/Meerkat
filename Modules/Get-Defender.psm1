@@ -1,17 +1,17 @@
 Function Get-Defender {
     <#
     .SYNOPSIS
-        Gets Microsoft Defender information.
+        Collects Windows Defender configuration details.
 
     .DESCRIPTION
-        Gets general system information. Includes data from 
-        Get-MpComputerStatus, Get-MpPreference.
+        Collects Windows Defender configuration details.
 
     .EXAMPLE 
         Get-Defender
 
     .EXAMPLE
         Get-Defender | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
         Export-Csv -NoTypeInformation ("c:\temp\Defender.csv")
 
     .EXAMPLE 
