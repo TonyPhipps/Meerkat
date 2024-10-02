@@ -1,15 +1,18 @@
 function Get-ScheduledTasks {
     <#
     .SYNOPSIS 
-        Gets scheduled tasks.
+        Collects information on existing scheduled tasks on the system.
 
     .DESCRIPTION 
-        Gets scheduled tasks.
-
-        Alternative: schtasks.exe
+        Collects information on existing scheduled tasks on the system.
 
     .EXAMPLE 
         Get-ScheduledTasks
+
+    .EXAMPLE
+        Get-ScheduledTasks | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\ScheduledTasks.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-ScheduledTasks} | 
