@@ -1,10 +1,10 @@
 function Get-MAC {
     <#
     .SYNOPSIS 
-        Records Modified, Accessed, and Created (MAC) times on files.
+        Collects Modified, Accessed, and Created (MAC) times on files.
 
     .DESCRIPTION 
-        Records Modified, Accessed, and Created (MAC) times on files. Use the -Path command to 
+        Collects Modified, Accessed, and Created (MAC) times on files. Use the -Path command to 
         provide a directory to recursively record MAC times.
 
     .PARAMETER Path  
@@ -15,6 +15,11 @@ function Get-MAC {
 
     .EXAMPLE 
         Get-MAC
+
+    .EXAMPLE
+        Get-MAC | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\MAC.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-MAC} | 
