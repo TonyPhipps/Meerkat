@@ -1,10 +1,10 @@
 function Get-EventLogs {
     <#
     .SYNOPSIS
-        Gets all event logs within the specified time frame. Defaults to now and the last 2 hours.
+        Collects all Windows event logs within the specified time frame. Defaults to all within the past hour.
 
     .DESCRIPTION
-        Gets all event logs within the specified time frame. Defaults to now and the last 2 hours.
+        Collects all Windows event logs within the specified time frame. Defaults to all within the past hour.
 
     .PARAMETER StartTime
         Specify when to begin event log collection. Defaults to 2 hours ago based on system time.
@@ -14,6 +14,11 @@ function Get-EventLogs {
 
     .EXAMPLE 
         Get-EventLogs
+
+    .EXAMPLE
+        Get-EventLogs | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\EventLogs.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-EventLogs} | 
@@ -71,7 +76,7 @@ function Get-EventLogs {
         $stopwatch.Start()
 
         if(!($StartTime)){
-            $StartTime = (Get-Date) - (New-TimeSpan -Hours 2)
+            $StartTime = (Get-Date) - (New-TimeSpan -Hours 1)
         }
 
         if(!($EndTime)){
