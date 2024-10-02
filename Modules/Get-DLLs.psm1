@@ -1,10 +1,10 @@
 ﻿function Get-DLLs {
     <#
     .SYNOPSIS 
-        Gets a list of DLLs loaded by all processes.
+        Collects information on all DLLs that are currently loaded by any process on the system.
 
     .DESCRIPTION 
-        Gets a list of DLLs loaded by all processes.  
+        Collects information on all DLLs that are currently loaded by any process on the system.
 
     .EXAMPLE 
         Get-DLLs
@@ -22,14 +22,14 @@
             Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_DLLs.csv")
         }
 
-    .NOTES 
-        Updated: 2024-06-03
+    .NOTES 1
+        Updated: 2024-10-02
 
         Contributing Authors:
             Anthony Phipps
             Jeremy Arnold
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -63,14 +63,23 @@
 
     process{
 
-        $ResultsArray = Get-Process | Select-Object Id, ProcessName, Company, Product, Modules
+        $Processes = Get-Process | Select-Object Id, Path, Modules
 
-        foreach ($Result in $ResultsArray) {
-            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+        $ResultsArray = foreach ($Process in $Processes) {
+            foreach ($Module in $Process.Modules){
+                $Module | Add-Member -MemberType NoteProperty -Name "ProcessID" -Value $Process.Id -Force
+                $Module | Add-Member -MemberType NoteProperty -Name "ProcessName" -Value $Process.Path -Force
+                $Module | Select-Object FileName, ProcessName, ProcessID
+            }
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, Id, ProcessName, Company, Product, Modules
+        foreach ($Result in $ResultsArray){
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
+        }
+
+        return $ResultsArray | Select-Object Host, DateScanned, FileName, ProcessName, ProcessID
     }
 
     end{
