@@ -24,7 +24,7 @@ Function Get-ComputerDetails {
         }
 
     .NOTES
-        Updated: 2024-06-03
+        Updated: 2024-10-02
 
         Contributing Authors:
             Anthony Phipps
@@ -93,11 +93,14 @@ Function Get-ComputerDetails {
 
             foreach ($Property in $Win32_OperatingSystem.PSObject.Properties) {
                 $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
-            }            
+            }
+            $Result.CurrentTimeZone = $Result.CurrentTimeZone / 60
 
             foreach ($Property in $Win32_ComputerSystem.PSObject.Properties) {
                 $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }
+            $Result.DomainRole = ([DomainRole]$Result.DomainRole).ToString()
+            $UpTime = (Get-Date) - $Result.LastBootUpTime
                 
             foreach ($Property in $Win32_Processor.PSObject.Properties) {
                 $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
@@ -106,8 +109,9 @@ Function Get-ComputerDetails {
             foreach ($Property in $Win32_BIOS.PSObject.Properties) {
                 $Result | Add-Member -MemberType NoteProperty -Name $Property.Name -Value $Property.value -ErrorAction SilentlyContinue | Out-Null
             }
+            $Result.BiosVersion = $Result.BiosVersion -join " | "
 
-            $UpTime = (get-date) - $Win32_OperatingSystem.LastBootUpTime
+            $UpTime = (Get-Date) - $Win32_OperatingSystem.LastBootUpTime
             
             $Result.DomainRole = ([DomainRole]$Result.DomainRole).ToString()
             $Result | Add-Member -MemberType NoteProperty -Name MinimumPasswordLength -Value (net accounts | Select-String -Pattern "Minimum password length").ToString().Split()[-1]
