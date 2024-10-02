@@ -1,16 +1,18 @@
 function Get-Processes {
     <#
     .SYNOPSIS 
-        Gets process information relevant to an investigation or hunt.
+        Collects information regarding all processes currently running on the system.
 
     .DESCRIPTION 
-        Gets process information relevant to an investigation or hunt.
-
-        Alternative: tasklist.exe -v
-        Alternative: wmic.exe process list full
+        Collects information regarding all processes currently running on the system.
 
     .EXAMPLE
         Get-Processes
+
+    .EXAMPLE
+        Get-Processes | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Processes.csv")
 
     .EXAMPLE
         Get-Processes | 
