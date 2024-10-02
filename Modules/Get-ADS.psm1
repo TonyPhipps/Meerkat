@@ -16,6 +16,11 @@ function Get-ADS {
     .EXAMPLE 
         Get-ADS -Path "C:\Temp"
 
+    .EXAMPLE
+        Get-ADS | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\ADS.csv")
+
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-ADS} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
