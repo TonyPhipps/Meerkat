@@ -1,13 +1,18 @@
 function Get-Registry {
     <#
     .SYNOPSIS 
-        Gets a list of registry keys that relate to key configurations relevant to cybersecurity.
+        Collects registry key, value, and data from entries that assist in evaluating system security.
 
     .DESCRIPTION 
-        Gets a list of registry keys that relate to key configurations relevant to cybersecurity.
+        Collects registry key, value, and data from entries that assist in evaluating system security.
 
     .EXAMPLE 
         Get-Registry
+
+    .EXAMPLE
+        Get-Registry | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Registry.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Registry} | 
