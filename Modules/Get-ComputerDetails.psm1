@@ -1,14 +1,18 @@
 Function Get-ComputerDetails {
     <#
     .SYNOPSIS
-        Gets general system information.
+        Collects multiple points of information from the system from various Windows Management Instrumentation (WMI) classes.
 
     .DESCRIPTION
-        Gets general system information. Includes data from 
-        Win32_ComputerSystem, Win32_OperatingSystem, and win32_BIOS.
+        Collects multiple points of information from the system from various Windows Management Instrumentation (WMI) classes.
 
     .EXAMPLE 
         Get-ComputerDetails
+
+    .EXAMPLE
+        Get-ComputerDetails | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\ComputerDetails.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Computer} | 
