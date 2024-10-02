@@ -1,10 +1,18 @@
 ﻿function Get-Connections {
     <#
     .SYNOPSIS
-        Retrieves details on all TCP and UDP connections and listening ports.
+        Collects information on all active TCP and UDP connections to and from the system.
+
+    .DESCRIPTION
+        Collects information on all active TCP and UDP connections to and from the system.
 
     .EXAMPLE 
         Get-Connections
+
+    .EXAMPLE
+        Get-Connections | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\Connections.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Connections} | 
