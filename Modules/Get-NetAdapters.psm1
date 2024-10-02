@@ -1,13 +1,18 @@
 function Get-NetAdapters {
     <#
     .SYNOPSIS 
-        Gets network interface settings.
+        Collects information on all network interfaces on the system.
 
     .DESCRIPTION 
-        Gets network interface settings.
+        Collects information on all network interfaces on the system.
 
     .EXAMPLE 
         Get-NetAdapters
+
+    .EXAMPLE
+        Get-NetAdapters | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\NetAdapters.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-NetAdapters} | 
