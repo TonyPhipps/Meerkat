@@ -1,13 +1,18 @@
 function Get-RecycleBin {
     <#
     .SYNOPSIS 
-        Get the contents of all recycle bins.
+        Collects information on files found in the recycle bins of all users on the system.
 
     .DESCRIPTION 
-        Get the contents of all recycle bins.
+        Collects information on files found in the recycle bins of all users on the system.
 
     .EXAMPLE 
         Get-RecycleBin
+
+    .EXAMPLE
+        Get-RecycleBin | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\RecycleBin.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-RecycleBin} | 
