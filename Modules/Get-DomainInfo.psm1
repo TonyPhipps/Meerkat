@@ -2,19 +2,25 @@ Function Get-DomainInfo {
     <#
     .SYNOPSIS
         Checks domain health, replication, and DNS status.
+        
     .DESCRIPTION
-        Checks domain health, replication, and DNS status. 
+        Collects information regarding domain health, replication, and DNS status. 
         Native AD commands including repadmin, dsquery, and dcdiag or a comparable 
-        PowerShell cmdlet are used to query domain meta data. 
+        PowerShell cmdlet are used to query domain metadata.
+        
     .EXAMPLE 
         Get-DomainInfo
+        
     .EXAMPLE
         Get-DomainInfo | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
         Export-Csv -NoTypeInformation ("c:\temp\DomainInfo.csv")
+        
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-Computer} | 
         Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
         Export-Csv -NoTypeInformation ("c:\temp\DomainInfo.csv")
+        
     .EXAMPLE 
         $Targets = Get-ADComputer -filter * | Select -ExpandProperty Name
         ForEach ($Target in $Targets) {
@@ -22,6 +28,7 @@ Function Get-DomainInfo {
             Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
             Export-Csv -NoTypeInformation ("c:\temp\" + $Target + "_DomainInfo.csv")
         }
+        
     .NOTES
         Updated: 2024-06-03
         Contributing Authors:
@@ -39,6 +46,7 @@ Function Get-DomainInfo {
         GNU General Public License for more details.
         You should have received a copy of the GNU General Public License
         along with this program.  If not, see <http://www.gnu.org/licenses/>.
+        
     .LINK
        https://github.com/TonyPhipps/Meerkat
        https://github.com/TonyPhipps/Meerkat/wiki/DomainInfo
