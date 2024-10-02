@@ -1,14 +1,19 @@
 function Get-BitLocker {
     <#
     .SYNOPSIS 
-        Gets BitLocker details.
+        Collects BitLocker information for all attached disk drives.
 
     .DESCRIPTION 
-        Gets BitLocker details.
+        Collects BitLocker information for all attached disk drives.
   
 
     .EXAMPLE 
         Get-BitLocker
+
+    .EXAMPLE
+        Get-BitLocker | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\BitLocker.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-BitLocker} | 
