@@ -1,16 +1,17 @@
 ﻿function Get-Disks {
     <#
     .SYNOPSIS 
-        Gets information on all disks.
+        Collects information on each disk attached to the system.
 
     .DESCRIPTION 
-        Gets information on all disks.
+        Collects information on each disk attached to the system.
        
     .EXAMPLE 
         Get-Disks
 
     .EXAMPLE
         Get-Disks | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
         Export-Csv -NoTypeInformation ("c:\temp\Disks.csv")
 
     .EXAMPLE 
