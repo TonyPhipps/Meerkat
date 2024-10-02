@@ -1,13 +1,18 @@
 function Get-RegistryPersistence {
     <#
     .SYNOPSIS 
-        Gets a list of registry keys that may be used to achieve persistence or clear tracks.
+        Collects registry keys, values, and data that may be used to achieve persistence or conceal one's actions on a system.
 
     .DESCRIPTION 
-        Gets a list of registry keys that may be used to achieve persistence or clear tracks.
+        Collects registry keys, values, and data that may be used to achieve persistence or conceal one's actions on a system.
 
     .EXAMPLE 
         Get-RegistryPersistence
+
+    .EXAMPLE
+        Get-RegistryPersistence | 
+        Select-Object -Property * -ExcludeProperty PSComputerName,RunspaceID | 
+        Export-Csv -NoTypeInformation ("c:\temp\RegistryPersistence.csv")
 
     .EXAMPLE 
         Invoke-Command -ComputerName remoteHost -ScriptBlock ${Function:Get-RegistryPersistence} | 
