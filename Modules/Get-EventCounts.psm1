@@ -1,10 +1,10 @@
 function Get-EventCounts {
     <#
     .SYNOPSIS
-        Gets a count of events by Log Name, Source, Severity, and ID.
+        Collects a count of Windows events aggregated by Log Name, Source, Severity, and ID.
 
     .DESCRIPTION
-        Gets a count of events by Log Name, Source, Severity, and ID.
+        Collects a count of Windows events aggregated by Log Name, Source, Severity, and ID.
 
     .PARAMETER StartTime
         Specify when to begin event log collection. Defaults to 24 hours ago based on current system time.
