@@ -108,7 +108,7 @@ function Get-Shares {
             
             foreach ($NTFSAccess in $NTFSAccessArray.Access) {
 
-                if ($NTFSAccess.FileSystemRights.value__ -match "-\d+"){
+                if ($NTFSAccess.FileSystemRights.value__ -in "-1610612736", "-536805376", "268435456"){
                     $NTFSAccessFileSystemRights = $accessMask.Keys |
                     Where-Object { $NTFSAccess.FileSystemRights.value__ -band $_ } |
                     ForEach-Object { $accessMask[$_] }
