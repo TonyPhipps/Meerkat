@@ -64,10 +64,10 @@ function Get-Shares {
         $stopwatch.Start()
 
         $accessMask = [Ordered]@{
-            [uint32]'0x80000000' = 'GenericRead'
-            [uint32]'0x40000000' = 'GenericWrite'
-            [uint32]'0x20000000' = 'GenericExecute'
-            [uint32]'0x10000000' = 'GenericAll'
+            [uint32]'0x80000000' = 'Read'
+            [uint32]'0x40000000' = 'Write'
+            [uint32]'0x20000000' = 'Execute'
+            [uint32]'0x10000000' = 'All'
             [uint32]'0x02000000' = 'MaximumAllowed'
             [uint32]'0x01000000' = 'AccessSystemSecurity'
             [uint32]'0x00100000' = 'Synchronize'
