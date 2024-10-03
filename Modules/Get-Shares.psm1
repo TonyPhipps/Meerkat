@@ -85,29 +85,32 @@ function Get-Shares {
 
                 $ShareName = $Share.Name
 
-                $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'"
+                try {
+                    $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'"
 
-                $DACLArray = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
+                    $DACLArray = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
 
-                foreach ($DACL in $DACLArray) {
+                    foreach ($DACL in $DACLArray) {
 
-                    $TrusteeName = $DACL.Trustee.Name
-                    $TrusteeDomain = $DACL.Trustee.Domain
-                    $TrusteeSID = $DACL.Trustee.SIDString
+                        $TrusteeName = $DACL.Trustee.Name
+                        $TrusteeDomain = $DACL.Trustee.Domain
+                        $TrusteeSID = $DACL.Trustee.SIDString
 
-                    # 1 Deny 0 Allow
-                    if ($DACL.AceType) 
-                        { $Type = "Deny" }
-                    else 
-                        { $Type = "Allow" }
-        
-                    $SharePermission = foreach ($Key in $PermissionFlags.Keys) { # Convert AccessMask to human-readable format
+                        # 1 Deny 0 Allow
+                        if ($DACL.AceType) 
+                            { $Type = "Deny" }
+                        else 
+                            { $Type = "Allow" }
+            
+                        $SharePermission = foreach ($Key in $PermissionFlags.Keys) { # Convert AccessMask to human-readable format
 
-                        if ($Key -band $DACL.AccessMask) {
-                                        
-                            $PermissionFlags[$Key]
+                            if ($Key -band $DACL.AccessMask) {
+                                            
+                                $PermissionFlags[$Key]
+                            }
                         }
-                    }
+                    } 
+                } catch{}
 
                     $output = New-Object -TypeName PSObject
                     
@@ -123,13 +126,14 @@ function Get-Shares {
                     $output | Add-Member -MemberType NoteProperty -Name SharePermissions -Value ($SharePermission -join ", ")
 
                     $output
-                }
+                
             } 
 
             foreach ($Result in $ResultsArray) {
 
                 $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
+                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+                $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
             }
 
             return $ResultsArray | Select-Object Host, DateScanned, Name, Path, Description, TrusteeName, 
