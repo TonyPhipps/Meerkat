@@ -28,12 +28,12 @@ function Get-Shares {
         }
 
     .NOTES 
-        Updated: 2024-06-03
+        Updated: 2024-10-03
 
         Contributing Authors:
             Anthony Phipps
             
-        LEGAL: Copyright (C) 2019
+        LEGAL: Copyright (C) 2024
         This program is free software: you can redistribute it and/or modify
         it under the terms of the GNU General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
@@ -67,17 +67,17 @@ function Get-Shares {
     process{
 
         $PermissionFlags = @{
-            0x1     =     "Read-List"
-            0x2     =     "Write-Create"
-            0x4     =     "Append-Create Subdirectory"                      
-            0x20    =     "Execute file-Traverse directory"
-            0x40    =     "Delete child"
-            0x10000 =     "Delete"                     
-            0x40000 =     "Write access to DACL"
-            0x80000 =     "Write Owner"
+            0x1     = "Read-List"
+            0x2     = "Write-Create"
+            0x4     = "Append-Create Subdirectory"                      
+            0x20    = "Execute file-Traverse directory"
+            0x40    = "Delete child"
+            0x10000 = "Delete"                     
+            0x40000 = "Write access to DACL"
+            0x80000 = "Write Owner"
         }
 
-        $SharesArray = Get-WmiObject -class Win32_share -Filter "type=0"
+        $SharesArray = Get-WmiObject -class Win32_share
 
         if ($SharesArray) {
             
