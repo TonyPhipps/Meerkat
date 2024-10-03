@@ -66,17 +66,6 @@ function Get-Shares {
 
     process{
 
-        $PermissionFlags = @{
-            0x1     = "Read-List"
-            0x2     = "Write-Create"
-            0x4     = "Append-Create Subdirectory"                      
-            0x20    = "Execute file-Traverse directory"
-            0x40    = "Delete child"
-            0x10000 = "Delete"                     
-            0x40000 = "Write access to DACL"
-            0x80000 = "Write Owner"
-        }
-
         $SharesArray = Get-WmiObject -class Win32_share
 
         if ($SharesArray) {
@@ -96,11 +85,13 @@ function Get-Shares {
                         $TrusteeDomain = $DACL.Trustee.Domain
                         $TrusteeSID = $DACL.Trustee.SIDString
 
+                        $DACLAceType = ""
+
                         # 1 Deny 0 Allow
                         if ($DACL.AceType) 
-                            { $Type = "Deny" }
+                            { $DACLAceType = "Deny" }
                         else 
-                            { $Type = "Allow" }
+                            { $DACLAceType = "Allow" }
             
                         $SharePermission = foreach ($Key in $PermissionFlags.Keys) { # Convert AccessMask to human-readable format
 
@@ -121,7 +112,7 @@ function Get-Shares {
                     $output | Add-Member -MemberType NoteProperty -Name TrusteeName -Value $TrusteeName
                     $output | Add-Member -MemberType NoteProperty -Name TrusteeDomain -Value $TrusteeDomain
                     $output | Add-Member -MemberType NoteProperty -Name TrusteeSID -Value $TrusteeSID
-                    $output | Add-Member -MemberType NoteProperty -Name AccessType -Value $Type
+                    $output | Add-Member -MemberType NoteProperty -Name AccessType -Value $DACLAceType
                     $output | Add-Member -MemberType NoteProperty -Name AccessMask -Value $DACL.AccessMask
                     $output | Add-Member -MemberType NoteProperty -Name SharePermissions -Value ($SharePermission -join ", ")
 
@@ -137,7 +128,7 @@ function Get-Shares {
             }
 
             return $ResultsArray | Select-Object Host, DateScanned, Name, Path, Description, TrusteeName, 
-            TrusteeDomain, TrusteeSID, Type, AccessMask, SharePermissions
+            TrusteeDomain, TrusteeSID, AccessType, AccessMask, SharePermissions
         }
     }
 
