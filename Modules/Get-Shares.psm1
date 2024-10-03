@@ -63,84 +63,84 @@ function Get-Shares {
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
 
-        $PermissionFlags = @{
-            0x1     = "Read-List"
-            0x2     = "Write-Create"
-            0x4     = "Append-Create Subdirectory"                      
-            0x20    = "Execute file-Traverse directory"
-            0x40    = "Delete child"
-            0x10000 = "Delete"                     
-            0x40000 = "Write access to DACL"
-            0x80000 = "Write Owner"
-        }
+        $accessMask = [Ordered]@{
+            [uint32]'0x80000000' = 'GenericRead'
+            [uint32]'0x40000000' = 'GenericWrite'
+            [uint32]'0x20000000' = 'GenericExecute'
+            [uint32]'0x10000000' = 'GenericAll'
+            [uint32]'0x02000000' = 'MaximumAllowed'
+            [uint32]'0x01000000' = 'AccessSystemSecurity'
+            [uint32]'0x00100000' = 'Synchronize'
+            [uint32]'0x00080000' = 'WriteOwner'
+            [uint32]'0x00040000' = 'WriteDAC'
+            [uint32]'0x00020000' = 'ReadControl'
+            [uint32]'0x00010000' = 'Delete'
+            [uint32]'0x00000100' = 'WriteAttributes'
+            [uint32]'0x00000080' = 'ReadAttributes'
+            [uint32]'0x00000040' = 'DeleteChild'
+            [uint32]'0x00000020' = 'Execute/Traverse'
+            [uint32]'0x00000010' = 'WriteExtendedAttributes'
+            [uint32]'0x00000008' = 'ReadExtendedAttributes'
+            [uint32]'0x00000004' = 'AppendData/AddSubdirectory'
+            [uint32]'0x00000002' = 'WriteData/AddFile'
+            [uint32]'0x00000001' = 'ReadData/ListDirectory'
+          }
     }
 
     process{
 
-        $SharesArray = Get-WmiObject -class Win32_share
+        $Shares = Get-SmbShare
+        $ResultsArray = foreach ($Share in $Shares) {
 
-        if ($SharesArray) {
+            $ShareAccessArray = Get-SmbShareAccess -InputObject $Share
             
-            $ResultsArray = foreach ($Share in $SharesArray) {
-
-                $ShareName = $Share.Name
-
-                try {
-                    $ShareSettings = Get-WmiObject -class Win32_LogicalShareSecuritySetting  -Filter "Name='$ShareName'"
-
-                    $DACLArray = $ShareSettings.GetSecurityDescriptor().Descriptor.DACL
-
-                    foreach ($DACL in $DACLArray) {
-
-                        $TrusteeName = $DACL.Trustee.Name
-                        $TrusteeDomain = $DACL.Trustee.Domain
-                        $TrusteeSID = $DACL.Trustee.SIDString
-
-                        $DACLAceType = ""
-
-                        # 1 Deny 0 Allow
-                        if ($DACL.AceType) 
-                            { $DACLAceType = "Deny" }
-                        else 
-                            { $DACLAceType = "Allow" }
+            $SharePermissions = ""
             
-                        $SharePermission = foreach ($Key in $PermissionFlags.Keys) { # Convert AccessMask to human-readable format
-
-                            if ($Key -band $DACL.AccessMask) {
-                                            
-                                $PermissionFlags[$Key]
-                            }
-                        }
-                    } 
-                } catch{}
-
-                    $output = New-Object -TypeName PSObject
-                    
-                    $output | Add-Member -MemberType NoteProperty -Name Computer -Value $Share.PSComputerName
-                    $output | Add-Member -MemberType NoteProperty -Name Name -Value $Share.Name
-                    $output | Add-Member -MemberType NoteProperty -Name Path -Value $Share.Path
-                    $output | Add-Member -MemberType NoteProperty -Name DESCRIPTION -Value $Share.DESCRIPTION
-                    $output | Add-Member -MemberType NoteProperty -Name TrusteeName -Value $TrusteeName
-                    $output | Add-Member -MemberType NoteProperty -Name TrusteeDomain -Value $TrusteeDomain
-                    $output | Add-Member -MemberType NoteProperty -Name TrusteeSID -Value $TrusteeSID
-                    $output | Add-Member -MemberType NoteProperty -Name AccessType -Value $DACLAceType
-                    $output | Add-Member -MemberType NoteProperty -Name AccessMask -Value $DACL.AccessMask
-                    $output | Add-Member -MemberType NoteProperty -Name SharePermissions -Value ($SharePermission -join ", ")
-
-                    $output
-                
-            } 
-
-            foreach ($Result in $ResultsArray) {
-
-                $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-                $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
-                $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
+            foreach ($ShareAccess in $ShareAccessArray) {
+            
+            $SharePermissions += "{0} - {1} - {2}`n" -f $ShareAccess.AccountName, $ShareAccess.AccessControlType, $ShareAccess.AccessRight
             }
 
-            return $ResultsArray | Select-Object Host, DateScanned, Name, Path, Description, TrusteeName, 
-            TrusteeDomain, TrusteeSID, AccessType, AccessMask, SharePermissions
+            
+            try{ $NTFSAccessArray = Get-Acl -Path $Share.Path } catch{}
+            
+            $NTFSPermissions = ""
+            
+            foreach ($NTFSAccess in $NTFSAccessArray.Access) {
+
+                if ($NTFSAccess.FileSystemRights.value__ -match "-\d+"){
+                    $NTFSAccessFileSystemRights = $accessMask.Keys |
+                    Where-Object { $NTFSAccess.FileSystemRights.value__ -band $_ } |
+                    ForEach-Object { $accessMask[$_] }
+                    $NTFSAccessFileSystemRights = $NTFSAccessFileSystemRights -join ", "
+                }
+                else
+                {
+                    $NTFSAccessFileSystemRights = $NTFSAccess.FileSystemRights
+                }
+
+            $NTFSPermissions += "{0} - {1} - {2}`n" -f $NTFSAccess.IdentityReference.Value, $NTFSAccess.AccessControlType, $NTFSAccessFileSystemRights
+            }
+
+            $output = New-Object -TypeName PSObject
+
+            $output | Add-Member -MemberType NoteProperty -Name Name -Value $Share.Name
+            $output | Add-Member -MemberType NoteProperty -Name Path -Value $Share.Path
+            $output | Add-Member -MemberType NoteProperty -Name Description -Value $Share.Description
+            $output | Add-Member -MemberType NoteProperty -Name SharePermissions -Value $SharePermissions
+            $output | Add-Member -MemberType NoteProperty -Name NTFSPermissions -Value $NTFSPermissions
+
+            $output
         }
+        
+        foreach ($Result in $ResultsArray) {
+
+            $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
+            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
+        }
+
+        return $ResultsArray | Select-Object Host, DateScanned, Name, Path, Description, SharePermissions, NTFSPermissions
     }
 
     end{
