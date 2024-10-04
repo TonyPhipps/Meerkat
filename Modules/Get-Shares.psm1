@@ -98,7 +98,7 @@ function Get-Shares {
             
             foreach ($ShareAccess in $ShareAccessArray) {
             
-            $SharePermissions += "{0} - {1} - {2}`n" -f $ShareAccess.AccountName, $ShareAccess.AccessControlType, $ShareAccess.AccessRight
+            $SharePermissions += "{0} - {1} - {2}`n" -f $ShareAccess.AccessControlType, $ShareAccess.AccessRight, $ShareAccess.AccountName
             }
 
             
