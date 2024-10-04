@@ -28,7 +28,7 @@ function Get-Shares {
         }
 
     .NOTES 
-        Updated: 2024-10-03
+        Updated: 2024-10-04
 
         Contributing Authors:
             Anthony Phipps
@@ -119,7 +119,7 @@ function Get-Shares {
                     $NTFSAccessFileSystemRights = $NTFSAccess.FileSystemRights
                 }
 
-            $NTFSPermissions += "{0} - {1} - {2}`n" -f $NTFSAccess.IdentityReference.Value, $NTFSAccess.AccessControlType, $NTFSAccessFileSystemRights
+            $NTFSPermissions += "{0} - {1} - {2} - {3} - {4}`n" -f $NTFSAccess.AccessControlType, $NTFSAccessFileSystemRights, $NTFSAccess.IdentityReference.Value, $NTFSAccess.PropagationFlags, $NTFSAccess.InheritanceFlags
             }
 
             $output = New-Object -TypeName PSObject
