@@ -98,7 +98,7 @@ function Get-Shares {
             
             foreach ($ShareAccess in $ShareAccessArray) {
             
-            $SharePermissions += "{0} - {1} - {2}`n" -f $ShareAccess.AccessControlType, $ShareAccess.AccessRight, $ShareAccess.AccountName
+            $SharePermissions += "{0}, {1}, {2}`n" -f $ShareAccess.AccessControlType, $ShareAccess.AccessRight, $ShareAccess.AccountName
             }
 
             
@@ -112,14 +112,18 @@ function Get-Shares {
                     $NTFSAccessFileSystemRights = $accessMask.Keys |
                     Where-Object { $NTFSAccess.FileSystemRights.value__ -band $_ } |
                     ForEach-Object { $accessMask[$_] }
-                    $NTFSAccessFileSystemRights = $NTFSAccessFileSystemRights -join ", "
+                    $NTFSAccessFileSystemRights = $NTFSAccessFileSystemRights -join " - "
                 }
                 else
                 {
                     $NTFSAccessFileSystemRights = $NTFSAccess.FileSystemRights
                 }
 
-            $NTFSPermissions += "{0} - {1} - {2} - {3} - {4}`n" -f $NTFSAccess.AccessControlType, $NTFSAccessFileSystemRights, $NTFSAccess.IdentityReference.Value, $NTFSAccess.PropagationFlags, $NTFSAccess.InheritanceFlags
+                $PropagationFlags = $NTFSAccess.PropagationFlags -replace ", ", " - "
+                $InheritanceFlags = $NTFSAccess.InheritanceFlags -replace ", ", " - "
+
+                $NTFSPermissions += "{0}, {1}, {2}, {3}, {4}`n" -f $NTFSAccess.AccessControlType, $NTFSAccessFileSystemRights, $NTFSAccess.IdentityReference.Value, $PropagationFlags, $InheritanceFlags
+
             }
 
             $output = New-Object -TypeName PSObject
