@@ -104,7 +104,7 @@ function Get-Shares {
             
             try{ $NTFSAccessArray = Get-Acl -Path $Share.Path } catch{}
             
-            $NTFSPermissions = ""
+            $NTFSPermissions = "Control, Rights, Account, Propagation, Inheritence`n"
             
             foreach ($NTFSAccess in $NTFSAccessArray.Access) {
 
