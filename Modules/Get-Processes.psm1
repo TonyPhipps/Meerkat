@@ -33,7 +33,7 @@ function Get-Processes {
         }
 
     .NOTES 
-        Updated: 2024-09-30
+        Updated: 2024-10-16
 
         Contributing Authors:
             Anthony Phipps
@@ -84,8 +84,8 @@ function Get-Processes {
             
             $CommandLine = $CIMProcesses | Where-Object ProcessId -eq $Process.Id | Select-Object -ExpandProperty CommandLine
             $ParentId = $CIMProcesses | Where-Object ProcessId -eq $Process.Id | Select-Object -ExpandProperty ParentProcessId
-            $ParentPath = Get-CimInstance -class win32_Process -Filter "ProcessId = '$ParentId'" | Select-Object -ExpandProperty Path
-            $ParentCommandLine = Get-CimInstance -class win32_Process -Filter "ProcessId = '$ParentId'" | Select-Object -ExpandProperty CommandLine
+            $ParentPath = $CIMProcesses | Where-Object ProcessId -eq $ParentId | Select-Object -ExpandProperty Path
+            $ParentCommandLine = $CIMProcesses | Where-Object ProcessId -eq $ParentId | Select-Object -ExpandProperty CommandLine
             $PercentProcessorTime = $PerfProcArray | Where-Object IDProcess -eq $Process.ID | Select-Object -ExpandProperty PercentProcessorTime
             $MemoryMB = $PerfProcArray | Where-Object IDProcess -eq $Process.ID | Select-Object -ExpandProperty workingSetPrivate
                 if ($MemoryMB.GetType().Name -eq "UInt64"){
