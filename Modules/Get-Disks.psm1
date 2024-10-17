@@ -66,39 +66,37 @@
 
     process{
 
-        $ResultsArray = Get-CIMInstance -Class Win32_DiskDrive | ForEach-Object {
-            $disk = $_
-            $partitions = "ASSOCIATORS OF " +
-                          "{Win32_DiskDrive.DeviceID='$($disk.DeviceID)'} " +
-                          "WHERE AssocClass = Win32_DiskDriveToDiskPartition"
-          
-            Get-CIMInstance -Query $partitions | ForEach-Object {
-                $partition = $_
-                $drives = "ASSOCIATORS OF " +
-                            "{Win32_DiskPartition.DeviceID='$($partition.DeviceID)'} " +
-                            "WHERE AssocClass = Win32_LogicalDiskToPartition"
-                
-                Get-CIMInstance -Query $drives | ForEach-Object {
+        $Disks = Get-CIMInstance -Class Win32_DiskDrive
+        $ResultsArray = ForEach ($Disk in $Disks) {
+            $PartitionsQuery =  "ASSOCIATORS OF " +
+                                "{Win32_DiskDrive.DeviceID='$($Disk.DeviceID)'} " +
+                                "WHERE AssocClass = Win32_DiskDriveToDiskPartition"
+            $Partitions = Get-CIMInstance -Query $PartitionsQuery
+            ForEach ($Partition in $Partitions) {
+                $DrivesQuery =  "ASSOCIATORS OF " +
+                                "{Win32_DiskPartition.DeviceID='$($Partition.DeviceID)'} " +
+                                "WHERE AssocClass = Win32_LogicalDiskToPartition"
+                $Drives = Get-CIMInstance -Query $DrivesQuery
+                ForEach ($Drive in $Drives) {
                     New-Object -Type PSCustomObject -Property @{
-                        Host          = $env:COMPUTERNAME
-                        DateScanned   = $DateScanned
-                        DiskID        = $disk.DeviceID
-                        DiskSize      = [math]::round($disk.Size / 1024 / 1024 / 1024, 2)
-                        DiskModel     = $disk.Model
-                        DiskSerial    = $_.VolumeSerialNumber
-                        Partition     = $partition.Name
-                        PartitionSize = [math]::round($partition.Size / 1024 / 1024 / 1024, 2)
-                        VolDeviceID   = $_.DeviceID
-                        VolumeName    = $_.VolumeName
-                        VolumeSize    = [math]::round($_.Size / 1024 / 1024 / 1024, 2)
-                        VolumeFree    = [math]::round($_.FreeSpace / 1024 / 1024 / 1024, 2)
-                        VolPercUsed   = try{ [math]::round(($_.Size - $_.FreeSpace) / $_.Size * 100, 2) } catch { 0 }
+                        Host                = $env:COMPUTERNAME
+                        DateScanned         = $DateScanned
+                        DiskID              = $Disk.DeviceID
+                        DiskSize            = [math]::round($Disk.Size / 1024 / 1024 / 1024, 2)
+                        DiskModel           = $Disk.Model
+                        DiskSerial          = $Drive.VolumeSerialNumber
+                        Partition           = $Partition.Name
+                        PartitionSize       = [math]::round($Partition.Size / 1024 / 1024 / 1024, 2)
+                        VolumeDeviceID      = $Drive.DeviceID
+                        VolumeName          = $Drive.VolumeName
+                        VolumeSizeGB        = [math]::round($Drive.Size / 1024 / 1024 / 1024, 2)
+                        VolumeFreeGB        = [math]::round($Drive.FreeSpace / 1024 / 1024 / 1024, 2)
+                        VolumePercentUsed   = try{ [math]::round(($Drive.Size - $Drive.FreeSpace) / $Drive.Size * 100, 2) } catch { 0 }
                     }
                 }
             }
         }
-        
-        return $ResultsArray | Select-Object Host, DateScanned, DiskID, DiskSize, DiskModel, DiskSerial, Partition, PartitionSize, VolDeviceID, VolumeName, VolumeSize, VolumeFree, VolPercUsed
+        return $ResultsArray | Select-Object Host, DateScanned, DiskID, DiskSize, DiskModel, DiskSerial, Partition, PartitionSize, VolumeDeviceID, VolumeName, VolumeSizeGB, VolumeFreeGB, VolumePercentUsed
     }
     end{
 
