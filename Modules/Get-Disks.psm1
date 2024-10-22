@@ -28,7 +28,7 @@
         }
 
     .NOTES 
-        Updated: 2024-06-03
+        Updated: 2024-10-22
 
         Contributing Authors:
             Anthony Phipps
@@ -62,10 +62,18 @@
 
         $stopwatch = New-Object System.Diagnostics.Stopwatch
         $stopwatch.Start()
+
+        Enum DriveType {
+            NoRootDirectory = 1
+            Removeable = 2
+            Local = 3
+            Network = 4
+            CD = 5       
+            RAM = 6
+        }
     }
 
     process{
-
         $Disks = Get-CIMInstance -Class Win32_DiskDrive
         $ResultsArray = ForEach ($Disk in $Disks) {
             $PartitionsQuery =  "ASSOCIATORS OF " +
@@ -82,11 +90,12 @@
                         Host                = $env:COMPUTERNAME
                         DateScanned         = $DateScanned
                         DiskID              = $Disk.DeviceID
-                        DiskSize            = [math]::round($Disk.Size / 1024 / 1024 / 1024, 2)
+                        DiskSizeGB          = [math]::round($Disk.Size / 1024 / 1024 / 1024, 2)
                         DiskModel           = $Disk.Model
                         DiskSerial          = $Drive.VolumeSerialNumber
+                        DriveType           = ([DriveType]$Drive.DriveType).ToString()
                         Partition           = $Partition.Name
-                        PartitionSize       = [math]::round($Partition.Size / 1024 / 1024 / 1024, 2)
+                        PartitionSizeGB     = [math]::round($Partition.Size / 1024 / 1024 / 1024, 2)
                         VolumeDeviceID      = $Drive.DeviceID
                         VolumeName          = $Drive.VolumeName
                         VolumeSizeGB        = [math]::round($Drive.Size / 1024 / 1024 / 1024, 2)
@@ -96,8 +105,27 @@
                 }
             }
         }
-        return $ResultsArray | Select-Object Host, DateScanned, DiskID, DiskSize, DiskModel, DiskSerial, Partition, PartitionSize, VolumeDeviceID, VolumeName, VolumeSizeGB, VolumeFreeGB, VolumePercentUsed
+        
+        $CdDrives = Get-CIMInstance -Class Win32_CDROMDrive
+        $ResultsArray += ForEach ($CdDrive in $CdDrives) {
+            New-Object -Type PSCustomObject -Property @{
+                Host                = $env:COMPUTERNAME
+                DateScanned         = $DateScanned
+                DiskID              = $CdDrive.DeviceID
+                DiskSizeGB            = [math]::round($CdDrive.Size / 1024 / 1024 / 1024, 2)
+                DiskModel           = $CdDrive.Name
+                DiskSerial          = $CdDrive.VolumeSerialNumber
+                DriveType           = ([DriveType]5).ToString() # Only querying CD-Drives here, will always be a CD drive (Property DriveType=5 if queried via Win32_LogicalDisk)
+                PartitionSizeGB     = [math]::round($CdDrive.Size / 1024 / 1024 / 1024, 2)
+                VolumeDeviceID      = $CdDrive.Id # Drive Letter for CD-Drives
+                VolumeName          = $CdDrive.VolumeName # Name of media loaded, if any
+                VolumeSizeGB        = [math]::round($CdDrive.Size / 1024 / 1024 / 1024, 2)
+                VolumePercentUsed   = 0 # Not a useful metric for a CD drive, but setting this value at 100% would make searches for nearly fully drives require additional filters.
+            }
+        }
+        return $ResultsArray | Select-Object Host, DateScanned, DiskID, DiskSizeGB, DiskModel, DiskSerial, DriveType, Partition, PartitionSizeGB, VolumeDeviceID, VolumeName, VolumeSizeGB, VolumeFreeGB, VolumePercentUsed
     }
+
     end{
 
         $elapsed = $stopwatch.Elapsed
