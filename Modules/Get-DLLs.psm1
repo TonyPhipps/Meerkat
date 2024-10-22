@@ -28,7 +28,7 @@
         }
 
     .NOTES 1
-        Updated: 2024-10-02
+        Updated: 2024-10-22
 
         Contributing Authors:
             Anthony Phipps
@@ -71,22 +71,35 @@
         $Processes = Get-Process | Select-Object Id, Path, Modules
 
         $ResultsArray = foreach ($Process in $Processes) {
-            foreach ($Module in $Process.Modules){
+           foreach ($Module in $Process.Modules){
+
+               $FileVersionInfo = @{}
+           
+               $Module.FileVersionInfo -split "`n" | ForEach-Object {
+                    if ($_ -match '^(.+?):\s+(.+)$') {
+                        $key = $matches[1]
+                        $value = $matches[2]
+                        $FileVersionInfo.Add($key, $value)
+                    }
+                }
+
+                foreach ($Property in $FileVersionInfo.Keys) {
+                    $Module | Add-Member -MemberType NoteProperty -Name $Property -Value $FileVersionInfo[$Property] -ErrorAction SilentlyContinue
+                }
+
                 $Module | Add-Member -MemberType NoteProperty -Name "ProcessID" -Value $Process.Id -Force
                 $Module | Add-Member -MemberType NoteProperty -Name "ProcessName" -Value $Process.Path -Force
-                $Module | Select-Object FileName, ProcessName, ProcessID
+                $Module
             }
         }
 
         foreach ($Result in $ResultsArray){
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
-            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
-            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
+            $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned
         }
 
-        return $ResultsArray | Select-Object Host, DateScanned, FileName, ProcessName, ProcessID
+        return $ResultsArray | Select-Object Host, DateScanned, ProcessName, ProcessID, FileName, InternalName, OriginalFilename, FileVersion, FileDescription, Product, ProductVersion, Debug, Patched, PreRelease, PrivateBuild, SpecialBuild, Language
     }
-
     end{
         
         $elapsed = $stopwatch.Elapsed
