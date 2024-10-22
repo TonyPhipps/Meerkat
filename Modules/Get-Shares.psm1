@@ -28,7 +28,7 @@ function Get-Shares {
         }
 
     .NOTES 
-        Updated: 2024-10-04
+        Updated: 2024-10-22
 
         Contributing Authors:
             Anthony Phipps
@@ -90,40 +90,41 @@ function Get-Shares {
     process{
 
         $Shares = Get-SmbShare
-        $ResultsArray = foreach ($Share in $Shares) {
+        $ResultsArray = ForEach ($Share in $Shares) {
 
             $ShareAccessArray = Get-SmbShareAccess -InputObject $Share
-            
-            $SharePermissions = ""
-            
-            foreach ($ShareAccess in $ShareAccessArray) {
-            
-            $SharePermissions += "{0}, {1}, {2}`n" -f $ShareAccess.AccessControlType, $ShareAccess.AccessRight, $ShareAccess.AccountName
+
+            $SharePermissions = "Control, Account, Rights`n"
+            ForEach ($ShareAccess in $ShareAccessArray) {
+
+                $SharePermissions += "{0}, {1}, {2}`n" -f $ShareAccess.AccessControlType, $ShareAccess.AccountName, $ShareAccess.AccessRight
             }
 
-            
-            try{ $NTFSAccessArray = Get-Acl -Path $Share.Path } catch{}
-            
-            $NTFSPermissions = "Control, Rights, Account, Propagation, Inheritance`n"
-            
-            foreach ($NTFSAccess in $NTFSAccessArray.Access) {
+            if (-not ([String]::IsNullOrEmpty($Share.Path)) ){ # The IPC share has no path and no NTFS permissions
+                try{ $NTFSAccessArray = Get-Acl -Path $Share.Path } catch{}
+                $NTFSPermissions = "Control, Account, Rights, Inheritance, Propagation`n"
+            } else {
+                $NTFSPermissions = ''
+                $NTFSAccessArray = @()
+            }
 
-                if ($NTFSAccess.FileSystemRights.value__ -in "-1610612736", "-536805376", "268435456"){
+            ForEach ($NTFSAccess in $NTFSAccessArray.Access) {
+                # NTFS Permissions include an enum with most standard permissions, but some will just come out as a number. These need to be broken apart into a set of permissions based on bit masks.
+                $NTFSAccessValue = $NTFSAccess.FileSystemRights.value__ | Select-Object -First 1
+                $IsNonStandardFileSystemRightsValue = $null -eq ($NTFSAccessValue -as [System.Security.AccessControl.FileSystemRights])
+                if ($IsNonStandardFileSystemRightsValue){
                     $NTFSAccessFileSystemRights = $accessMask.Keys |
-                    Where-Object { $NTFSAccess.FileSystemRights.value__ -band $_ } |
-                    ForEach-Object { $accessMask[$_] }
+                        Where-Object { $NTFSAccess.FileSystemRights.value__ -band $_ } |
+                        ForEach-Object { $accessMask[$_] }
                     $NTFSAccessFileSystemRights = $NTFSAccessFileSystemRights -join " - "
                 }
-                else
-                {
-                    $NTFSAccessFileSystemRights = $NTFSAccess.FileSystemRights
+                else {
+                    $NTFSAccessFileSystemRights = $NTFSAccess.FileSystemRights -replace ", ", " - "
                 }
 
                 $PropagationFlags = $NTFSAccess.PropagationFlags -replace ", ", " - "
                 $InheritanceFlags = $NTFSAccess.InheritanceFlags -replace ", ", " - "
-
-                $NTFSPermissions += "{0}, {1}, {2}, {3}, {4}`n" -f $NTFSAccess.AccessControlType, $NTFSAccessFileSystemRights, $NTFSAccess.IdentityReference.Value, $PropagationFlags, $InheritanceFlags
-
+                $NTFSPermissions += "{0}, {1}, {2}, {3}, {4}`n" -f $NTFSAccess.AccessControlType, $NTFSAccess.IdentityReference.Value, $NTFSAccessFileSystemRights, $InheritanceFlags, $PropagationFlags
             }
 
             $output = New-Object -TypeName PSObject
@@ -137,11 +138,10 @@ function Get-Shares {
             $output
         }
         
-        foreach ($Result in $ResultsArray) {
+        ForEach ($Result in $ResultsArray) {
 
             $Result | Add-Member -MemberType NoteProperty -Name "Host" -Value $env:COMPUTERNAME
             $Result | Add-Member -MemberType NoteProperty -Name "DateScanned" -Value $DateScanned 
-            $Result | Add-Member -MemberType NoteProperty -Name "ModuleVersion" -Value $ModuleVersion
         }
 
         return $ResultsArray | Select-Object Host, DateScanned, Name, Path, Description, SharePermissions, NTFSPermissions
