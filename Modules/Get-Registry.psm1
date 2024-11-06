@@ -28,7 +28,7 @@ function Get-Registry {
         }
 
     .NOTES 
-        Updated: 2024-06-03
+        Updated: 2024-11-06
 
         Contributing Authors:
             Anthony Phipps
@@ -164,7 +164,7 @@ function Get-Registry {
 
         $UserDataArray = foreach ($User in $UserArray) {
             
-            If ($User.SID -in $UnloadedHives.SID) {
+            If ($User.SID -in $UnloadedHives.SID -and (Test-Path $User.UserHive)) {
 
                 reg load HKU\$($User.SID) $($User.UserHive) | Out-Null
             }
