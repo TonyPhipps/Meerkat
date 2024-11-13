@@ -34,7 +34,7 @@ function Get-EventCounts {
         }
 
     .NOTES
-        Updated: 2024-06-03
+        Updated: 2024-11-13
 
         Contributing Authors:
             Anthony Phipps
@@ -86,7 +86,10 @@ function Get-EventCounts {
 
     process{
 
-        $Logs = Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | Where-Object { ($_.RecordCount -gt 0) } 
+        # Skip logs that have been observed taking an unacceptable amount of time, which you may also be getting logs for anyway and can do counts in a SIEM.
+        $Skip = "Security", "Microsoft-Windows-Sysmon/Operational", "Microsoft-Windows-PowerShell/Operational", "Windows PowerShell", "Microsoft-Windows-TaskScheduler/Operational"
+
+        $Logs = Get-WinEvent -ListLog * -ErrorAction SilentlyContinue | Where-Object { ($_.RecordCount -gt 0 -and $_.LogName -notin $Skip) }
 
         $EventsArray = Foreach ($Log in $Logs){
 
