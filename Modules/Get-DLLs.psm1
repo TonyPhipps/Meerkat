@@ -28,7 +28,7 @@
         }
 
     .NOTES 1
-        Updated: 2024-10-22
+        Updated: 2024-11-15
 
         Contributing Authors:
             Anthony Phipps
@@ -78,7 +78,7 @@
                $Module.FileVersionInfo -split "`n" | ForEach-Object {
                     if ($_ -match '^(.+?):\s+(.+)$') {
                         $key = $matches[1]
-                        $value = $matches[2]
+                        $value = $matches[2].Trim()
                         $FileVersionInfo.Add($key, $value)
                     }
                 }
