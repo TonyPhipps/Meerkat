@@ -28,7 +28,7 @@
         }
 
     .NOTES 
-        Updated: 2024-10-22
+        Updated: 2024-11-15
 
         Contributing Authors:
             Anthony Phipps
@@ -74,8 +74,9 @@
     }
 
     process{
+        $ResultsArray = @()
         $Disks = Get-CIMInstance -Class Win32_DiskDrive
-        $ResultsArray = ForEach ($Disk in $Disks) {
+        $ResultsArray += ForEach ($Disk in $Disks) {
             $PartitionsQuery =  "ASSOCIATORS OF " +
                                 "{Win32_DiskDrive.DeviceID='$($Disk.DeviceID)'} " +
                                 "WHERE AssocClass = Win32_DiskDriveToDiskPartition"
